@@ -2,30 +2,15 @@
 
 ## 1. Finalidade
 
-Esta EAP organiza a entrega completa do **HECATE — Plataforma Institucional de Governança e Controle de Impressão** em pacotes de trabalho orientados a produto, implantação e operação.
+Esta EAP organiza a entrega completa do **HECATE — Plataforma Institucional de Governança e Controle de Impressão** em pacotes de trabalho orientados a produto, implantação, qualidade, homologação e operação.
 
-A estrutura é prática e serve como referência para desenvolvimento, homologação, implantação piloto, replicação em outras OM e sustentação. Não substitui cronograma, plano de projeto ou procedimento técnico detalhado.
+Ela serve como referência prática para desenvolvimento, homologação, piloto, replicação em outras OM e sustentação. Não substitui cronograma, plano formal de projeto ou procedimento técnico detalhado.
 
 ---
 
 ## 2. Objetivo da entrega
 
-Entregar uma solução institucional capaz de:
-
-- centralizar o fluxo de impressão;
-- autenticar usuários do domínio;
-- relacionar identidade, lotação e divisão;
-- controlar acesso a filas e impressoras;
-- aplicar cotas separadas para P&B e colorida;
-- controlar contratos por consumo ou franquia;
-- permitir transferência de cotas entre divisões;
-- exigir liberação deliberada de jobs por usuário;
-- manter auditoria e rastreabilidade;
-- monitorar componentes da solução e impressoras;
-- detectar suprimentos e contadores quando disponíveis;
-- restringir bypass do fluxo controlado;
-- permitir implantação e administração local pela OM;
-- permitir replicação padronizada em outras OM.
+Entregar uma solução institucional capaz de centralizar o fluxo de impressão, autenticar usuários do domínio, relacionar identidade e lotação, controlar acesso a filas e impressoras, aplicar cotas separadas P&B/colorida, controlar contratos, exigir liberação deliberada de jobs, manter auditoria, monitorar o stack e as impressoras, reduzir bypass do fluxo controlado e permitir implantação padronizada em diferentes OM.
 
 ---
 
@@ -37,40 +22,28 @@ Entregar uma solução institucional capaz de:
 
 - [ ] Consolidar arquitetura lógica e física.
 - [ ] Consolidar responsabilidades de HECATE, SavaPage, CUPS, Keycloak, PostgreSQL, Samba AD, Catálogo MB, Podman, Nexus e `hecate-agent`.
-- [ ] Definir fluxo completo de impressão.
-- [ ] Definir fluxo completo de autenticação e autorização.
-- [ ] Definir fluxo completo de liberação segura.
-- [ ] Definir integração entre componentes sem acesso direto a bancos internos de terceiros.
-- [ ] Definir política de retenção de dados e documentos.
+- [ ] Definir fluxo de impressão, autenticação, autorização e liberação.
+- [ ] Definir política de retenção de conteúdo e metadados.
 - [ ] Definir padrão de implantação por OM.
-- [ ] Definir matriz de compatibilidade de Oracle Linux homologada.
-- [ ] Registrar decisões técnicas relevantes em `docs/DECISOES.md`.
+- [ ] Definir matriz de compatibilidade Oracle Linux/PHP/Yii2/PostgreSQL/SavaPage/Keycloak.
+- [ ] Manter decisões relevantes em `docs/DECISOES.md`.
 
-**Critério de conclusão:** arquitetura documentada, coerente com o produto e sem dependência de mecanismos não homologados.
+**Critério de conclusão:** arquitetura documentada, coerente e sem dependência de mecanismos não homologados.
 
 ---
 
 ### 3.1.2. Identidade visual e experiência do usuário
 
-- [ ] Consolidar nome institucional: **HECATE**.
-- [ ] Consolidar descrição oficial do produto.
-- [ ] Aplicar logo horizontal.
-- [ ] Aplicar logo vertical.
-- [ ] Aplicar símbolo isolado.
-- [ ] Aplicar favicons.
-- [ ] Aplicar background de login com área de respiro para formulário real.
-- [ ] Aplicar background discreto de dashboard.
-- [ ] Consolidar paleta azul-marinho, dourado, branco e neutros.
-- [ ] Padronizar tipografia, espaçamento, cards, tabelas, alertas e estados.
-- [ ] Implementar sidebar retrátil.
-- [ ] Implementar topbar.
-- [ ] Implementar navbar/breadcrumb contextual.
-- [ ] Implementar footerbar.
-- [ ] Garantir responsividade mínima para desktop e tablet.
-- [ ] Garantir contraste e legibilidade.
-- [ ] Evitar mockups ou elementos gráficos que interfiram nos campos reais da aplicação.
+- [ ] Aplicar identidade HECATE sem nomenclaturas legadas.
+- [ ] Aplicar logo horizontal, vertical, símbolo e favicons.
+- [ ] Aplicar background de login com área livre para o formulário HTML real.
+- [ ] Aplicar background discreto do dashboard.
+- [ ] Padronizar paleta, tipografia, cards, tabelas, alertas e estados.
+- [ ] Implementar sidebar retrátil, topbar, breadcrumb/navbar contextual e footerbar.
+- [ ] Garantir responsividade mínima em desktop e tablet.
+- [ ] Garantir contraste, legibilidade e navegação consistente.
 
-**Critério de conclusão:** identidade visual aplicada de forma consistente em login, dashboard, navegação e documentação.
+**Critério de conclusão:** identidade e navegação consistentes em login, dashboard e módulos administrativos.
 
 ---
 
@@ -79,736 +52,503 @@ Entregar uma solução institucional capaz de:
 - [ ] Manter estrutura compatível com `yii2-app-basic`.
 - [ ] Utilizar Bootstrap 5.
 - [ ] Configurar aplicação por variáveis de ambiente.
-- [ ] Configurar logs da aplicação.
-- [ ] Configurar tratamento de exceções.
-- [ ] Configurar autenticação via Keycloak/OIDC.
+- [ ] Configurar logs, tratamento de exceções e páginas de erro.
+- [ ] Implementar autenticação via Keycloak/OIDC.
 - [ ] Implementar controle de acesso por perfil.
-- [ ] Implementar layout administrativo padrão.
 - [ ] Implementar dashboard principal.
-- [ ] Implementar mensagens, alertas e feedback de operação.
-- [ ] Implementar paginação, filtros e pesquisa nos cadastros.
-- [ ] Implementar validação de formulários.
-- [ ] Implementar trilha de auditoria para ações administrativas.
+- [ ] Implementar paginação, filtros, pesquisa e validação de formulários.
+- [ ] Implementar trilha de auditoria administrativa.
 
-**Critério de conclusão:** aplicação web executável, autenticada e pronta para suportar todos os módulos funcionais.
+**Critério de conclusão:** aplicação web executável, autenticada e pronta para suportar os módulos funcionais.
 
 ---
 
-### 3.1.4. Banco de dados HECATE
+### 3.1.4. Qualidade, compliance e padrões de código
 
-- [ ] Definir modelo de dados institucional.
+- [ ] Adotar **PSR-1** como padrão básico obrigatório.
+- [ ] Adotar **PSR-4** para autoloading e namespaces.
+- [ ] Adotar **PSR-12** como padrão obrigatório de estilo.
+- [ ] Acompanhar o **PER Coding Style** da PHP-FIG e incorporar regras compatíveis com a versão PHP homologada.
+- [ ] Avaliar PSR-3, PSR-11, PSR-6/16 e PSR-18 apenas onde houver benefício real de interoperabilidade.
+- [ ] Não impor PSR-7/PSR-15 ao núcleo Yii2 apenas por conformidade formal.
+- [ ] Configurar lint de sintaxe PHP (`php -l`).
+- [ ] Configurar PHP_CodeSniffer/PHPCS com ruleset PSR-12.
+- [ ] Configurar PHPCBF para correções automáticas seguras.
+- [ ] Configurar PHPStan com extensão compatível com Yii2.
+- [ ] Adotar PHPStan nível 8 como gate inicial mínimo.
+- [ ] Planejar elevação progressiva para nível 9 e 10/`max`.
+- [ ] Proibir redução de nível PHPStan para contornar falhas.
+- [ ] Controlar baseline PHPStan e impedir crescimento sem justificativa.
+- [ ] Configurar `composer validate`.
+- [ ] Configurar `composer audit`.
+- [ ] Versionar `composer.lock`.
+- [ ] Integrar SonarQube institucional quando disponível.
+- [ ] Configurar Quality Gate bloqueante para `main`/release.
+- [ ] Avaliar reliability, security, security hotspots, maintainability, duplicação, complexidade e cobertura.
+- [ ] Impedir merge com vulnerabilidades/bugs novos críticos ou altos sem aceite formal.
+- [ ] Documentar critérios em `docs/QUALIDADE-CODIGO.md`.
+
+**Critério de conclusão:** toda alteração passa por lint, style check, análise estática, testes, auditoria de dependências e Quality Gate aplicável antes de merge/release.
+
+---
+
+### 3.1.5. Banco de dados HECATE
+
+- [ ] Definir modelo institucional de dados.
 - [ ] Criar migrations versionadas.
-- [ ] Criar estrutura de OM.
-- [ ] Criar estrutura de divisões/setores.
-- [ ] Criar vínculos de usuários com estrutura organizacional.
-- [ ] Criar cadastro de impressoras.
-- [ ] Criar cadastro de filas.
-- [ ] Criar políticas de acesso.
-- [ ] Criar cotas P&B.
-- [ ] Criar cotas coloridas.
-- [ ] Criar reservas de cota.
-- [ ] Criar movimentações/transferências.
-- [ ] Criar contratos.
-- [ ] Criar autorizações excepcionais.
-- [ ] Criar registros de jobs e metadados.
-- [ ] Criar estrutura de auditoria.
-- [ ] Criar estrutura de monitoramento.
-- [ ] Criar histórico de suprimentos.
-- [ ] Criar estrutura de integrações e sincronizações.
-- [ ] Definir índices, integridade referencial e constraints.
-- [ ] Definir rotinas de backup e restore.
+- [ ] Modelar OM, divisões, usuários, impressoras, filas e políticas.
+- [ ] Modelar cotas P&B/colorida, reservas e transferências.
+- [ ] Modelar contratos e autorizações excepcionais.
+- [ ] Modelar jobs e metadados sem armazenar conteúdo do documento.
+- [ ] Modelar auditoria, monitoramento, suprimentos e sincronizações.
+- [ ] Definir índices, constraints e integridade referencial.
+- [ ] Definir backup, restore e validação de restauração.
 
-**Critério de conclusão:** banco íntegro, migrável, auditável e suficiente para todos os módulos funcionais do HECATE.
+**Critério de conclusão:** banco íntegro, migrável, auditável e restaurável.
 
 ---
 
-### 3.1.5. Integração com Samba AD / LDAP
+### 3.1.6. Samba AD / LDAP
 
 - [ ] Configurar LDAPS.
-- [ ] Utilizar conta de serviço somente leitura.
-- [ ] Validar certificado da cadeia LDAP.
-- [ ] Consultar usuários.
-- [ ] Consultar grupos.
-- [ ] Consultar associação usuário/grupo quando necessária.
-- [ ] Não criar, alterar ou excluir objetos no domínio.
-- [ ] Não alterar OU, GPO, DNS ou senha de usuários.
-- [ ] Implementar teste de conectividade no HECATE.
-- [ ] Implementar diagnóstico de falhas LDAP.
-- [ ] Implementar sincronização controlada de dados mínimos necessários.
+- [ ] Utilizar contas técnicas somente leitura.
+- [ ] Validar cadeia de certificados.
+- [ ] Consultar usuários, grupos e memberships necessários.
+- [ ] Não criar, alterar ou excluir objetos do domínio.
+- [ ] Não alterar OU, GPO, DNS ou senhas.
+- [ ] Implementar teste de conectividade e diagnóstico.
 
-**Critério de conclusão:** usuários do domínio podem ser autenticados/consultados sem qualquer modificação no Samba AD da OM.
+**Critério de conclusão:** identidade institucional consumida sem modificação do Samba AD da OM.
 
 ---
 
-### 3.1.6. Integração com Catálogo MB
+### 3.1.7. Catálogo MB
 
 - [ ] Documentar endpoints utilizados.
-- [ ] Integrar com API REST/Swagger.
-- [ ] Consultar nome.
-- [ ] Consultar posto/graduação.
-- [ ] Consultar função.
-- [ ] Consultar telefone quando necessário.
-- [ ] Consultar departamento/divisão.
-- [ ] Associar usuário à organização do HECATE.
-- [ ] Implementar cache controlado.
-- [ ] Registrar data/hora da última sincronização.
-- [ ] Detectar dados ausentes.
-- [ ] Detectar divergências.
-- [ ] Permitir override local controlado.
-- [ ] Exigir justificativa, responsável e validade para override.
-- [ ] Auditar alterações locais.
+- [ ] Integrar API REST/Swagger.
+- [ ] Consultar nome, posto/graduação, função, telefone e divisão quando disponíveis.
+- [ ] Associar usuário à estrutura organizacional do HECATE.
+- [ ] Implementar cache e timestamp de sincronização.
+- [ ] Detectar dados ausentes ou divergentes.
+- [ ] Permitir override local controlado, com justificativa, responsável, validade e auditoria.
 
-**Critério de conclusão:** o HECATE consegue determinar a lotação funcional do usuário sem depender exclusivamente de estrutura de OU/grupo do AD.
+**Critério de conclusão:** lotação funcional determinada de forma auditável sem depender exclusivamente de OU/grupos do AD.
 
 ---
 
-### 3.1.7. Keycloak e autenticação
+### 3.1.8. Keycloak e autenticação
 
-- [ ] Implantar Keycloak no Podman.
+- [ ] Implantar Keycloak em Podman.
 - [ ] Configurar database próprio.
-- [ ] Federar com Samba AD/LDAP em modo leitura.
-- [ ] Configurar realm do HECATE.
-- [ ] Configurar client OIDC do portal.
-- [ ] Configurar roles do HECATE.
-- [ ] Implementar login único.
-- [ ] Implementar logout.
-- [ ] Implementar expiração e renovação de sessão.
+- [ ] Federar com LDAP/AD em leitura.
+- [ ] Configurar realm, client OIDC e roles do HECATE.
+- [ ] Implementar login, logout e expiração/renovação de sessão.
 - [ ] Preparar suporte futuro a MFA.
-- [ ] Restringir administração do Keycloak.
-- [ ] Monitorar disponibilidade do Keycloak no dashboard técnico.
+- [ ] Restringir administração e monitorar disponibilidade.
 
-**Critério de conclusão:** autenticação do portal realizada por OIDC sem que a aplicação PHP manipule diretamente a senha do domínio.
+**Critério de conclusão:** portal autenticado por OIDC sem que o PHP manipule senha do domínio.
 
 ---
 
-### 3.1.8. SavaPage
+### 3.1.9. SavaPage
 
 - [ ] Instalar e configurar SavaPage.
-- [ ] Configurar PostgreSQL dedicado ao SavaPage.
-- [ ] Integrar com LDAP/AD em leitura.
+- [ ] Configurar database próprio no PostgreSQL.
+- [ ] Integrar LDAP/AD em leitura.
 - [ ] Configurar filas proxy/controladas.
-- [ ] Impedir exposição desnecessária das filas físicas do CUPS.
-- [ ] Validar accounting de usuário.
-- [ ] Validar captura de nome do documento.
-- [ ] Validar data/hora.
-- [ ] Validar IP/host de origem quando disponível.
-- [ ] Validar quantidade de páginas.
-- [ ] Validar distinção P&B/colorida.
-- [ ] Configurar retenção temporária de jobs.
-- [ ] Definir expiração de jobs retidos.
+- [ ] Validar accounting por usuário.
+- [ ] Validar metadados: documento, data/hora, origem, páginas e P&B/colorida.
+- [ ] Configurar retenção temporária e expiração de jobs.
 - [ ] Validar mecanismo oficial de liberação de job existente.
-- [ ] Validar ACL por grupo/divisão.
-- [ ] Validar exceções temporárias sem alteração do AD.
+- [ ] Validar ACL por grupo/divisão e exceções temporárias.
 - [ ] Encapsular integração em adapter do HECATE.
-- [ ] Nunca alterar diretamente banco ou spool interno do SavaPage.
+- [ ] Nunca escrever diretamente no banco ou spool interno do SavaPage.
 
-**Critério de conclusão:** SavaPage opera como motor de impressão, retenção, accounting e enforcement sob políticas definidas pelo HECATE.
+**Critério de conclusão:** SavaPage opera como motor de retenção, accounting e enforcement sob políticas do HECATE.
 
 ---
 
-### 3.1.9. CUPS
+### 3.1.10. CUPS
 
 - [ ] Instalar CUPS nativamente no host.
-- [ ] Configurar filas físicas.
-- [ ] Configurar drivers/PPDs quando necessários.
+- [ ] Configurar filas físicas e drivers/PPDs quando necessários.
 - [ ] Priorizar IPP Everywhere quando suportado.
-- [ ] Integrar fluxo SavaPage -> CUPS.
-- [ ] Restringir publicação direta das filas físicas aos usuários.
-- [ ] Validar impressão P&B.
-- [ ] Validar impressão colorida.
-- [ ] Validar duplex.
-- [ ] Validar formatos de papel relevantes.
-- [ ] Implementar diagnóstico de fila.
-- [ ] Implementar restart controlado via `hecate-agent`.
+- [ ] Integrar fluxo SavaPage → CUPS.
+- [ ] Evitar exposição direta das filas físicas aos usuários.
+- [ ] Validar P&B, colorida, duplex e formatos relevantes.
+- [ ] Implementar diagnóstico e restart controlado via `hecate-agent`.
 
-**Critério de conclusão:** CUPS funciona apenas como spool/transportador interno do fluxo controlado.
+**Critério de conclusão:** CUPS funciona como spool/transportador interno do fluxo controlado.
 
 ---
 
-### 3.1.10. HECATE Agent
+### 3.1.11. HECATE Agent
 
 - [ ] Implementar serviço nativo systemd.
-- [ ] Definir protocolo de comunicação HECATE Web -> Agent.
-- [ ] Preferir Unix socket local.
-- [ ] Não expor execução arbitrária de comandos.
-- [ ] Implementar lista fechada de operações permitidas.
-- [ ] Consultar status de serviços.
-- [ ] Iniciar/parar/reiniciar serviços autorizados.
+- [ ] Preferir comunicação local por Unix socket.
+- [ ] Não expor shell ou comando arbitrário.
+- [ ] Implementar lista fechada de operações privilegiadas.
+- [ ] Consultar/iniciar/parar/reiniciar serviços autorizados.
 - [ ] Consultar logs autorizados.
-- [ ] Testar LDAP.
-- [ ] Testar Catálogo MB.
-- [ ] Testar PostgreSQL.
-- [ ] Testar SavaPage.
-- [ ] Testar CUPS.
-- [ ] Testar Keycloak.
-- [ ] Testar Podman.
-- [ ] Testar impressora.
-- [ ] Executar descoberta de impressora.
+- [ ] Testar LDAP, Catálogo MB, PostgreSQL, SavaPage, CUPS, Keycloak e Podman.
+- [ ] Testar e descobrir impressoras.
 - [ ] Coletar telemetria SNMP/IPP/EWS.
-- [ ] Auditar todas as ações privilegiadas.
-- [ ] Exigir identidade e justificativa para operações sensíveis.
+- [ ] Auditar identidade, ação, horário e justificativa de operações sensíveis.
 
-**Critério de conclusão:** aplicação web administra e diagnostica o host sem conceder shell ou sudo genérico ao PHP.
-
----
-
-### 3.1.11. Cadastro e descoberta de impressoras
-
-- [ ] Cadastro mínimo por nome lógico.
-- [ ] Cadastro por IP/FQDN.
-- [ ] Cadastro de localização física.
-- [ ] Botão `Detectar`.
-- [ ] Teste de conectividade.
-- [ ] Detecção IPP/IPPS.
-- [ ] Detecção SNMPv3.
-- [ ] Fallback SNMPv2c somente leitura quando autorizado.
-- [ ] Detecção de portas/protocolos 631/9100/515 quando pertinente.
-- [ ] Detecção de fabricante.
-- [ ] Detecção de modelo.
-- [ ] Detecção de número de série.
-- [ ] Detecção de capacidade colorida/P&B.
-- [ ] Detecção de duplex.
-- [ ] Detecção de formatos de papel.
-- [ ] Detecção de contadores.
-- [ ] Detecção de suprimentos.
-- [ ] Detecção EWS/API HTTP/HTTPS.
-- [ ] Implementar parsers específicos por fabricante somente quando necessário.
-- [ ] Permitir correção manual pelo administrador.
-- [ ] Registrar origem de cada atributo detectado.
-- [ ] Permitir redetecção posterior.
-
-**Critério de conclusão:** administrador consegue cadastrar impressora informando apenas dados mínimos e obter automaticamente o máximo de informações disponíveis.
+**Critério de conclusão:** administração operacional sem conceder `sudo` ou shell genérico ao PHP.
 
 ---
 
-### 3.1.12. Organização e usuários
+### 3.1.12. Cadastro, descoberta e telemetria de impressoras
 
-- [ ] Cadastro da OM.
-- [ ] Cadastro de divisões/setores.
-- [ ] Associação de usuários à divisão.
-- [ ] Sincronização com Catálogo MB.
-- [ ] Pesquisa de usuários.
-- [ ] Exibição de fonte do vínculo organizacional.
-- [ ] Exibição de divergências.
-- [ ] Override local controlado.
-- [ ] Histórico de mudanças de lotação.
+- [ ] Cadastro mínimo por nome lógico, IP/FQDN e localização.
+- [ ] Implementar ação `Detectar`.
+- [ ] Detectar conectividade, IPP/IPPS e protocolos aplicáveis.
+- [ ] Priorizar SNMPv3; permitir SNMPv2c read-only apenas quando autorizado.
+- [ ] Detectar fabricante, modelo, serial, cor/P&B, duplex e formatos.
+- [ ] Detectar contadores e suprimentos.
+- [ ] Tentar EWS/API HTTP/HTTPS quando necessário.
+- [ ] Implementar adapters/parsers específicos somente quando necessários.
+- [ ] Registrar origem e timestamp de cada atributo detectado.
+- [ ] Permitir correção manual e redetecção.
+
+**Critério de conclusão:** cadastro simples com enriquecimento automático multi-vendor.
+
+---
+
+### 3.1.13. Organização e usuários
+
+- [ ] Cadastrar OM e divisões/setores.
+- [ ] Associar usuários à divisão.
+- [ ] Sincronizar com Catálogo MB.
+- [ ] Exibir fonte e data do vínculo organizacional.
+- [ ] Exibir divergências e overrides.
+- [ ] Manter histórico de lotação.
 - [ ] Não utilizar IP como identidade ou lotação.
 
-**Critério de conclusão:** HECATE consegue responder de forma auditável quem é o usuário e a qual divisão/setor está associado.
+**Critério de conclusão:** HECATE responde de forma auditável quem é o usuário e onde está lotado.
 
 ---
 
-### 3.1.13. Políticas de acesso a impressoras
+### 3.1.14. Políticas de acesso a impressoras
 
-- [ ] Associar divisões a impressoras permitidas.
-- [ ] Associar divisões a filas permitidas.
-- [ ] Suportar regra por setor/andar/OM.
+- [ ] Associar divisões a impressoras/filas permitidas.
+- [ ] Suportar regra por setor, andar e OM.
 - [ ] Materializar política no SavaPage.
-- [ ] Implementar autorização excepcional.
-- [ ] Suportar exceção temporária.
-- [ ] Suportar exceção permanente quando autorizada.
-- [ ] Registrar solicitante.
-- [ ] Registrar aprovador.
-- [ ] Registrar justificativa.
-- [ ] Registrar validade.
-- [ ] Revogar automaticamente autorização temporária vencida.
+- [ ] Implementar autorização excepcional temporária ou permanente.
+- [ ] Registrar solicitante, aprovador, justificativa e validade.
+- [ ] Revogar automaticamente autorizações expiradas.
 - [ ] Auditar concessão e revogação.
 
-**Critério de conclusão:** um usuário somente consegue liberar impressão em equipamento autorizado pela política vigente.
+**Critério de conclusão:** usuário só consegue liberar impressão em equipamento autorizado pela política vigente.
 
 ---
 
-### 3.1.14. Cotas P&B e colorida
+### 3.1.15. Cotas P&B e colorida
 
-- [ ] Criar cotas independentes P&B e colorida.
-- [ ] Definir valor alocado.
-- [ ] Registrar consumido.
-- [ ] Registrar reservado.
-- [ ] Calcular disponível.
+- [ ] Manter saldos independentes para P&B e colorida.
+- [ ] Registrar alocado, reservado, consumido e disponível.
 - [ ] Implementar reserva transacional antes da liberação.
 - [ ] Converter reserva em consumo após sucesso.
-- [ ] Liberar reserva após cancelamento/falha/expiração.
-- [ ] Evitar dupla utilização concorrente de saldo.
-- [ ] Configurar comportamento ao atingir limite.
-- [ ] Suportar `BLOQUEAR`.
-- [ ] Suportar `AVISAR_E_PERMITIR`.
-- [ ] Suportar `EXIGIR_APROVACAO`.
-- [ ] Exibir consumo por período.
-- [ ] Exibir saldo por divisão.
+- [ ] Liberar reserva em cancelamento, falha ou expiração.
+- [ ] Evitar consumo concorrente do mesmo saldo.
+- [ ] Implementar políticas `BLOQUEAR`, `AVISAR_E_PERMITIR` e `EXIGIR_APROVACAO`.
+- [ ] Exibir saldo e consumo por período/divisão.
 
-**Critério de conclusão:** o HECATE controla de forma consistente e concorrente o saldo organizacional separado de P&B e colorida.
+**Critério de conclusão:** controle consistente, concorrente e separado entre P&B e colorida.
 
 ---
 
-### 3.1.15. Transferência de cotas
+### 3.1.16. Transferência de cotas
 
-- [ ] Solicitar transferência entre divisões.
-- [ ] Selecionar P&B ou colorida.
-- [ ] Informar quantidade.
-- [ ] Informar competência/período.
-- [ ] Informar justificativa.
-- [ ] Registrar solicitante.
-- [ ] Registrar aprovador.
-- [ ] Implementar aprovação/reprovação.
-- [ ] Registrar saldo antes/depois.
-- [ ] Atualizar cotas de forma transacional.
-- [ ] Impedir intercâmbio automático entre P&B e colorida.
-- [ ] Auditar integralmente a movimentação.
+- [ ] Permitir transferência entre divisões por competência.
+- [ ] Tratar P&B e colorida independentemente.
+- [ ] Registrar origem, destino, quantidade, solicitante, aprovador e justificativa.
+- [ ] Registrar saldos antes/depois.
+- [ ] Implementar aprovação e cancelamento/reversão auditável quando aplicável.
 
-**Critério de conclusão:** toda transferência possui trilha administrativa completa e consistência de saldo.
+**Critério de conclusão:** toda movimentação de cota é rastreável e consistente.
 
 ---
 
-### 3.1.16. Contratos de impressão
+### 3.1.17. Contratos
 
-- [ ] Cadastro de contrato.
-- [ ] Vigência.
-- [ ] Fornecedor quando aplicável.
-- [ ] Modalidade `POR_CONSUMO`.
-- [ ] Modalidade `FRANQUIA_MENSAL`.
-- [ ] Valor unitário P&B.
-- [ ] Valor unitário colorida.
-- [ ] Franquia P&B incluída.
-- [ ] Franquia colorida incluída.
-- [ ] Valor excedente P&B.
-- [ ] Valor excedente colorida.
-- [ ] Relacionar equipamentos ao contrato.
-- [ ] Calcular consumo acumulado.
-- [ ] Calcular excedente.
-- [ ] Distinguir franquia contratual da OM e alocação interna por divisão.
-- [ ] Emitir visão administrativa por competência.
+- [ ] Suportar contrato por consumo.
+- [ ] Suportar franquia mensal P&B e colorida.
+- [ ] Configurar preços unitários e excedentes.
+- [ ] Relacionar contrato à OM e, quando necessário, às impressoras.
+- [ ] Separar franquia contratual da OM e alocação interna por divisão.
+- [ ] Calcular consumo, franquia utilizada e excedentes.
+- [ ] Produzir visão administrativa por competência.
 
-**Critério de conclusão:** HECATE consegue representar e acompanhar os dois modelos contratuais definidos para o produto.
+**Critério de conclusão:** HECATE representa os modelos contratuais definidos e calcula consumo sem depender do saldo financeiro interno do SavaPage.
 
 ---
 
-### 3.1.17. Jobs e liberação segura
+### 3.1.18. Jobs e liberação segura
 
-- [ ] Receber metadados do job do SavaPage.
-- [ ] Identificar proprietário do job.
-- [ ] Exibir jobs pendentes ao usuário.
-- [ ] Exibir documento, páginas, P&B/colorida, horário e destino.
-- [ ] Implementar PIN pessoal HECATE.
-- [ ] Armazenar somente hash forte do PIN.
-- [ ] Implementar criação/reset de PIN.
-- [ ] Implementar bloqueio por tentativas inválidas.
-- [ ] Validar sessão autenticada.
-- [ ] Validar propriedade do job.
-- [ ] Validar divisão.
-- [ ] Validar impressora permitida.
-- [ ] Validar exceção quando existente.
-- [ ] Validar cota.
-- [ ] Reservar cota.
-- [ ] Solicitar liberação oficial ao SavaPage.
-- [ ] Confirmar resultado.
-- [ ] Atualizar accounting/cota.
-- [ ] Permitir cancelamento.
-- [ ] Tratar expiração.
-- [ ] Auditar liberação, bloqueio, cancelamento e falha.
+- [ ] Listar jobs do usuário autenticado.
+- [ ] Validar ownership do job.
+- [ ] Implementar PIN pessoal do HECATE com hash forte.
+- [ ] Implementar tentativas, bloqueio, reset e auditoria do PIN.
+- [ ] Validar divisão, política de impressora e saldo antes da liberação.
+- [ ] Reservar cota antes da liberação.
+- [ ] Acionar método oficial homologado do SavaPage.
+- [ ] Finalizar consumo ou liberar reserva conforme resultado.
+- [ ] Permitir cancelamento de job pelo proprietário conforme política.
+- [ ] Excluir conteúdo temporário após impressão, cancelamento ou expiração.
 
-**Critério de conclusão:** nenhum job controlado é enviado à impressora sem autorização deliberada do usuário e validação da política HECATE.
+**Critério de conclusão:** todo job exige autorização deliberada e passa pelas políticas do HECATE antes de chegar ao CUPS.
 
 ---
 
-### 3.1.18. Metadados, auditoria e privacidade
+### 3.1.19. Monitoramento, diagnóstico e suprimentos
 
-- [ ] Registrar usuário.
-- [ ] Registrar nome do documento/job.
-- [ ] Registrar data/hora.
-- [ ] Registrar IP/host de origem quando disponível.
-- [ ] Registrar tamanho do arquivo quando disponível.
-- [ ] Registrar número de páginas.
-- [ ] Registrar P&B/colorida.
-- [ ] Registrar impressora de destino.
-- [ ] Registrar status.
-- [ ] Registrar custo quando aplicável.
-- [ ] Enriquecer com OM/divisão/contrato/cota/autorização.
-- [ ] Não manter cópia permanente do documento.
-- [ ] Excluir conteúdo após impressão, cancelamento ou expiração.
-- [ ] Definir retenção dos metadados.
-- [ ] Restringir consulta de logs conforme perfil.
-- [ ] Registrar alterações administrativas.
+- [ ] Dashboard de saúde de HECATE, Agent, PostgreSQL, SavaPage, CUPS, Keycloak, LDAP e Catálogo MB.
+- [ ] Exibir serviços OK/atenção/indisponíveis.
+- [ ] Monitorar impressoras online/offline.
+- [ ] Normalizar suprimentos e registrar histórico.
+- [ ] Monitorar contadores quando disponíveis.
+- [ ] Implementar diagnóstico em cadeia HECATE → SavaPage → CUPS → fila → impressora.
+- [ ] Agregar logs técnicos com controle por perfil.
+- [ ] Permitir operações controladas de serviço via Agent.
+- [ ] Não bloquear impressão por falha exclusiva de telemetria.
 
-**Critério de conclusão:** rastreabilidade administrativa completa sem arquivamento permanente do conteúdo impresso.
+**Critério de conclusão:** suporte local consegue localizar a camada provável da falha sem acesso irrestrito ao servidor.
 
 ---
 
-### 3.1.19. Monitoramento do stack
+### 3.1.20. Segurança e auditoria
 
-- [ ] Monitorar HECATE Web.
-- [ ] Monitorar `hecate-agent`.
-- [ ] Monitorar PostgreSQL.
-- [ ] Monitorar SavaPage.
-- [ ] Monitorar CUPS.
-- [ ] Monitorar Keycloak.
-- [ ] Monitorar LDAP/AD.
-- [ ] Monitorar Catálogo MB.
-- [ ] Monitorar Podman.
-- [ ] Monitorar filas.
-- [ ] Monitorar impressoras.
-- [ ] Exibir `OK`, `ATENÇÃO` e `INDISPONÍVEL`.
-- [ ] Exibir última verificação.
-- [ ] Exibir falhas recentes.
-- [ ] Implementar troubleshooting encadeado HECATE -> SavaPage -> CUPS -> fila -> impressora.
-- [ ] Permitir coleta de logs conforme permissão.
+- [ ] Restringir acesso administrativo por perfil.
+- [ ] Separar Administrador Técnico, Administrador Funcional, Aprovador, Auditor e Usuário.
+- [ ] Utilizar contas de serviço com privilégio mínimo.
+- [ ] Proteger segredos e tokens fora do código/repositório.
+- [ ] Validar TLS/LDAPS.
+- [ ] Não registrar senha, token, PIN ou conteúdo de documento em logs.
+- [ ] Preservar trilha de auditoria administrativa.
+- [ ] Registrar operações privilegiadas do Agent.
+- [ ] Revisar periodicamente permissões e grupos.
+- [ ] Definir retenção de logs e metadados conforme política institucional.
 
-**Critério de conclusão:** suporte técnico local identifica rapidamente em qual componente ocorreu a falha.
+**Critério de conclusão:** ações críticas possuem autorização, rastreabilidade e proteção de dados adequadas.
 
 ---
 
-### 3.1.20. Monitoramento de suprimentos e contadores
+### 3.1.21. Testes e homologação técnica
 
-- [ ] Normalizar toner.
-- [ ] Normalizar tinta.
-- [ ] Normalizar ink pack/bolsa quando existente.
-- [ ] Normalizar waste toner/resíduo.
-- [ ] Normalizar papel quando disponível.
-- [ ] Registrar valor atual.
-- [ ] Registrar máximo.
-- [ ] Calcular percentual.
-- [ ] Registrar fonte da medição.
-- [ ] Registrar timestamp.
-- [ ] Manter histórico.
-- [ ] Exibir normal/atenção/crítico.
-- [ ] Calcular tendência estimada de consumo quando houver histórico suficiente.
-- [ ] Marcar previsões claramente como estimativas.
-- [ ] Garantir que ausência de telemetria não bloqueie impressão.
+- [ ] Testes unitários das regras de negócio críticas.
+- [ ] Testes de integração com PostgreSQL.
+- [ ] Testes de migrations e rollback aplicável.
+- [ ] Testes de autorização e perfis.
+- [ ] Testes concorrentes de reserva de cotas.
+- [ ] Testes de contratos e transferências.
+- [ ] Testes de adapters com mocks/doubles.
+- [ ] Testes end-to-end do fluxo de impressão.
+- [ ] Testes Windows e Ubuntu como clientes.
+- [ ] Homologação multi-vendor de impressoras.
+- [ ] Testes de falha e recuperação de serviços.
+- [ ] Validar backup/restore.
+- [ ] Executar pipeline completo de qualidade/compliance.
 
-**Critério de conclusão:** equipamentos compatíveis apresentam suprimentos e contadores consolidados no HECATE.
+**Critério de conclusão:** cenários críticos reproduzidos com resultado aprovado e sem falhas bloqueadoras abertas.
 
 ---
 
-### 3.1.21. Perfis e autorização administrativa
+### 3.1.22. Empacotamento e distribuição
 
-- [ ] Perfil `Administrador Técnico`.
-- [ ] Perfil `Administrador Funcional`.
-- [ ] Perfil `Aprovador`.
-- [ ] Perfil `Auditor`.
-- [ ] Perfil `Usuário`.
-- [ ] Restringir operações privilegiadas.
-- [ ] Restringir logs sensíveis.
-- [ ] Restringir configuração de integrações.
-- [ ] Restringir contratos e cotas conforme função.
-- [ ] Auditar mudanças de perfil e permissão.
+- [ ] Definir pacotes `hecate`, `hecate-agent`, `hecate-web` e artefatos auxiliares conforme necessidade.
+- [ ] Disponibilizar RPMs/repositórios no Nexus institucional.
+- [ ] Disponibilizar imagens OCI homologadas no Nexus.
+- [ ] Implementar `hecate-setup` para configuração inicial mínima.
+- [ ] Detectar automaticamente hostname/FQDN/IP/DNS local sem alterar DNS da OM.
+- [ ] Solicitar somente parâmetros essenciais de infraestrutura.
+- [ ] Registrar versão de todos os componentes instalados.
 
-**Critério de conclusão:** princípio do menor privilégio aplicado no portal e nas operações do agente.
+**Critério de conclusão:** uma OM homologada consegue iniciar instalação por fluxo padronizado e reproduzível.
 
 ---
 
-### 3.1.22. Segurança
+### 3.1.23. Implantação piloto
 
-- [ ] Utilizar HTTPS no portal.
-- [ ] Utilizar LDAPS.
-- [ ] Proteger segredos e credenciais técnicas.
-- [ ] Separar contas de serviço.
-- [ ] Aplicar permissões mínimas.
-- [ ] Não permitir shell remoto via HECATE Web.
-- [ ] Não permitir comandos arbitrários no agente.
-- [ ] Proteger socket do agente.
-- [ ] Proteger PostgreSQL.
-- [ ] Restringir interfaces administrativas.
-- [ ] Preservar logs.
-- [ ] Definir política de rotação de logs.
-- [ ] Definir política de backup.
-- [ ] Definir restore testado.
-- [ ] Validar ausência de impressão direta fora do fluxo controlado, conforme recursos de rede da OM.
-- [ ] Revisar periodicamente grupos, perfis e autorizações.
+- [ ] Preparar VM dedicada na OM piloto.
+- [ ] Instalar stack HECATE.
+- [ ] Integrar AD/LDAP e Catálogo MB.
+- [ ] Cadastrar divisões e impressoras.
+- [ ] Configurar políticas, cotas e contrato de teste.
+- [ ] Validar clientes Windows e Ubuntu.
+- [ ] Validar liberação por PIN.
+- [ ] Validar accounting e auditoria.
+- [ ] Validar monitoramento e troubleshooting.
+- [ ] Registrar problemas e ajustes do piloto.
 
-**Critério de conclusão:** fluxo controlado, segregação de privilégios e rastreabilidade validados em homologação.
+**Critério de conclusão:** operação piloto controlada durante período definido sem falhas críticas de arquitetura.
 
 ---
 
-### 3.1.23. Empacotamento e distribuição
+### 3.1.24. Documentação operacional
 
-- [ ] Criar pacote/meta-pacote `hecate`.
-- [ ] Criar `hecate-agent`.
-- [ ] Criar `hecate-setup`.
-- [ ] Criar imagem OCI `hecate-web`.
-- [ ] Criar imagem/configuração OCI do Keycloak quando aplicável.
-- [ ] Publicar RPMs no Nexus.
-- [ ] Publicar imagens OCI no Nexus.
-- [ ] Assinar/homologar artefatos conforme política institucional.
-- [ ] Permitir instalação via `dnf install hecate`.
-- [ ] Executar configuração inicial via `hecate-setup`.
-- [ ] Detectar automaticamente hostname/FQDN/IP/DNS local.
-- [ ] Não alterar DNS institucional.
-- [ ] Solicitar apenas parâmetros essenciais no setup.
-- [ ] Deixar cadastros funcionais para o portal web.
-
-**Critério de conclusão:** uma OM homologada consegue instalar uma nova instância por procedimento padronizado e reproduzível.
-
----
-
-### 3.1.24. Implantação local por OM
-
-- [ ] Provisionar VM dedicada.
-- [ ] Instalar Oracle Linux homologado.
-- [ ] Configurar repositório Nexus.
-- [ ] Instalar PostgreSQL nativo.
-- [ ] Criar databases separados para HECATE, SavaPage e Keycloak.
-- [ ] Instalar CUPS nativo.
-- [ ] Instalar SavaPage nativo.
-- [ ] Instalar `hecate-agent` nativo.
-- [ ] Instalar Podman.
-- [ ] Subir HECATE Web.
-- [ ] Subir Keycloak.
-- [ ] Executar `hecate-setup`.
-- [ ] Integrar LDAP/AD.
-- [ ] Integrar Catálogo MB.
-- [ ] Cadastrar impressoras.
-- [ ] Cadastrar divisões.
-- [ ] Configurar políticas.
-- [ ] Configurar cotas.
-- [ ] Configurar contratos.
-- [ ] Validar fluxo de impressão ponta a ponta.
-
-**Critério de conclusão:** instância da OM funcional e validada segundo checklist de homologação.
-
----
-
-### 3.1.25. Testes e homologação
-
-- [ ] Testes unitários do domínio crítico.
-- [ ] Testes de migrations.
-- [ ] Testes de integração LDAP.
-- [ ] Testes de integração Catálogo MB.
-- [ ] Testes OIDC/Keycloak.
-- [ ] Testes SavaPage.
-- [ ] Testes CUPS.
-- [ ] Testes do agente.
-- [ ] Testes de quota concorrente.
-- [ ] Testes de transferência de cotas.
-- [ ] Testes de contratos.
-- [ ] Testes de exceções de acesso.
-- [ ] Testes de PIN/liberação.
-- [ ] Testes de expiração/cancelamento de jobs.
-- [ ] Testes de impressora offline.
-- [ ] Testes de falha SavaPage.
-- [ ] Testes de falha CUPS.
-- [ ] Testes de falha LDAP.
-- [ ] Testes de falha Catálogo MB.
-- [ ] Testes de backup e restore.
-- [ ] Testes de segurança e permissões.
-- [ ] Testes Windows.
-- [ ] Testes Ubuntu.
-- [ ] Testes com múltiplos fabricantes de impressoras.
-- [ ] Testes P&B e colorida.
-- [ ] Testes de volume/carga compatíveis com a OM piloto.
-
-**Critério de conclusão:** todos os fluxos críticos homologados e defeitos bloqueadores resolvidos.
-
----
-
-### 3.1.26. Piloto institucional
-
-- [ ] Selecionar OM piloto.
-- [ ] Inventariar impressoras e filas existentes.
-- [ ] Inventariar estrutura organizacional relevante.
-- [ ] Definir grupo inicial de usuários.
-- [ ] Configurar políticas reais.
-- [ ] Configurar cotas reais ou simuladas.
-- [ ] Configurar contrato aplicável.
-- [ ] Executar operação assistida.
-- [ ] Registrar incidentes.
-- [ ] Corrigir falhas.
-- [ ] Medir estabilidade.
-- [ ] Medir utilização.
-- [ ] Validar suporte local.
-- [ ] Obter aceite técnico do piloto.
-
-**Critério de conclusão:** piloto operando de forma estável e com aceite para replicação.
-
----
-
-### 3.1.27. Replicação para outras OM
-
-- [ ] Criar checklist pré-implantação.
-- [ ] Criar checklist de infraestrutura.
-- [ ] Criar checklist de LDAP/AD.
-- [ ] Criar checklist Catálogo MB.
-- [ ] Criar checklist de impressoras.
-- [ ] Criar checklist de validação.
-- [ ] Criar procedimento de backup/restore.
-- [ ] Criar procedimento de atualização.
-- [ ] Criar procedimento de rollback.
-- [ ] Criar modelo de configuração por OM.
-- [ ] Criar matriz de compatibilidade de impressoras.
-- [ ] Definir processo de homologação de nova versão.
-- [ ] Validar instalação limpa em nova OM.
-
-**Critério de conclusão:** implantação replicável sem depender da equipe desenvolvedora para tarefas rotineiras.
-
----
-
-### 3.1.28. Documentação operacional
-
-- [ ] README do produto.
-- [ ] Arquitetura.
-- [ ] Decisões técnicas.
-- [ ] Segurança.
-- [ ] Integrações.
-- [ ] Identidade visual.
-- [ ] Instalação.
-- [ ] EAP.
+- [ ] README institucional atualizado.
+- [ ] Arquitetura e decisões.
+- [ ] Qualidade e padrões de código.
 - [ ] Manual de implantação.
 - [ ] Manual de operação.
-- [ ] Manual do administrador técnico.
-- [ ] Manual do administrador funcional.
-- [ ] Manual do aprovador.
-- [ ] Manual do auditor.
-- [ ] Guia do usuário.
 - [ ] Checklist de instalação.
 - [ ] Checklist de validação.
-- [ ] Guia de troubleshooting.
-- [ ] Guia de backup/restore.
-- [ ] Guia de atualização.
-- [ ] Guia de cadastro de impressoras.
-- [ ] Guia de cotas e contratos.
-- [ ] Guia de políticas e exceções.
-- [ ] Guia de replicação em outras OM.
+- [ ] Integração LDAP/AD.
+- [ ] Integração Catálogo MB.
+- [ ] SavaPage/CUPS.
+- [ ] Políticas e cotas.
+- [ ] Contratos e transferências.
+- [ ] Controle de acesso e exceções.
+- [ ] Troubleshooting.
+- [ ] Backup/restore.
+- [ ] Replicação para novas OM.
 
-**Critério de conclusão:** equipe local consegue implantar, operar e diagnosticar o produto utilizando a documentação oficial.
-
----
-
-### 3.1.29. Observabilidade e suporte
-
-- [ ] Centralizar visão de saúde do stack no HECATE.
-- [ ] Exibir logs autorizados por componente.
-- [ ] Criar diagnóstico guiado.
-- [ ] Criar coleta de informações para abertura de incidente.
-- [ ] Definir níveis de severidade.
-- [ ] Definir informações mínimas de suporte.
-- [ ] Definir política de atualização de componentes.
-- [ ] Definir procedimento de contingência.
-- [ ] Definir procedimento de recuperação após falha da VM.
-- [ ] Definir procedimento de reconstrução da instância.
-
-**Critério de conclusão:** suporte local possui instrumentos suficientes para identificar e registrar falhas sem acesso irrestrito ao servidor.
+**Critério de conclusão:** equipe local consegue instalar, validar, operar e diagnosticar o HECATE usando documentação versionada.
 
 ---
 
-### 3.1.30. Release 1.0
+### 3.1.25. Replicação institucional
 
-- [ ] Congelar requisitos da versão 1.0.
-- [ ] Finalizar POCs críticas.
-- [ ] Resolver vulnerabilidades bloqueadoras.
-- [ ] Resolver defeitos bloqueadores.
-- [ ] Executar homologação final.
-- [ ] Atualizar documentação.
-- [ ] Gerar artefatos de release.
-- [ ] Publicar RPMs/imagens no Nexus.
-- [ ] Definir versão dos componentes.
-- [ ] Gerar notas de versão.
-- [ ] Criar tag Git da versão.
-- [ ] Validar instalação limpa.
-- [ ] Validar atualização de versão anterior.
-- [ ] Validar backup e restore.
-- [ ] Formalizar aceite técnico.
+- [ ] Definir matriz de pré-requisitos da OM.
+- [ ] Definir parâmetros variáveis por OM.
+- [ ] Eliminar hardcodes de DCTIM, domínio, IP, fabricante ou versão específica do Oracle Linux.
+- [ ] Automatizar instalação repetível.
+- [ ] Definir processo de atualização e rollback.
+- [ ] Definir exportação/importação de configuração quando aplicável.
+- [ ] Validar implantação em segunda OM.
 
-**Critério de conclusão:** HECATE 1.0 homologado, documentado, distribuível e replicável.
+**Critério de conclusão:** implantação pode ser repetida em outra OM sem alteração estrutural do produto.
 
 ---
 
-# 4. POCs críticas antes do fechamento da versão 1.0
+### 3.1.26. Release 1.0
 
-As seguintes provas de conceito são consideradas bloqueadoras para a arquitetura definitiva:
+- [ ] Todas as POCs bloqueadoras homologadas.
+- [ ] Quality Gate aprovado.
+- [ ] PHPStan no nível mínimo definido.
+- [ ] PHPCS/PSR-12 sem violações bloqueadoras.
+- [ ] `composer audit` aprovado ou riscos formalmente aceitos.
+- [ ] Testes críticos aprovados.
+- [ ] Vulnerabilidades críticas/altas tratadas.
+- [ ] Documentação atualizada.
+- [ ] Pacotes e imagens publicados no Nexus.
+- [ ] Procedimento de instalação validado.
+- [ ] Backup/restore testado.
+- [ ] Piloto aprovado.
+- [ ] Tag e versão da release criadas.
 
-1. **Atribuição de usuário no SavaPage** a partir de clientes Windows e Ubuntu, preservando username, nome do job, páginas, origem e informação P&B/colorida.
-2. **Liberação de job retido** por mecanismo oficial/documentado do SavaPage, acionado pelo HECATE após validação de sessão, PIN, política e cota.
-3. **ACL dinâmica por divisão e exceção temporária**, sem alteração de grupos do Samba AD e sem escrita direta no banco do SavaPage.
-4. **Accounting P&B/colorida e reserva transacional de cota**, garantindo consistência em liberações concorrentes.
-5. **Descoberta e monitoramento multivendor** por IPP, SNMP e EWS/API, validando pelo menos fabricantes distintos no piloto.
-6. **Integração com Catálogo MB**, incluindo tratamento de dados ausentes, divergentes ou desatualizados.
+**Critério de conclusão:** versão institucional apta a implantação controlada em novas OM.
 
 ---
 
-# 5. Sequência recomendada de execução
+# 4. POCs bloqueadoras
+
+As seguintes validações devem ser tratadas como bloqueadoras de arquitetura/release:
+
+1. captura correta de identidade e metadados dos jobs Windows/Ubuntu no SavaPage;
+2. liberação de job retido por interface oficial suportada pelo SavaPage;
+3. aplicação dinâmica de ACL por divisão e exceção sem modificar o AD;
+4. accounting confiável P&B/colorida;
+5. reserva transacional de cota antes da liberação;
+6. descoberta multi-vendor por IPP/SNMP/EWS;
+7. tratamento de indisponibilidade ou inconsistência do Catálogo MB;
+8. instalação reproduzível em versão homologada do Oracle Linux;
+9. pipeline de qualidade/compliance bloqueante e reproduzível.
+
+---
+
+# 5. Gate mínimo de qualidade para merge/release
+
+Nenhum código de produção deve ser considerado concluído sem os controles aplicáveis abaixo:
 
 ```text
-Arquitetura e decisões
-        ↓
-Base Yii2 + PostgreSQL + identidade visual
-        ↓
-Keycloak + LDAP + Catálogo MB
-        ↓
-SavaPage + CUPS
-        ↓
-HECATE Agent
-        ↓
-Cadastro e descoberta de impressoras
-        ↓
-Organização + políticas
-        ↓
-Jobs + PIN + liberação
-        ↓
-Cotas + reservas + transferências
-        ↓
-Contratos
-        ↓
-Monitoramento + suprimentos + auditoria
-        ↓
-Segurança + backup + troubleshooting
-        ↓
-Homologação
-        ↓
-Piloto
-        ↓
-Replicação
-        ↓
-HECATE 1.0
+composer validate
+      ↓
+composer install
+      ↓
+php -l
+      ↓
+PHPCS / PSR-12
+      ↓
+PHPStan
+      ↓
+testes automatizados
+      ↓
+composer audit
+      ↓
+SonarQube
+      ↓
+Quality Gate
+      ↓
+merge / release
 ```
 
----
-
-# 6. Critério global de entrega completa
-
-O produto será considerado completamente entregue quando:
-
-- a instalação puder ser reproduzida em uma OM homologada;
-- o usuário for autenticado pelo domínio através do fluxo definido;
-- sua lotação puder ser determinada e auditada;
-- todo job passar pelo fluxo SavaPage -> validação HECATE -> CUPS -> impressora;
-- a liberação exigir ação deliberada do proprietário do job;
-- políticas de impressora forem efetivamente aplicadas;
-- cotas P&B e colorida forem aplicadas de forma consistente;
-- contratos e transferências forem administrados pelo HECATE;
-- metadados de impressão forem auditáveis;
-- o conteúdo do documento não permanecer arquivado após o fim do ciclo do job;
-- o stack e as impressoras puderem ser monitorados pelo portal;
-- operações privilegiadas ocorrerem exclusivamente por mecanismos controlados;
-- backup e restore tiverem sido testados;
-- a OM piloto estiver homologada;
-- uma segunda instalação puder ser realizada a partir da documentação e dos artefatos padronizados;
-- a versão 1.0 estiver publicada e versionada.
+Para detalhes, consultar `docs/QUALIDADE-CODIGO.md`.
 
 ---
 
-# 7. Fora do escopo da entrega principal
+# 6. Sequência recomendada de execução
 
-Não fazem parte da versão inicial, salvo decisão posterior:
+1. Arquitetura e decisões.
+2. Qualidade/compliance e CI desde o início.
+3. Base Yii2 e banco.
+4. Keycloak + LDAP/AD + Catálogo MB.
+5. SavaPage + CUPS.
+6. POC de submissão/accounting.
+7. POC de hold/release.
+8. Organização e políticas.
+9. Cotas, reservas e contratos.
+10. HECATE Agent.
+11. Descoberta/monitoramento de impressoras.
+12. Segurança, auditoria e troubleshooting.
+13. Homologação multi-vendor e multi-cliente.
+14. Empacotamento/Nexus.
+15. Piloto.
+16. Replicação.
+17. Release 1.0.
 
+---
+
+# 7. Critério global de entrega
+
+O HECATE somente deve ser considerado entregue quando o fluxo completo estiver funcional e auditável:
+
+```text
+Usuário autenticado
+        ↓
+Job submetido ao fluxo controlado
+        ↓
+SavaPage retém e contabiliza
+        ↓
+HECATE identifica usuário e divisão
+        ↓
+HECATE valida política de impressora
+        ↓
+HECATE valida/reserva cota
+        ↓
+Usuário autoriza liberação
+        ↓
+SavaPage libera
+        ↓
+CUPS entrega à impressora
+        ↓
+HECATE consolida consumo e auditoria
+```
+
+Além da funcionalidade, a entrega exige instalação reproduzível, backup/restore, monitoramento, documentação, controles de segurança e pipeline de qualidade aprovado.
+
+---
+
+# 8. Fora de escopo da entrega inicial
+
+- alta disponibilidade multi-nó;
+- reestruturação do domínio da OM;
 - substituição obrigatória do parque de impressoras;
-- reestruturação do Samba AD das OM;
-- criação ou alteração automática de usuários e grupos do domínio;
+- dependência de hardware de release station;
+- retenção permanente do conteúdo de documentos impressos;
+- alteração de usuários/grupos/GPO/OU/DNS no AD;
 - dependência obrigatória de software proprietário;
-- alta disponibilidade com múltiplos nós por OM;
-- release station física dedicada;
-- exigência de impressora com painel inteligente;
-- retenção permanente do conteúdo dos documentos impressos;
-- uso de IP/faixa de rede como identidade funcional do usuário;
-- automação por manipulação direta de banco interno ou spool do SavaPage;
-- execução genérica de shell a partir da aplicação web.
-
----
-
-## 8. Documentos relacionados
-
-- `README.md`
-- `docs/ARQUITETURA.md`
-- `docs/DECISOES.md`
-- `docs/SEGURANCA.md`
-- `docs/INTEGRACOES.md`
-- `docs/IMPLANTACAO.md`
-- `docs/IDENTIDADE-VISUAL.md`
-- `docs/MVP.md`
+- uso de IP de origem como identidade organizacional;
+- customizações específicas de uma única OM incorporadas ao núcleo do produto.
