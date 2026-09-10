@@ -12,6 +12,44 @@ Ela serve como referência prática para desenvolvimento, homologação, piloto,
 
 Entregar uma solução institucional capaz de centralizar o fluxo de impressão, autenticar usuários do domínio, relacionar identidade e lotação, controlar acesso a filas e impressoras, aplicar cotas separadas P&B/colorida, controlar contratos, exigir liberação deliberada de jobs, manter auditoria, monitorar o stack e as impressoras, reduzir bypass do fluxo controlado e permitir implantação padronizada em diferentes OM.
 
+### 2.1. Regra de acompanhamento
+
+A EAP deve ser usada também como **checklist oficial de entrega**. Cada item executável possui checkbox Markdown:
+
+- `[ ]` pendente;
+- `[x]` concluído e validado.
+
+Um pacote de trabalho somente deve ter sua checkbox de entrega marcada quando **todos os itens aplicáveis estiverem concluídos e o critério de conclusão tiver sido atendido**. Itens não aplicáveis devem ser justificados em revisão/decisão técnica, e não simplesmente marcados como concluídos.
+
+### 2.2. Quadro geral de entregas
+
+- [ ] **3.1.1** Arquitetura e decisões técnicas
+- [ ] **3.1.2** Identidade visual e experiência do usuário
+- [ ] **3.1.3** Base da aplicação web
+- [ ] **3.1.4** Qualidade, compliance e padrões de código
+- [ ] **3.1.5** Banco de dados HECATE
+- [ ] **3.1.6** Samba AD / LDAP
+- [ ] **3.1.7** Catálogo MB
+- [ ] **3.1.8** Keycloak e autenticação
+- [ ] **3.1.9** SavaPage
+- [ ] **3.1.10** CUPS
+- [ ] **3.1.11** HECATE Agent
+- [ ] **3.1.12** Cadastro, descoberta e telemetria de impressoras
+- [ ] **3.1.13** Organização e usuários
+- [ ] **3.1.14** Políticas de acesso a impressoras
+- [ ] **3.1.15** Cotas P&B e colorida
+- [ ] **3.1.16** Transferência de cotas
+- [ ] **3.1.17** Contratos
+- [ ] **3.1.18** Jobs e liberação segura
+- [ ] **3.1.19** Monitoramento, diagnóstico e suprimentos
+- [ ] **3.1.20** Segurança e auditoria
+- [ ] **3.1.21** Testes e homologação técnica
+- [ ] **3.1.22** Empacotamento e distribuição
+- [ ] **3.1.23** Implantação piloto
+- [ ] **3.1.24** Documentação operacional
+- [ ] **3.1.25** Replicação institucional
+- [ ] **3.1.26** Release 1.0
+
 ---
 
 # 3. Estrutura Analítica do Produto
@@ -30,6 +68,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 
 **Critério de conclusão:** arquitetura documentada, coerente e sem dependência de mecanismos não homologados.
 
+- [ ] **Pacote 3.1.1 concluído e validado.**
+
 ---
 
 ### 3.1.2. Identidade visual e experiência do usuário
@@ -45,6 +85,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 
 **Critério de conclusão:** identidade e navegação consistentes em login, dashboard e módulos administrativos.
 
+- [ ] **Pacote 3.1.2 concluído e validado.**
+
 ---
 
 ### 3.1.3. Base da aplicação web
@@ -58,8 +100,13 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 - [ ] Implementar dashboard principal.
 - [ ] Implementar paginação, filtros, pesquisa e validação de formulários.
 - [ ] Implementar trilha de auditoria administrativa.
+- [ ] Criar componentes Yii2 reutilizáveis para padrões recorrentes de interface.
+- [ ] Padronizar GridView, FlashAlert, badges, cards e demais widgets institucionais aplicáveis.
+- [ ] Evitar arquivos CSS/JS específicos por página, salvo exceção justificada.
 
-**Critério de conclusão:** aplicação web executável, autenticada e pronta para suportar os módulos funcionais.
+**Critério de conclusão:** aplicação web executável, autenticada, consistente e pronta para suportar os módulos funcionais.
+
+- [ ] **Pacote 3.1.3 concluído e validado.**
 
 ---
 
@@ -86,9 +133,15 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 - [ ] Configurar Quality Gate bloqueante para `main`/release.
 - [ ] Avaliar reliability, security, security hotspots, maintainability, duplicação, complexidade e cobertura.
 - [ ] Impedir merge com vulnerabilidades/bugs novos críticos ou altos sem aceite formal.
-- [ ] Documentar critérios em `docs/QUALIDADE-CODIGO.md`.
+- [ ] Padronizar PHPDoc para contratos, tipos complementares, exceções e comportamento não trivial.
+- [ ] Padronizar JSDoc para JavaScript reutilizável e contratos de funções/componentes.
+- [ ] Integrar VS Code aos diagnósticos de PHPStan, PHPCS/lint e SonarQube.
+- [ ] Tratar warnings das ferramentas pela correção da causa, evitando suppressions para apenas silenciar análise.
+- [ ] Documentar critérios em `docs/QUALIDADE-CODIGO.md`, `docs/DOCUMENTACAO-CODIGO.md` e `docs/AMBIENTE-DESENVOLVIMENTO.md`.
 
 **Critério de conclusão:** toda alteração passa por lint, style check, análise estática, testes, auditoria de dependências e Quality Gate aplicável antes de merge/release.
+
+- [ ] **Pacote 3.1.4 concluído e validado.**
 
 ---
 
@@ -106,6 +159,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 
 **Critério de conclusão:** banco íntegro, migrável, auditável e restaurável.
 
+- [ ] **Pacote 3.1.5 concluído e validado.**
+
 ---
 
 ### 3.1.6. Samba AD / LDAP
@@ -119,6 +174,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 - [ ] Implementar teste de conectividade e diagnóstico.
 
 **Critério de conclusão:** identidade institucional consumida sem modificação do Samba AD da OM.
+
+- [ ] **Pacote 3.1.6 concluído e validado.**
 
 ---
 
@@ -134,6 +191,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 
 **Critério de conclusão:** lotação funcional determinada de forma auditável sem depender exclusivamente de OU/grupos do AD.
 
+- [ ] **Pacote 3.1.7 concluído e validado.**
+
 ---
 
 ### 3.1.8. Keycloak e autenticação
@@ -147,6 +206,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 - [ ] Restringir administração e monitorar disponibilidade.
 
 **Critério de conclusão:** portal autenticado por OIDC sem que o PHP manipule senha do domínio.
+
+- [ ] **Pacote 3.1.8 concluído e validado.**
 
 ---
 
@@ -166,6 +227,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 
 **Critério de conclusão:** SavaPage opera como motor de retenção, accounting e enforcement sob políticas do HECATE.
 
+- [ ] **Pacote 3.1.9 concluído e validado.**
+
 ---
 
 ### 3.1.10. CUPS
@@ -179,6 +242,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 - [ ] Implementar diagnóstico e restart controlado via `hecate-agent`.
 
 **Critério de conclusão:** CUPS funciona como spool/transportador interno do fluxo controlado.
+
+- [ ] **Pacote 3.1.10 concluído e validado.**
 
 ---
 
@@ -197,6 +262,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 
 **Critério de conclusão:** administração operacional sem conceder `sudo` ou shell genérico ao PHP.
 
+- [ ] **Pacote 3.1.11 concluído e validado.**
+
 ---
 
 ### 3.1.12. Cadastro, descoberta e telemetria de impressoras
@@ -214,6 +281,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 
 **Critério de conclusão:** cadastro simples com enriquecimento automático multi-vendor.
 
+- [ ] **Pacote 3.1.12 concluído e validado.**
+
 ---
 
 ### 3.1.13. Organização e usuários
@@ -228,6 +297,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 
 **Critério de conclusão:** HECATE responde de forma auditável quem é o usuário e onde está lotado.
 
+- [ ] **Pacote 3.1.13 concluído e validado.**
+
 ---
 
 ### 3.1.14. Políticas de acesso a impressoras
@@ -241,6 +312,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 - [ ] Auditar concessão e revogação.
 
 **Critério de conclusão:** usuário só consegue liberar impressão em equipamento autorizado pela política vigente.
+
+- [ ] **Pacote 3.1.14 concluído e validado.**
 
 ---
 
@@ -257,6 +330,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 
 **Critério de conclusão:** controle consistente, concorrente e separado entre P&B e colorida.
 
+- [ ] **Pacote 3.1.15 concluído e validado.**
+
 ---
 
 ### 3.1.16. Transferência de cotas
@@ -268,6 +343,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 - [ ] Implementar aprovação e cancelamento/reversão auditável quando aplicável.
 
 **Critério de conclusão:** toda movimentação de cota é rastreável e consistente.
+
+- [ ] **Pacote 3.1.16 concluído e validado.**
 
 ---
 
@@ -282,6 +359,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 - [ ] Produzir visão administrativa por competência.
 
 **Critério de conclusão:** HECATE representa os modelos contratuais definidos e calcula consumo sem depender do saldo financeiro interno do SavaPage.
+
+- [ ] **Pacote 3.1.17 concluído e validado.**
 
 ---
 
@@ -300,6 +379,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 
 **Critério de conclusão:** todo job exige autorização deliberada e passa pelas políticas do HECATE antes de chegar ao CUPS.
 
+- [ ] **Pacote 3.1.18 concluído e validado.**
+
 ---
 
 ### 3.1.19. Monitoramento, diagnóstico e suprimentos
@@ -316,6 +397,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 
 **Critério de conclusão:** suporte local consegue localizar a camada provável da falha sem acesso irrestrito ao servidor.
 
+- [ ] **Pacote 3.1.19 concluído e validado.**
+
 ---
 
 ### 3.1.20. Segurança e auditoria
@@ -330,8 +413,14 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 - [ ] Registrar operações privilegiadas do Agent.
 - [ ] Revisar periodicamente permissões e grupos.
 - [ ] Definir retenção de logs e metadados conforme política institucional.
+- [ ] Validar proteção contra XSS, SQL Injection, CSRF, IDOR/BOLA, mass assignment, SSRF, command injection e path traversal.
+- [ ] Implementar escaping de saída e sanitização quando aplicável.
+- [ ] Utilizar queries parametrizadas e allowlists para identificadores dinâmicos.
+- [ ] Implementar headers de segurança e CSP compatível com a aplicação.
 
-**Critério de conclusão:** ações críticas possuem autorização, rastreabilidade e proteção de dados adequadas.
+**Critério de conclusão:** ações críticas possuem autorização, rastreabilidade e proteção de dados adequadas, sem vulnerabilidades bloqueadoras conhecidas.
+
+- [ ] **Pacote 3.1.20 concluído e validado.**
 
 ---
 
@@ -350,8 +439,11 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 - [ ] Testes de falha e recuperação de serviços.
 - [ ] Validar backup/restore.
 - [ ] Executar pipeline completo de qualidade/compliance.
+- [ ] Executar testes negativos de autorização, validação e entradas maliciosas.
 
 **Critério de conclusão:** cenários críticos reproduzidos com resultado aprovado e sem falhas bloqueadoras abertas.
+
+- [ ] **Pacote 3.1.21 concluído e validado.**
 
 ---
 
@@ -366,6 +458,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 - [ ] Registrar versão de todos os componentes instalados.
 
 **Critério de conclusão:** uma OM homologada consegue iniciar instalação por fluxo padronizado e reproduzível.
+
+- [ ] **Pacote 3.1.22 concluído e validado.**
 
 ---
 
@@ -384,6 +478,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 
 **Critério de conclusão:** operação piloto controlada durante período definido sem falhas críticas de arquitetura.
 
+- [ ] **Pacote 3.1.23 concluído e validado.**
+
 ---
 
 ### 3.1.24. Documentação operacional
@@ -391,6 +487,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 - [ ] README institucional atualizado.
 - [ ] Arquitetura e decisões.
 - [ ] Qualidade e padrões de código.
+- [ ] Ambiente de desenvolvimento VS Code.
+- [ ] PHPDoc/JSDoc e convenções de documentação de código.
 - [ ] Manual de implantação.
 - [ ] Manual de operação.
 - [ ] Checklist de instalação.
@@ -407,6 +505,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 
 **Critério de conclusão:** equipe local consegue instalar, validar, operar e diagnosticar o HECATE usando documentação versionada.
 
+- [ ] **Pacote 3.1.24 concluído e validado.**
+
 ---
 
 ### 3.1.25. Replicação institucional
@@ -420,6 +520,8 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 - [ ] Validar implantação em segunda OM.
 
 **Critério de conclusão:** implantação pode ser repetida em outra OM sem alteração estrutural do produto.
+
+- [ ] **Pacote 3.1.25 concluído e validado.**
 
 ---
 
@@ -441,21 +543,23 @@ Entregar uma solução institucional capaz de centralizar o fluxo de impressão,
 
 **Critério de conclusão:** versão institucional apta a implantação controlada em novas OM.
 
+- [ ] **Pacote 3.1.26 / Release 1.0 concluído e validado.**
+
 ---
 
 # 4. POCs bloqueadoras
 
-As seguintes validações devem ser tratadas como bloqueadoras de arquitetura/release:
+As seguintes validações devem ser tratadas como bloqueadoras de arquitetura/release e também controladas por checkbox:
 
-1. captura correta de identidade e metadados dos jobs Windows/Ubuntu no SavaPage;
-2. liberação de job retido por interface oficial suportada pelo SavaPage;
-3. aplicação dinâmica de ACL por divisão e exceção sem modificar o AD;
-4. accounting confiável P&B/colorida;
-5. reserva transacional de cota antes da liberação;
-6. descoberta multi-vendor por IPP/SNMP/EWS;
-7. tratamento de indisponibilidade ou inconsistência do Catálogo MB;
-8. instalação reproduzível em versão homologada do Oracle Linux;
-9. pipeline de qualidade/compliance bloqueante e reproduzível.
+- [ ] Captura correta de identidade e metadados dos jobs Windows/Ubuntu no SavaPage.
+- [ ] Liberação de job retido por interface oficial suportada pelo SavaPage.
+- [ ] Aplicação dinâmica de ACL por divisão e exceção sem modificar o AD.
+- [ ] Accounting confiável P&B/colorida.
+- [ ] Reserva transacional de cota antes da liberação.
+- [ ] Descoberta multi-vendor por IPP/SNMP/EWS.
+- [ ] Tratamento de indisponibilidade ou inconsistência do Catálogo MB.
+- [ ] Instalação reproduzível em versão homologada do Oracle Linux.
+- [ ] Pipeline de qualidade/compliance bloqueante e reproduzível.
 
 ---
 
@@ -463,27 +567,16 @@ As seguintes validações devem ser tratadas como bloqueadoras de arquitetura/re
 
 Nenhum código de produção deve ser considerado concluído sem os controles aplicáveis abaixo:
 
-```text
-composer validate
-      ↓
-composer install
-      ↓
-php -l
-      ↓
-PHPCS / PSR-12
-      ↓
-PHPStan
-      ↓
-testes automatizados
-      ↓
-composer audit
-      ↓
-SonarQube
-      ↓
-Quality Gate
-      ↓
-merge / release
-```
+- [ ] `composer validate` aprovado.
+- [ ] Dependências instaladas de forma reproduzível a partir do lockfile.
+- [ ] `php -l` aprovado.
+- [ ] PHPCS / PSR-12 aprovado.
+- [ ] PHPStan aprovado no nível homologado.
+- [ ] Testes automatizados aprovados.
+- [ ] `composer audit` aprovado ou risco formalmente aceito.
+- [ ] SonarQube/SAST executado quando disponível.
+- [ ] Quality Gate aprovado.
+- [ ] Warnings relevantes do VS Code/analisadores tratados sem suppressions indevidas.
 
 Para detalhes, consultar `docs/QUALIDADE-CODIGO.md`.
 
@@ -538,6 +631,14 @@ HECATE consolida consumo e auditoria
 ```
 
 Além da funcionalidade, a entrega exige instalação reproduzível, backup/restore, monitoramento, documentação, controles de segurança e pipeline de qualidade aprovado.
+
+- [ ] Fluxo completo homologado.
+- [ ] Instalação reproduzível homologada.
+- [ ] Segurança e auditoria homologadas.
+- [ ] Monitoramento e diagnóstico homologados.
+- [ ] Documentação operacional aprovada.
+- [ ] Pipeline/Quality Gate aprovado.
+- [ ] **HECATE considerado entregue.**
 
 ---
 
