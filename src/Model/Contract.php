@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Model;
 
+use Override;
 use Yiisoft\ActiveRecord\ActiveRecord;
 
 final class Contract extends ActiveRecord
@@ -19,6 +20,7 @@ final class Contract extends ActiveRecord
     public ?string $color_overage_price = null;
     public bool $active = true;
 
+    #[Override]
     public function tableName(): string
     {
         return '{{%contract}}';
