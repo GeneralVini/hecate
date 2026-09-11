@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace app\controllers;
 
 use app\models\Printer;
+use LogicException;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\web\Application;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\web\Request;
 use yii\web\Response;
-use yii\web\Session;
 
 class PrinterController extends Controller
 {
@@ -27,14 +27,11 @@ class PrinterController extends Controller
     public function actionCreate(): string|Response
     {
         $model = new Printer(['enabled' => true]);
+        $application = $this->webApplication();
+        $postData = (array) $application->getRequest()->post();
 
-        /** @var Request $request */
-        $request = Yii::$app->getRequest();
-
-        if ($model->load($request->post()) && $model->save()) {
-            /** @var Session $session */
-            $session = Yii::$app->getSession();
-            $session->setFlash(
+        if ($model->load($postData) && $model->save()) {
+            $application->getSession()->setFlash(
                 'success',
                 'Impressora cadastrada. Execute a detecção automática para completar os dados.'
             );
@@ -48,10 +45,9 @@ class PrinterController extends Controller
     public function actionDetect(int $id): Response
     {
         $model = $this->findModel($id);
+        $application = $this->webApplication();
 
-        /** @var Session $session */
-        $session = Yii::$app->getSession();
-        $session->setFlash(
+        $application->getSession()->setFlash(
             'info',
             'MVP: solicitação de detecção registrada para ' . $model->name .
             '. A integração com hecate-agent será implementada na próxima etapa.'
@@ -68,5 +64,15 @@ class PrinterController extends Controller
         }
 
         throw new NotFoundHttpException('Impressora não encontrada.');
+    }
+
+    private function webApplication(): Application
+    {
+        $application = Yii::$app;
+        if (!$application instanceof Application) {
+            throw new LogicException('PrinterController requer uma aplicação web do Yii.');
+        }
+
+        return $application;
     }
 }
