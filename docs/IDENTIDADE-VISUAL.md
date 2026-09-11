@@ -8,47 +8,75 @@ Descrição institucional:
 
 > **Plataforma Institucional de Governança e Controle de Impressão**
 
-O nome provisório `APP-PRINT` foi abandonado e não deve aparecer na interface, documentação, arte ou nomenclatura técnica nova.
+O HECATE não deve ser apresentado como simples agregador de ferramentas. Sua identidade precisa comunicar que existe uma camada de governança acima dos componentes técnicos.
 
 ## 2. Conceito visual
 
-A identidade combina referência mitológica a Hécate com elementos de controle, acesso, impressão e governança.
+A identidade combina referência mitológica a Hécate com governança, controle, acesso, impressão e rastreabilidade.
 
-Elementos conceituais permitidos:
+A leitura visual deve seguir esta hierarquia:
 
-- Hécate em composições institucionais/hero;
+```text
+HECATE
+Governança e Controle de Impressão
+        ↓
+Políticas · Papéis · Cotas · Aprovações · Auditoria · Indicadores
+        ↓
+Identidade | Controle | Dados
+        ↓
+Keycloak/Samba AD | SavaPage/CUPS | PostgreSQL/Podman
+```
+
+Os três portais continuam como elemento central da linguagem visual:
+
+- **Identidade** — autenticação, origem do usuário e vínculo institucional;
+- **Controle** — aplicação das regras de impressão, retenção, contabilização e liberação;
+- **Dados** — persistência, auditoria e serviços da aplicação.
+
+Os portais representam uma passagem controlada: o usuário não alcança diretamente o recurso final; ele atravessa identidade, regras e controles definidos pela governança.
+
+## 3. Elementos visuais
+
+Elementos permitidos:
+
+- Hécate em composições institucionais e hero;
 - chave;
 - tocha;
 - lua tríplice;
 - caminhos, portais e limiares;
+- Rio de Janeiro, incluindo Cristo Redentor e Pão de Açúcar, como cenário institucional;
 - documentos e fluxo de impressão;
 - controle de acesso;
-- monitoramento e telemetria.
+- monitoramento e telemetria;
+- estrela dourada como elemento de assinatura institucional.
+
+Os logos dos componentes técnicos devem permanecer reconhecíveis e, quando utilizados, preferencialmente em suas versões oficiais. Não há necessidade de reduzir sua presença visual; a distinção entre governança e implementação deve ocorrer pela composição e pela hierarquia da informação.
 
 Evitar:
 
 - excesso de fantasia sem relação com o produto;
+- tratar ferramentas como se fossem a própria governança;
 - navios como elemento principal da marca;
 - cães como elemento central da identidade;
 - símbolos que remetam a Atena, como lança/escudo;
-- textos técnicos excessivos dentro da arte;
+- textos técnicos excessivos dentro das artes operacionais;
 - `APP-PRINT`.
 
-## 3. Paleta
+## 4. Paleta
 
-Direção visual inspirada em ambiente institucional naval:
+Direção visual principal:
 
 - azul-marinho profundo como base;
-- azul institucional/real para destaques;
-- dourado para identidade, hierarquia e chamadas importantes;
-- branco e cinzas claros para legibilidade;
-- tons neutros escuros para superfícies e painéis.
+- azul institucional para superfícies secundárias;
+- dourado para identidade, hierarquia, bordas e chamadas importantes;
+- branco e cinzas azulados para legibilidade;
+- fundos translúcidos escuros para cards e painéis.
 
-O contraste deve priorizar legibilidade e acessibilidade. Dourado é cor de destaque, não de texto corrido em grandes blocos.
+O dourado é uma cor de destaque. Deve ser usado em títulos, estados selecionados, ícones, divisores e elementos institucionais, evitando grandes blocos de texto corrido.
 
-## 4. Assets oficiais
+## 5. Assets oficiais
 
-Local: `web/assets/branding/`
+Local correto: `public/branding/`.
 
 Assets atuais:
 
@@ -62,95 +90,77 @@ Assets atuais:
 - `favicon-192x192.png`
 - `favicon-512x512.png`
 - `login-background.jpg`
+- `login-background.png`
 - `dashboard-background.jpg`
 - `hecate-hero.jpg`
 
-## 5. Uso dos assets
+## 6. Uso dos assets
 
 ### Logo horizontal
 
-Uso preferencial em:
-
-- topbar;
-- tela de login;
-- README;
-- apresentações;
-- documentação.
+Uso preferencial em topbar, tela de login, README, apresentações e documentação.
 
 ### Logo vertical
 
-Uso preferencial em:
-
-- capas;
-- splash institucional;
-- páginas de apresentação;
-- materiais gráficos verticais.
+Uso preferencial em capas, splash institucional, páginas de apresentação e materiais verticais.
 
 ### Símbolo isolado
 
-Uso preferencial em:
-
-- sidebar recolhida;
-- avatar do produto;
-- loader;
-- cards institucionais;
-- favicon derivado.
+Uso preferencial em sidebar recolhida, avatar do produto, loader, cards institucionais e favicons derivados.
 
 ### Favicons
 
-Usar os tamanhos apropriados no `<head>` e em manifest/PWA quando aplicável.
+Usar os tamanhos apropriados no `<head>` e em futuro manifest/PWA quando aplicável.
 
 ### Background de login
 
-É uma **imagem de fundo pura**, nunca um mockup de tela.
+A imagem é o cenário visual; o formulário continua sendo renderizado pela aplicação Yii3.
 
 Requisitos:
 
-- Hécate e elementos visuais concentrados em uma lateral/área principal;
-- área de escape limpa e de baixo ruído visual para o formulário HTML real;
-- sem campos de usuário/senha desenhados na imagem;
-- sem botão de login desenhado;
-- sem texto que concorra com o formulário;
-- contraste suficiente para card translúcido ou sólido.
+- preservar área de escape para usuário, senha e ação de entrada;
+- não desenhar campos ou botão na própria imagem;
+- manter leitura limpa em resoluções diferentes;
+- usar overlay apenas quando necessário para casar arte e formulário;
+- manter o rodapé institucional em HTML/CSS.
+
+Rodapé aprovado:
+
+```text
+                         ✦
+PLATAFORMA INSTITUCIONAL DE GOVERNANÇA E CONTROLE DE IMPRESSÃO
+CTIM - YYYY                                      CC(EN) HONORATO
+```
 
 ### Background do dashboard
 
-Deve ser discreto e secundário.
-
-- não reduzir legibilidade de cards/tabelas;
-- usar baixa intensidade visual;
-- não competir com alertas e indicadores;
-- preferir aplicação parcial, overlay ou opacidade baixa.
+Deve sustentar a ambientação sem competir com o conteúdo operacional. Usar overlay escuro, painéis translúcidos e contraste alto nas informações.
 
 ### Hero HECATE
 
-Uso em:
+É a referência institucional principal para apresentar o conceito completo: Hécate, camada de governança, três portais, componentes técnicos e cenário do Rio de Janeiro.
 
-- apresentação da solução;
-- páginas institucionais;
-- documentação visual;
-- onboarding.
+Uso recomendado em README, apresentações, documentação visual e onboarding. Não usar como fundo permanente de tabelas ou telas densas.
 
-Não usar como fundo permanente de telas de operação densa.
+## 7. Layout da aplicação
 
-## 6. Layout da aplicação
-
-O HECATE usa padrão de **admin dashboard**.
+O HECATE usa padrão de **admin dashboard**, com linguagem visual escura, institucional e orientada à governança.
 
 Estrutura de referência:
 
 ```text
-+------------------------------------------------------+
-| Topbar: HECATE | OM ativa | alertas | status | user |
-+-------------+----------------------------------------+
-| Sidebar     | Navbar/Breadcrumb + ações contextuais |
-| retrátil    +----------------------------------------+
-|             |                                        |
-| menu        |             CONTEÚDO                  |
-|             |                                        |
-+-------------+----------------------------------------+
-| Footerbar: versão | serviços | sincronização        |
-+------------------------------------------------------+
++-------------------------------------------------------------+
+| Topbar: HECATE | OM ativa | jobs | governança | usuário   |
++---------------+---------------------------------------------+
+| Sidebar       | Breadcrumb / contexto                     |
+| retrátil      +---------------------------------------------+
+|               | Governança: políticas, papéis, cotas...   |
+|               |                                             |
+|               | Conteúdo operacional                       |
+|               |                                             |
++---------------+---------------------------------------------+
+| CTIM - YYYY | ✦ slogan institucional | CC(EN) HONORATO   |
++-------------------------------------------------------------+
 ```
 
 ### Sidebar
@@ -169,26 +179,20 @@ Impressão
 Organização
   Divisões
   Usuários
-  Vínculos Catálogo MB
 
-Controle
+Governança
   Políticas
+  Papéis e aprovações
   Cotas
   Contratos
-  Transferências
-  Autorizações
+  Indicadores
 
 Operação
   Monitoramento
-  Suprimentos
   Auditoria
-  Logs
 
 Sistema
-  Stack
-  Serviços
   Integrações
-  Diagnóstico
   Configurações
 ```
 
@@ -196,29 +200,36 @@ A sidebar deve ser recolhível e manter o símbolo HECATE quando compactada.
 
 ### Topbar
 
-Deve priorizar contexto operacional:
+Deve priorizar contexto operacional e institucional:
 
 - marca HECATE;
 - OM ativa;
 - jobs pendentes;
-- alertas;
-- saúde resumida do stack;
+- estado resumido da governança/stack;
 - usuário autenticado.
 
 ### Footerbar
 
-Pode exibir:
+A assinatura visual adotada é:
 
-- versão do HECATE;
-- versão/estado do ambiente;
-- SavaPage/CUPS;
-- última sincronização relevante.
+- `CTIM - YYYY` à esquerda ou no eixo institucional definido pelo layout;
+- estrela dourada e slogan da plataforma em destaque central;
+- `CC(EN) HONORATO` de forma singela e discreta à direita.
 
-## 7. Dashboard
+## 8. Dashboard
 
-A referência aprovada é um dashboard operacional, não decorativo.
+O dashboard deve ser operacional, não decorativo.
 
-Blocos desejados:
+A camada de governança deve aparecer antes dos indicadores técnicos, explicitando:
+
+- políticas;
+- papéis;
+- cotas;
+- aprovações;
+- auditoria;
+- indicadores.
+
+Blocos operacionais desejados:
 
 - fila de impressão;
 - jobs pendentes/liberação;
@@ -232,37 +243,26 @@ Blocos desejados:
 - consumo contratual;
 - alertas.
 
-A hierarquia visual deve deixar evidente primeiro o que exige ação do operador.
+A hierarquia visual deve deixar evidente primeiro o que exige decisão ou ação do operador.
 
-## 8. Tela de login
+## 9. Tela de login
 
-A tela de login deve usar o background oficial, mas o formulário é renderizado pelo Yii2/Bootstrap.
+A tela de login usa `login-background.jpg` como cenário e `logo-horizontal.png` no painel de autenticação.
 
-Composição recomendada:
+O formulário é HTML/Yii3. A interface não deve induzir o usuário a acreditar que o HECATE armazena sua senha de domínio quando o fluxo SSO/OIDC estiver implementado.
 
-```text
-arte HECATE / ambiente visual        área limpa
-                                     +------------------+
-                                     | HECATE           |
-                                     | autenticação     |
-                                     | [ Entrar ]       |
-                                     +------------------+
-```
+## 10. Tipografia e componentes
 
-Quando Keycloak estiver integrado, o fluxo de autenticação deve ser orientado por SSO/OIDC. A interface não deve induzir o usuário a acreditar que o HECATE armazena sua senha de domínio.
-
-## 9. Tipografia e componentes
-
-- priorizar fontes de sistema/web seguras e legíveis;
-- headings fortes, sem excesso de caixa alta;
-- usar Bootstrap 5 como base;
-- cards compactos e funcionais;
+- fontes de sistema legíveis para interface;
+- serifada apenas em títulos institucionais quando adequada;
+- headings fortes sem excesso de caixa alta;
+- cards translúcidos escuros e compactos;
 - tabelas para dados densos;
 - badges para status;
-- ícones consistentes;
-- animações discretas e apenas quando ajudarem a indicar estado.
+- bordas e realces dourados discretos;
+- animações somente quando ajudarem a indicar estado.
 
-## 10. Status e semântica visual
+## 11. Status e semântica visual
 
 Estados operacionais devem ser inequívocos:
 
@@ -276,10 +276,10 @@ Estados operacionais devem ser inequívocos:
 
 Cor nunca deve ser o único meio de comunicar estado: combinar cor, texto e ícone.
 
-## 11. Princípio de design
+## 12. Princípio de design
 
 O visual do HECATE deve transmitir:
 
-**controle, rastreabilidade, segurança, governança e operação institucional**.
+**governança, controle, rastreabilidade, segurança e operação institucional**.
 
-A mitologia sustenta a identidade do produto, mas a operação diária deve permanecer clara, sóbria e objetiva.
+A mitologia e o cenário sustentam a identidade visual. As ferramentas demonstram a implementação. A governança, porém, precisa permanecer como a mensagem principal da solução.
