@@ -39,6 +39,10 @@ $this->beginPage();
         <?= $content ?>
     </div>
     <footer class="login-footerbar">
+        <div class="login-footerbar-slogan" aria-label="Plataforma Institucional de Governança e Controle de Impressão">
+            <span class="login-footerbar-star" aria-hidden="true">✦</span>
+            <span>Plataforma Institucional de Governança e Controle de Impressão</span>
+        </div>
         <span class="login-footerbar-year">CTIM - <?= date('Y') ?></span>
         <span class="login-footerbar-credit">CC(EN) HONORATO</span>
     </footer>
