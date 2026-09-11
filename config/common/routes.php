@@ -9,6 +9,9 @@ use Yiisoft\Router\Route;
 return [
     Group::create()->routes(
         Route::get('/')
+            ->action(Web\Login\Action::class)
+            ->name('login'),
+        Route::get('/dashboard')
             ->action(Web\HomePage\Action::class)
             ->name('home'),
         Route::get('/printers')
