@@ -4,30 +4,19 @@ declare(strict_types=1);
 
 namespace App\Web\Printer\Index;
 
-use App\Model\Printer;
+use App\Printing\Query\PrinterListQuery;
 use Psr\Http\Message\ResponseInterface;
 use Yiisoft\Yii\View\Renderer\WebViewRenderer;
 
 final readonly class Action
 {
-    public function __construct(private WebViewRenderer $viewRenderer)
+    public function __construct(private WebViewRenderer $viewRenderer, private PrinterListQuery $printers)
     {
     }
 
     public function __invoke(): ResponseInterface
     {
-        $printers = [];
-
-        foreach (Printer::query()->all() as $printer) {
-            if ($printer instanceof Printer) {
-                $printers[] = $printer;
-            }
-        }
-
-        usort(
-            $printers,
-            static fn(Printer $a, Printer $b): int => strcasecmp($a->name, $b->name),
-        );
+        $printers = $this->printers->all();
 
         return $this->viewRenderer->render(__DIR__ . '/template', ['printers' => $printers]);
     }

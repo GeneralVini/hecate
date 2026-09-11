@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Yiisoft\Html\Html;
 
 /** @var Yiisoft\View\WebView $this */
-/** @var array{printers:int, printersOnline:int, divisions:int, quotaRows:int} $metrics */
+/** @var App\Monitoring\Query\InventoryMetrics $metrics */
 
 $this->setTitle('HECATE — Controle e Governança de Impressão');
 ?>
@@ -30,18 +30,18 @@ $this->setTitle('HECATE — Controle e Governança de Impressão');
 <section class="metric-grid" aria-label="Indicadores">
     <article class="metric-card">
         <span>Impressoras</span>
-        <strong><?= Html::encode((string) $metrics['printers']) ?></strong>
+        <strong><?= Html::encode((string) $metrics->printers) ?></strong>
     </article>
     <article class="metric-card">
         <span>Com telemetria</span>
-        <strong><?= Html::encode((string) $metrics['printersOnline']) ?></strong>
+        <strong><?= Html::encode((string) $metrics->withTelemetry) ?></strong>
     </article>
     <article class="metric-card">
         <span>Divisões</span>
-        <strong><?= Html::encode((string) $metrics['divisions']) ?></strong>
+        <strong><?= Html::encode((string) $metrics->divisions) ?></strong>
     </article>
     <article class="metric-card">
         <span>Registros de quota</span>
-        <strong><?= Html::encode((string) $metrics['quotaRows']) ?></strong>
+        <strong><?= Html::encode((string) $metrics->quotaRows) ?></strong>
     </article>
 </section>

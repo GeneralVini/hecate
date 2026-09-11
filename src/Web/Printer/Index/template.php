@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use App\Model\Printer;
+use App\Printing\Query\PrinterListItem;
 use Yiisoft\Html\Html;
 
 /** @var Yiisoft\View\WebView $this */
-/** @var list<Printer> $printers */
+/** @var list<PrinterListItem> $printers */
 /** @var string|null $csrf */
 /** @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator */
 
@@ -38,7 +38,7 @@ $this->setTitle('Impressoras — HECATE');
                 <td><?= Html::encode($printer->name) ?></td>
                 <td><?= Html::encode($printer->host) ?></td>
                 <td><?= Html::encode($printer->location ?? '—') ?></td>
-                <td><?= Html::encode($printer->last_seen_at ?? 'Não detectada') ?></td>
+                <td><?= Html::encode($printer->lastSeenAt ?? 'Não detectada') ?></td>
                 <td>
                     <form method="post" action="<?= Html::encode($urlGenerator->generate('printer/detect')) ?>">
                         <input type="hidden" name="_csrf" value="<?= Html::encode($csrf ?? '') ?>">

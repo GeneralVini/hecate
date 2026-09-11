@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Web\Printer\Detect;
 
-use App\Model\Printer;
+use App\Printing\Query\PrinterListQuery;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Yiisoft\RequestProvider\RequestProviderInterface;
@@ -14,6 +14,7 @@ final readonly class Action
 {
     public function __construct(
         private RequestProviderInterface $requestProvider,
+        private PrinterListQuery $printers,
         private ResponseFactoryInterface $responseFactory,
         private UrlGeneratorInterface $urlGenerator,
     ) {
@@ -25,11 +26,8 @@ final readonly class Action
         $data = is_array($body) ? $body : [];
         $id = filter_var($data['id'] ?? null, FILTER_VALIDATE_INT);
 
-        if ($id !== false) {
-            $printer = Printer::query()->findByPk($id);
-            if ($printer instanceof Printer) {
-                // MVP: o hecate-agent assumirá a descoberta e persistência de telemetria.
-            }
+        if ($id !== false && $this->printers->exists($id)) {
+            // MVP: o hecate-agent assumirá a descoberta e persistência de telemetria.
         }
 
         return $this->responseFactory

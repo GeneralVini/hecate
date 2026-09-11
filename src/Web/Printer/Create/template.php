@@ -21,6 +21,10 @@ $this->setTitle('Cadastrar impressora — HECATE');
 <form class="form-card" method="post" action="<?= Html::encode($urlGenerator->generate('printer/create')) ?>">
     <input type="hidden" name="_csrf" value="<?= Html::encode($csrf ?? '') ?>">
 
+    <?php if (isset($errors['form'])) : ?>
+        <p class="field-error" role="alert"><?= Html::encode($errors['form']) ?></p>
+    <?php endif; ?>
+
     <label for="name">Nome lógico</label>
     <input id="name" name="name" maxlength="160" required value="<?= Html::encode($values['name']) ?>">
     <?php if (isset($errors['name'])) : ?>
@@ -40,6 +44,10 @@ $this->setTitle('Cadastrar impressora — HECATE');
         maxlength="160"
         value="<?= Html::encode($values['location']) ?>"
     >
+
+    <?php if (isset($errors['location'])) : ?>
+        <p class="field-error"><?= Html::encode($errors['location']) ?></p>
+    <?php endif; ?>
 
     <div class="form-actions">
         <button class="button" type="submit">Salvar</button>
