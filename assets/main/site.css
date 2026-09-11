@@ -62,7 +62,7 @@ img { max-width: 100%; }
     overflow: hidden;
     background:
         linear-gradient(90deg, rgba(4, 20, 40, .01), rgba(4, 20, 40, .12)),
-        url('/branding/login-background.jpg') center center / cover no-repeat;
+        url('/branding/login-background.jpg') center center / 92% auto no-repeat;
     background-color: #041428;
 }
 .login-form-area {
@@ -318,8 +318,8 @@ th { background: #f8fafc; color: #475467; font-size: .82rem; text-transform: upp
         overflow: visible;
     }
     .login-art {
-        background-size: cover;
-        background-position: center 38%;
+        background-size: contain;
+        background-position: center center;
     }
     .login-form-area { min-height: 48dvh; overflow: visible; }
     .login-footerbar {
