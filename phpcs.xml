@@ -6,26 +6,14 @@
     <arg name="colors"/>
     <arg name="parallel" value="8"/>
 
-    <file>assets</file>
-    <file>controllers</file>
-    <file>models</file>
-    <file>migrations</file>
+    <file>src</file>
+    <file>config</file>
+    <file>public/index.php</file>
     <file>tests</file>
 
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/runtime/*</exclude-pattern>
-    <exclude-pattern>*/web/assets/*</exclude-pattern>
+    <exclude-pattern>*/public/assets/*</exclude-pattern>
 
-    <rule ref="PSR12">
-        <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace"/>
-        <exclude name="Squiz.Classes.ValidClassName.NotCamelCaps"/>
-    </rule>
-
-    <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
-        <exclude-pattern>migrations/*</exclude-pattern>
-    </rule>
-
-    <rule ref="Squiz.Classes.ValidClassName.NotCamelCaps">
-        <exclude-pattern>migrations/*</exclude-pattern>
-    </rule>
+    <rule ref="PSR12"/>
 </ruleset>
