@@ -17,6 +17,7 @@ final class Environment
 
     public const ENVIRONMENTS = [self::DEV, self::TEST, self::PROD];
 
+    /** @var array<string, bool|string|null> */
     private static array $values = [];
 
     public static function prepare(): void
@@ -29,22 +30,24 @@ final class Environment
 
     public static function appEnv(): string
     {
-        return self::$values['APP_ENV'];
+        return (string) self::$values['APP_ENV'];
     }
 
     public static function appDebug(): bool
     {
-        return self::$values['APP_DEBUG'];
+        return (bool) self::$values['APP_DEBUG'];
     }
 
     public static function appC3(): bool
     {
-        return self::$values['APP_C3'];
+        return (bool) self::$values['APP_C3'];
     }
 
     public static function appHostPath(): ?string
     {
-        return self::$values['APP_HOST_PATH'];
+        $value = self::$values['APP_HOST_PATH'];
+
+        return is_string($value) ? $value : null;
     }
 
     private static function setEnvironment(): void
@@ -80,6 +83,7 @@ final class Environment
         if ($value !== false) {
             return $value;
         }
+
         return isset($_ENV[$key]) ? (string) $_ENV[$key] : null;
     }
 }
