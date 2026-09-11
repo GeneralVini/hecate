@@ -7,6 +7,7 @@ use Yiisoft\Html\Html;
 
 /** @var Yiisoft\View\WebView $this */
 /** @var list<Printer> $printers */
+/** @var string|null $csrf */
 /** @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator */
 
 $this->setTitle('Impressoras — HECATE');
@@ -40,6 +41,7 @@ $this->setTitle('Impressoras — HECATE');
                 <td><?= Html::encode($printer->last_seen_at ?? 'Não detectada') ?></td>
                 <td>
                     <form method="post" action="<?= Html::encode($urlGenerator->generate('printer/detect')) ?>">
+                        <?= $csrf ?? '' ?>
                         <input type="hidden" name="id" value="<?= Html::encode((string) $printer->id) ?>">
                         <button class="button button-secondary" type="submit">Detectar</button>
                     </form>
