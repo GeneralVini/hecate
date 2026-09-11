@@ -34,7 +34,10 @@ $this->setTitle('Entrar — HECATE');
         >
     </div>
 
-    <a class="button button-primary button-block login-submit" href="<?= Html::encode($urlGenerator->generate('home')) ?>">
+    <a
+        class="button button-primary button-block login-submit"
+        href="<?= Html::encode($urlGenerator->generate('home')) ?>"
+    >
         Entrar
     </a>
 </section>
