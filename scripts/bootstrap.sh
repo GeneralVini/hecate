@@ -62,17 +62,16 @@ if [[ ! -f composer.json ]]; then
 fi
 ok 'composer.json encontrado'
 
-printf '\n'
-if [[ -f composer.lock ]]; then
-    info 'Instalando dependências a partir do composer.lock...'
-    composer install --no-interaction --prefer-dist
-    ok 'Dependências instaladas de forma reproduzível'
-else
-    info 'composer.lock ainda não existe nesta branch Yii3.'
-    info 'Resolvendo a nova árvore de dependências e gerando o lockfile inicial...'
-    composer update --no-interaction --prefer-dist
-    ok 'composer.lock inicial gerado; ele deve ser versionado após a validação.'
+if [[ ! -f composer.lock ]]; then
+    error 'composer.lock não encontrado. O lockfile é obrigatório e deve estar versionado.'
+    exit 1
 fi
+ok 'composer.lock encontrado'
+
+printf '\n'
+info 'Instalando dependências a partir do composer.lock...'
+composer install --no-interaction --prefer-dist
+ok 'Dependências instaladas de forma reproduzível'
 
 printf '\n'
 info 'Validando composer.json...'
