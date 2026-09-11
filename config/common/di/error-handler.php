@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Environment;
 use Yiisoft\ErrorHandler\Renderer\HtmlRenderer;
 
-/** @var array $params */
+/** @var array{traceLink?: string} $params */
 
 return [
     HtmlRenderer::class => [
