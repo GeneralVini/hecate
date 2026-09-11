@@ -14,4 +14,7 @@ final class MainAsset extends AssetBundle
 
     /** @var list<string> */
     public array $css = ['site.css'];
+
+    /** @var list<string> */
+    public array $js = ['site.js'];
 }
