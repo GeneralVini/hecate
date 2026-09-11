@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Web\NotFound;
 
+use Override;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -16,6 +17,7 @@ final readonly class NotFoundHandler implements RequestHandlerInterface
     {
     }
 
+    #[Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         return $this->viewRenderer
