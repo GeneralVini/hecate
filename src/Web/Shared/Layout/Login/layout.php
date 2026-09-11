@@ -38,6 +38,11 @@ $this->beginPage();
     <div class="login-form-area">
         <?= $content ?>
     </div>
+    <footer class="login-footerbar">
+        <strong>HECATE</strong>
+        <span>Plataforma Institucional de Governança e Controle de Impressão</span>
+        <span>Marinha do Brasil · DCTIM · Tecnologia a serviço da missão</span>
+    </footer>
 </main>
 <?php $this->endBody() ?>
 </body>
