@@ -6,6 +6,16 @@ HECATE é a **Plataforma Institucional de Governança e Controle de Impressão**
 
 O HECATE não administra o Samba AD e não substitui o SavaPage ou o CUPS. Ele organiza e governa a solução completa.
 
+A arquitetura da aplicação segue **Yii3 + monólito modular + DDD pragmático**.
+
+> **A complexidade deve ser justificada pelo domínio.**
+
+O domínio real define os boundaries. Camadas, interfaces, repositories, eventos, Value Objects e outras abstrações só devem ser introduzidos quando houver regra de domínio, integração ou problema concreto de acoplamento que os justifique.
+
+O desenho preferencial é o mais simples que preserve boundaries claros, segurança e testabilidade.
+
+Também se adota o princípio de que duplicação localizada entre boundaries pode ser mais barata que acoplamento conceitual entre módulos.
+
 ## 2. Arquitetura lógica
 
 ```text
@@ -102,6 +112,10 @@ Responsável por:
 - monitoramento da pilha;
 - troubleshooting.
 
+A organização interna deve evoluir por módulo e responsabilidade conforme o domínio real surgir. Não criar uma árvore DDD completa antecipadamente.
+
+Handlers HTTP devem permanecer finos. Regras relevantes devem ser delegadas a componentes ou casos de uso apropriados somente quando essa separação trouxer clareza e testabilidade.
+
 ### SavaPage
 
 Plano de execução e enforcement da impressão.
@@ -140,6 +154,10 @@ keycloak
 ```
 
 Não usar a mesma credencial para os três componentes.
+
+No HECATE, preferir SQL explícito via Yii DB/Command quando isso tornar a intenção mais clara. ActiveRecord pode ser usado pontualmente na infraestrutura, mas não deve funcionar como modelo global compartilhado entre módulos.
+
+Não introduzir repositories genéricos, Data Mapper genérico ou abstrações equivalentes sem necessidade concreta.
 
 ### hecate-agent
 
@@ -200,15 +218,6 @@ HECATE -> o que pode fazer e quais impressoras pode usar
 SavaPage -> aplica a regra de impressão
 ```
 
-Exemplo:
-
-```text
-09051937
-  -> Catálogo MB: DCTIM-33
-  -> HECATE: DCTIM-33 pode usar IMP-DCTIM-4A-01 e IMP-DCTIM-4A-02
-  -> SavaPage: enforcement
-```
-
 ## 6. Cotas e concorrência
 
 P&B e colorida são independentes.
@@ -239,63 +248,23 @@ Pagamento por volume efetivamente impresso, com valores unitários independentes
 
 Volume incluído por competência, com preço de excedente.
 
-O HECATE separa:
-
-- franquia contratual da OM;
-- alocação administrativa por divisão.
+O HECATE separa franquia contratual da OM e alocação administrativa por divisão.
 
 ## 8. Transferências
 
-Transferências ocorrem entre divisões e por tipo de quota.
-
-Devem registrar:
-
-- competência;
-- P&B ou colorida;
-- origem;
-- destino;
-- quantidade;
-- solicitante;
-- aprovador;
-- justificativa;
-- saldo antes/depois;
-- data/hora.
+Transferências ocorrem entre divisões e por tipo de quota e devem ser auditáveis.
 
 ## 9. Exceções de acesso
 
-O HECATE pode conceder acesso temporário ou permanente a impressora fora da política normal.
-
-A exceção deve conter:
-
-- usuário ou grupo afetado;
-- impressora;
-- justificativa;
-- aprovador;
-- início/fim de validade;
-- auditoria.
+O HECATE pode conceder acesso temporário ou permanente a impressora fora da política normal, sempre com justificativa, validade e auditoria.
 
 Não modificar grupos do AD para representar essas exceções.
 
 ## 10. Descoberta e telemetria de impressoras
 
-Ao cadastrar uma impressora, o administrador informa no mínimo:
+Ao cadastrar uma impressora, o administrador informa no mínimo nome lógico, IP/FQDN e localização.
 
-- nome lógico;
-- IP/FQDN;
-- localização.
-
-O `hecate-agent` tenta obter:
-
-- fabricante;
-- modelo;
-- serial;
-- cor/P&B;
-- duplex;
-- formatos;
-- protocolos;
-- contadores;
-- status;
-- suprimentos.
+O `hecate-agent` tenta obter fabricante, modelo, serial, cor/P&B, duplex, formatos, protocolos, contadores, status e suprimentos.
 
 Ordem preferencial:
 
@@ -303,28 +272,11 @@ Ordem preferencial:
 conectividade -> IPP/IPPS -> SNMPv3 -> SNMPv2c read-only -> EWS/API -> parser específico -> manual
 ```
 
-Cada atributo detectado deve registrar a fonte, por exemplo `IPP`, `SNMP` ou `EWS`.
+Cada atributo detectado deve registrar a fonte.
 
 ## 11. Retenção e auditoria
 
-Não manter cópia permanente do documento impresso.
-
-Preservar metadados como:
-
-- usuário;
-- documento/job name;
-- data/hora;
-- IP/hostname de origem;
-- tamanho;
-- páginas;
-- P&B/colorida;
-- impressora;
-- status;
-- custo;
-- OM/divisão;
-- contrato;
-- quota;
-- autorização/exceção relacionada.
+Não manter cópia permanente do documento impresso. Preservar apenas metadados operacionais e de auditoria necessários.
 
 O conteúdo é eliminado após impressão, cancelamento ou expiração.
 
@@ -346,7 +298,20 @@ Oracle Linux
 
 Alta disponibilidade não é requisito inicial. A prioridade é instalação reproduzível, backup/restore e reconstrução rápida.
 
-## 13. Pontos de homologação
+## 13. Critério para evolução modular
+
+Novos módulos, serviços de aplicação, DTOs, read models, repositories, entidades, Value Objects, interfaces e adapters devem surgir de necessidades concretas.
+
+Antes de criar uma abstração, identificar:
+
+1. qual regra ou problema concreto ela resolve;
+2. qual boundary protege;
+3. qual acoplamento reduz;
+4. qual teste, integração ou variação exige sua existência.
+
+Se a justificativa for apenas aderência a padrão ou possibilidade futura, a abstração não deve ser criada.
+
+## 14. Pontos de homologação
 
 A arquitetura está fechada conceitualmente, mas os seguintes mecanismos devem ser validados em POC:
 
