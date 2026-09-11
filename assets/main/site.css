@@ -61,8 +61,8 @@ img { max-width: 100%; }
     min-height: 0;
     overflow: hidden;
     background:
-        linear-gradient(90deg, rgba(4, 20, 40, .01), rgba(4, 20, 40, .22)),
-        url('/branding/login-background.jpg') 40% 50% / 102% auto no-repeat;
+        linear-gradient(90deg, rgba(4, 20, 40, .01), rgba(4, 20, 40, .16)),
+        url('/branding/login-background.jpg') 22% 50% / 124% auto no-repeat;
     background-color: #041428;
 }
 .login-form-area {
