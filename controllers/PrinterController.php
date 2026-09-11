@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace app\controllers;
 
 use app\models\Printer;
@@ -7,10 +9,11 @@ use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 class PrinterController extends Controller
 {
-    public function actionIndex()
+    public function actionIndex(): string
     {
         $provider = new ActiveDataProvider([
             'query' => Printer::find()->orderBy(['name' => SORT_ASC]),
@@ -19,7 +22,7 @@ class PrinterController extends Controller
         return $this->render('index', ['provider' => $provider]);
     }
 
-    public function actionCreate()
+    public function actionCreate(): string|Response
     {
         $model = new Printer(['enabled' => true]);
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
@@ -34,7 +37,7 @@ class PrinterController extends Controller
         return $this->render('create', ['model' => $model]);
     }
 
-    public function actionDetect($id)
+    public function actionDetect(int $id): Response
     {
         $model = $this->findModel($id);
         Yii::$app->session->setFlash(
@@ -46,7 +49,7 @@ class PrinterController extends Controller
         return $this->redirect(['index']);
     }
 
-    private function findModel($id)
+    private function findModel(int $id): Printer
     {
         $model = Printer::findOne($id);
         if ($model !== null) {
