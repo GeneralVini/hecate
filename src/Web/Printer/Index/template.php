@@ -41,7 +41,7 @@ $this->setTitle('Impressoras — HECATE');
                 <td><?= Html::encode($printer->last_seen_at ?? 'Não detectada') ?></td>
                 <td>
                     <form method="post" action="<?= Html::encode($urlGenerator->generate('printer/detect')) ?>">
-                        <?= $csrf ?? '' ?>
+                        <input type="hidden" name="_csrf" value="<?= Html::encode($csrf ?? '') ?>">
                         <input type="hidden" name="id" value="<?= Html::encode((string) $printer->id) ?>">
                         <button class="button button-secondary" type="submit">Detectar</button>
                     </form>
