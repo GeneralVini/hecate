@@ -145,16 +145,11 @@ Sequência preferencial de descoberta:
 - HECATE Web e Keycloak em Podman.
 - Um único PostgreSQL por OM é aceitável, com databases e owners separados para HECATE, SavaPage e Keycloak.
 - Distribuição institucional via Nexus.
-- UX de instalação pretendida:
-
-```bash
-dnf install hecate
-hecate-setup
-```
+- UX de instalação pretendida: `dnf install hecate` seguido de `hecate-setup`.
 
 ## 16. Segurança operacional
 
-- O PHP não recebe sudo genérico.
+- O PHP não recebe privilégio administrativo genérico.
 - Operações privilegiadas passam pelo `hecate-agent`.
 - Preferir comunicação local por Unix socket.
 - O agente oferece apenas um conjunto fechado de operações permitidas.
@@ -163,12 +158,11 @@ hecate-setup
 ## 17. Frontend e framework
 
 - Aplicação web baseada no template oficial Yii3 `yiisoft/app`.
-- Manter o padrão de diretórios do template, com código da aplicação em `src/`, configuração segmentada em `config/`, document root em `public/` e assets-fonte em `assets/`.
+- Yii3 é ferramenta da aplicação, não o modelo arquitetural do HECATE.
 - Rotas usam `yiisoft/router`; handlers web retornam respostas PSR-7 e recebem dependências pelo container PSR-11.
 - Middleware e serviços devem ser configurados pelo mecanismo de DI/configuração do Yii3, evitando service locator global e estruturas paralelas.
-- PostgreSQL usa os componentes `yiisoft/db`, `yiisoft/db-pgsql` e `yiisoft/active-record`.
-- Bootstrap 5 permanece como referência visual onde aplicável, sem alterar a arquitetura do template Yii3.
-- Layout institucional: sidebar retrátil, topbar, navegação contextual, área central e footerbar.
+- PostgreSQL usa os componentes `yiisoft/db` e `yiisoft/db-pgsql`; ActiveRecord pode ser usado pontualmente na infraestrutura, mas não como modelo compartilhado da aplicação.
+- Bootstrap 5 permanece como referência visual onde aplicável.
 
 ## 18. Pontos ainda sujeitos a POC
 
@@ -178,3 +172,15 @@ hecate-setup
 - atribuição confiável de usuário em Windows e Ubuntu;
 - descoberta e telemetria multi-fabricante;
 - estratégia de fallback para Catálogo MB desatualizado.
+
+## 19. Complexidade arquitetural
+
+> **A complexidade deve ser justificada pelo domínio.**
+
+- Adotar DDD de forma pragmática, sem impor estrutura acadêmica ao projeto.
+- Não introduzir antecipadamente camadas, interfaces, repositories, eventos, Value Objects ou indireções sem problema concreto a resolver.
+- Preferir o desenho mais simples que preserve boundaries claros e testabilidade.
+- DTOs, read models, repositories, entidades e Value Objects são ferramentas condicionais; devem existir quando representarem uma necessidade real do domínio, de integração, de persistência ou de isolamento entre boundaries.
+- Duplicação localizada entre boundaries pode ser preferível a um modelo compartilhado que aumente o acoplamento conceitual.
+- Evitar `GenericRepository`, `BaseRepository`, `BaseService`, DTO universal e ActiveRecord compartilhado entre módulos.
+- SQL explícito e parametrizado via Yii DB é aceitável e preferível quando tornar a intenção mais clara.
