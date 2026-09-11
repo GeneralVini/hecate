@@ -2,170 +2,169 @@
 
 ## 1. Finalidade
 
-Este documento define o padrão de documentação interna do código do HECATE. O objetivo é manter o código compreensível, auditável e sustentável sem transformar o projeto em uma base excessivamente comentada.
+Este documento define o padrão de documentação interna do código do HECATE. O objetivo é manter o código compreensível, auditável e sustentável sem excesso de comentários.
 
-A regra geral é simples: **tipos e nomes devem explicar o óbvio; PHPDoc/JSDoc devem explicar contrato, intenção, restrições, efeitos colaterais e decisões que não são evidentes apenas pela assinatura do código**.
-
----
+A regra geral é: tipos e nomes explicam o óbvio; PHPDoc e JSDoc explicam contratos, restrições, formatos, efeitos colaterais e decisões que não são evidentes apenas pela assinatura.
 
 ## 2. PHPDoc
 
-O código PHP próprio do HECATE deve utilizar **PHPDoc** de forma consistente, especialmente em classes e pontos públicos/reutilizáveis.
+PHPDoc deve ser utilizado quando acrescentar informação que os tipos nativos não conseguem expressar adequadamente.
 
-### 2.1. Onde PHPDoc é obrigatório
+É especialmente útil em:
 
-PHPDoc deve existir em:
-
-- classes próprias do HECATE;
-- interfaces e traits;
-- widgets reutilizáveis;
-- adapters de integração;
-- classes de infraestrutura e integração;
-- métodos públicos cuja finalidade, contrato ou efeitos não sejam triviais;
-- propriedades dinâmicas/mágicas relevantes ao Yii2 quando necessárias para análise estática/IDE;
-- estruturas complexas que não possam ser expressas adequadamente apenas por tipos nativos;
-- callbacks, arrays estruturados e formatos de retorno relevantes;
+- interfaces e contratos próprios;
+- adapters de SavaPage, Catálogo MB, LDAP, Keycloak e `hecate-agent`;
+- estruturas complexas e array shapes;
+- generics utilizados por PHPStan/Psalm;
+- callbacks não triviais;
 - métodos que lançam exceções relevantes ao contrato;
-- métodos com efeitos colaterais administrativos, transacionais ou privilegiados.
+- operações administrativas, transacionais ou privilegiadas;
+- pontos em que bibliotecas externas dependam de metadados documentais.
 
-### 2.2. Onde PHPDoc não deve ser usado apenas por formalidade
+Não é obrigatório adicionar PHPDoc redundante a toda classe ou método quando assinatura, nome e tipos nativos já forem suficientes.
 
-Evitar comentários redundantes como:
+## 3. Tipos nativos primeiro
 
-```php
-/**
- * Retorna o nome.
- *
- * @return string
- */
-public function getName(): string
-{
-    return $this->name;
-}
-```
+Preferir tipos nativos de propriedades, parâmetros e retornos.
 
-Quando a assinatura já expressa completamente o contrato, o PHPDoc pode ser omitido, salvo exigência específica de ferramenta/framework.
-
-### 2.3. Tipos nativos primeiro
-
-PHPDoc não deve substituir tipos nativos disponíveis no PHP.
-
-Preferir:
+Exemplo:
 
 ```php
 public function findPrinter(int $id): Printer
 ```
 
-em vez de depender apenas de:
+Evitar substituir tipagem nativa por PHPDoc:
 
 ```php
-/**
- * @param int $id
- * @return Printer
- */
+/** @param int $id */
 public function findPrinter($id)
 ```
 
-PHPDoc complementa a tipagem nativa, não a substitui.
+PHPDoc complementa a tipagem; não deve substituí-la.
 
-### 2.4. Tags recomendadas
+## 4. Tags recomendadas
 
-Usar quando aplicável:
+Usar quando houver informação adicional real:
 
-- `@param` para informação adicional que o tipo nativo não expresse;
-- `@return` quando houver detalhes relevantes sobre o retorno;
-- `@throws` para exceções que façam parte do contrato esperado;
-- `@var` para propriedades mágicas, shapes ou inferência necessária;
-- `@property`, `@property-read` e `@property-write` quando exigidos por comportamento dinâmico do Yii2;
-- `@method` apenas quando realmente necessário para comportamento mágico;
-- `@template`, `@extends`, `@implements` e tipos genéricos quando suportados pelo PHPStan e trouxerem ganho real;
-- array shapes do PHPStan/PHPDoc para estruturas externas bem definidas.
+- `@param`;
+- `@return`;
+- `@throws`;
+- `@var`;
+- `@template`;
+- `@extends`;
+- `@implements`;
+- array shapes e generics aceitos por PHPStan/Psalm.
 
-Evitar tags sem finalidade operacional ou que apenas dupliquem a assinatura.
+`@property` e `@method` devem ser usados apenas quando uma biblioteca realmente expuser comportamento dinâmico não representável de forma melhor por tipos nativos.
 
-### 2.5. PHPDoc em ActiveRecord e SearchModel
+## 5. Yii3 e ActiveRecord
 
-Em modelos Yii2, documentar de forma suficiente:
+Os modelos persistentes do HECATE utilizam `yiisoft/active-record` e ficam em `src/Model`.
 
-- propósito do modelo;
-- campos relevantes quando não forem evidentes;
-- relações `ActiveQuery` relevantes;
-- propriedades calculadas;
-- scopes/queries customizadas;
-- atributos virtuais;
-- formatos de payload usados por integrações.
+Documentar quando necessário:
 
-Comentários gerados automaticamente por Gii podem ser mantidos quando úteis, mas devem ser revisados para não carregar documentação incorreta ou obsoleta.
+- finalidade do modelo;
+- relações relevantes;
+- tipos que não possam ser inferidos corretamente;
+- regras ou invariantes de domínio associadas ao dado;
+- formatos usados em integrações;
+- diferenças entre representação persistente e regra de negócio.
 
-### 2.6. PHPDoc em adapters e integrações
+Não reproduzir documentação obsoleta oriunda de Yii2, Gii ou propriedades mágicas apenas por compatibilidade histórica.
 
-Adapters de SavaPage, Catálogo MB, LDAP, Keycloak e `hecate-agent` devem documentar:
+## 6. Actions, handlers e middleware
+
+Na arquitetura Yii3 do HECATE, endpoints web ficam em `src/Web` como actions/handlers invocáveis e usam dependências explícitas via DI.
+
+Documentar quando houver:
+
+- pré-condições relevantes;
+- autorização necessária;
+- side effects;
+- contratos de payload;
+- códigos de resposta não triviais;
+- integração externa;
+- transação ou alteração persistente;
+- requisito de idempotência.
+
+Não comentar boilerplate óbvio do PSR-7/PSR-15.
+
+## 7. Adapters e integrações
+
+Adapters de SavaPage, Catálogo MB, LDAP, Keycloak e `hecate-agent` devem documentar, quando aplicável:
 
 - sistema externo consumido;
 - operação executada;
-- parâmetros esperados;
-- formato de retorno;
-- timeouts quando relevantes;
-- erros/exceções esperados;
+- formato de entrada e saída;
+- timeouts;
+- erros esperados;
+- idempotência;
 - efeitos colaterais;
-- garantias de segurança relevantes;
-- se a operação é idempotente ou não;
-- limites ou hipóteses da integração.
+- limites técnicos;
+- requisitos de segurança.
 
-Não incluir secrets, tokens, credenciais reais ou exemplos sensíveis em comentários.
+Nunca incluir secrets, tokens, senhas, communities SNMP ou credenciais reais em comentários.
 
----
+## 8. Comentários inline
 
-## 3. Comentários PHP
+Comentários devem explicar principalmente o motivo da implementação.
 
-Comentários inline devem explicar principalmente **por que** determinada decisão existe.
-
-Bom exemplo:
+Exemplo adequado:
 
 ```php
-// Reserva a cota antes da liberação para impedir consumo concorrente
-// do mesmo saldo por dois jobs simultâneos.
+// Reserva a cota antes da liberação para impedir que dois jobs
+// concorrentes consumam o mesmo saldo disponível.
 ```
 
-Evitar:
+Evitar comentários que apenas traduzam o código:
 
 ```php
-// Soma um ao contador.
+// Incrementa o contador.
 $counter++;
 ```
 
-Comentários de workaround devem informar, quando possível:
+Workarounds devem indicar, quando possível, a limitação externa, referência técnica e condição para remoção futura.
 
-- motivo;
-- limitação externa;
-- referência técnica ou issue;
-- condição para remoção futura.
+Código comentado não deve permanecer no repositório; histórico pertence ao Git.
 
-Não deixar blocos de código comentado no repositório. Histórico pertence ao Git.
+## 9. `#[Override]`
 
----
+Quando um método sobrescrever um método herdado ou implementar contrato aplicável e a versão de PHP homologada permitir, utilizar `#[Override]` quando isso melhorar validação estática e tornar o contrato explícito.
 
-## 4. JavaScript: JSDoc
+O atributo não substitui os tipos da assinatura nem documentação de efeitos relevantes.
 
-Para JavaScript próprio do HECATE, utilizar **JSDoc** como equivalente conceitual ao PHPDoc.
+## 10. Arrays estruturados
 
-### 4.1. Onde JSDoc é obrigatório
+Evitar `array` sem shape conhecido nas fronteiras importantes.
 
-JSDoc deve ser usado em:
+Quando um value object ou DTO não se justificar, documentar o shape:
 
-- funções reutilizáveis;
-- módulos/componentes compartilhados;
-- classes JavaScript;
-- callbacks de contrato não trivial;
+```php
+/**
+ * @param array{
+ *     host: string,
+ *     port: int,
+ *     timeout: float
+ * } $target
+ */
+```
+
+O objetivo é permitir que PHPStan, Psalm e IDE validem o contrato real.
+
+## 11. JavaScript e JSDoc
+
+JavaScript reutilizável deve utilizar JSDoc quando possuir API ou contrato não trivial.
+
+Usar principalmente em:
+
+- funções compartilhadas;
+- módulos reutilizáveis;
 - funções assíncronas relevantes;
-- código de widgets/componentes que possua API pública;
-- estruturas de dados complexas;
-- funções que executem chamadas HTTP ou operações sensíveis;
-- código que manipule estado compartilhado.
+- callbacks de contrato complexo;
+- estruturas de dados não triviais;
+- código que execute chamadas HTTP ou manipule estado compartilhado.
 
-### 4.2. Tags recomendadas
-
-Usar quando aplicável:
+Tags usuais:
 
 - `@param`;
 - `@returns`;
@@ -173,18 +172,17 @@ Usar quando aplicável:
 - `@typedef`;
 - `@property`;
 - `@callback`;
-- `@async` quando a natureza assíncrona não estiver suficientemente clara;
-- `@deprecated` com orientação de substituição.
+- `@deprecated`.
 
 Exemplo:
 
 ```js
 /**
- * Atualiza o estado visual de um componente de saúde do stack.
+ * Atualiza o estado visual de um componente de saúde.
  *
- * @param {HTMLElement} element Elemento raiz do componente.
- * @param {'ok'|'warning'|'down'} status Estado operacional normalizado.
- * @param {string} message Mensagem segura para exibição ao operador.
+ * @param {HTMLElement} element Elemento raiz.
+ * @param {'ok'|'warning'|'down'} status Estado normalizado.
+ * @param {string} message Texto seguro para exibição.
  * @returns {void}
  */
 function updateHealthStatus(element, status, message) {
@@ -192,84 +190,41 @@ function updateHealthStatus(element, status, message) {
 }
 ```
 
-### 4.3. Documentação e segurança no JavaScript
+## 12. Segurança na documentação
 
-JSDoc nunca deve incentivar ou normalizar APIs inseguras. Código frontend deve continuar obedecendo às regras de segurança do projeto:
+Comentários e documentação não devem:
 
-- não usar `innerHTML` com dados não confiáveis;
-- preferir `textContent` para texto;
-- evitar `eval`, `new Function` e execução dinâmica;
-- não construir código JavaScript por concatenação de entrada externa;
-- não inserir tokens/secrets em comentários ou exemplos;
-- documentar claramente quando uma função espera conteúdo já sanitizado.
+- expor secrets;
+- recomendar concatenação insegura em SQL;
+- recomendar `innerHTML` com dados não confiáveis;
+- recomendar shell arbitrário;
+- registrar ou exemplificar PIN real;
+- sugerir manipulação direta de banco/spool interno do SavaPage;
+- documentar endpoints internos sensíveis com credenciais reais.
 
----
+Documentação de segurança deve descrever controles e contratos, não material sensível.
 
-## 5. Relação com PHPStan, IDE e SonarQube
+## 13. Relação com PHPStan e Psalm
 
-PHPDoc deve ser escrito de forma compatível com a análise estática do projeto.
+PHPDoc deve ser compatível com os analisadores estáticos do projeto.
 
 Objetivos:
 
-- melhorar inferência do PHPStan;
-- melhorar autocomplete e navegação da IDE;
-- tornar contratos explícitos;
-- reduzir uso injustificado de `mixed`;
-- documentar shapes e generics onde a linguagem ainda não ofereça expressão nativa suficiente;
-- evitar suppressions criadas apenas para compensar documentação incorreta.
+- melhorar inferência real;
+- explicitar generics e shapes;
+- reduzir `mixed` injustificado;
+- evitar suppressions decorrentes de documentação incorreta;
+- manter contratos consistentes entre implementação, testes e IDE.
 
-A documentação deve ser atualizada junto com o código. PHPDoc/JSDoc obsoleto é considerado defeito de manutenção.
+Quando PHPStan e Psalm divergirem por limitação conhecida de uma ferramenta, a solução deve ser localizada e justificada, nunca uma exclusão ampla do código próprio.
 
----
+## 14. Critério de qualidade
 
-## 6. Linguagem e estilo
+Uma documentação interna adequada deve:
 
-Para código próprio do HECATE:
-
-- nomes de classes, métodos, propriedades e variáveis seguem convenções técnicas em inglês, salvo decisão contrária específica do projeto;
-- documentação técnica interna pode ser escrita em português para facilitar sustentação pelas OM;
-- termos de APIs, protocolos e bibliotecas devem manter a nomenclatura oficial;
-- comentários devem ser objetivos;
-- evitar textos longos quando o comportamento puder ser expresso por melhor nome, tipo ou extração de método.
-
----
-
-## 7. Documentação de widgets reutilizáveis
-
-Todo widget próprio deve documentar pelo menos:
-
-- finalidade;
-- propriedades públicas configuráveis;
-- valores padrão relevantes;
-- formatos aceitos;
-- eventos/callbacks expostos;
-- comportamento esperado;
-- exemplo curto de uso quando não for óbvio.
-
-Isso se aplica especialmente a componentes como `FlashAlert`, GridView institucional, indicadores de status, cota, suprimentos e confirmações de ações sensíveis.
-
----
-
-## 8. Definition of Done de documentação de código
-
-Uma alteração somente atende ao padrão documental quando:
-
-- [ ] classes/interfaces/traits novas possuem documentação suficiente;
-- [ ] APIs públicas reutilizáveis possuem PHPDoc/JSDoc quando não triviais;
-- [ ] tipos nativos são usados antes de recorrer a PHPDoc;
-- [ ] `@throws` relevante está documentado;
-- [ ] array shapes/generics necessários ao PHPStan estão documentados;
-- [ ] widgets reutilizáveis possuem contrato documentado;
-- [ ] JavaScript reutilizável possui JSDoc adequado;
-- [ ] comentários explicam intenção/decisão, não apenas repetem o código;
-- [ ] não há documentação sabidamente obsoleta;
-- [ ] não há secrets ou informações sensíveis em exemplos/comentários;
-- [ ] mudança de contrato atualizou sua documentação no mesmo PR.
-
----
-
-## 9. Regra final
-
-O HECATE não adota a política de "comentar tudo". Adota a política de **documentar contratos, decisões e comportamentos que precisam sobreviver à troca de desenvolvedor e à replicação da solução entre OM**.
-
-PHPDoc e JSDoc fazem parte da qualidade do produto e devem ser considerados durante code review e antes do merge.
+- explicar decisões não óbvias;
+- permanecer coerente com o código;
+- não duplicar assinaturas sem necessidade;
+- evitar termos e convenções Yii2 na branch `yii3`;
+- não conter informação sensível;
+- ajudar análise estática, manutenção e auditoria.
