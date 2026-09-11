@@ -2,9 +2,24 @@
 
 **Plataforma Institucional de Governança e Controle de Impressão**
 
-HECATE é a plataforma institucional destinada a padronizar, controlar e auditar o serviço de impressão nas OM. A solução centraliza identidade, autorização, políticas, cotas P&B/colorida, contratos, liberação segura, auditoria, monitoramento da pilha de impressão e telemetria das impressoras.
+![HECATE — Governança e Controle de Impressão](public/branding/hecate-hero.jpg)
 
-O HECATE é o plano de governança do serviço de impressão. SavaPage, CUPS, Keycloak, PostgreSQL e os demais componentes têm responsabilidades delimitadas e são integrados sem acoplamento indevido.
+HECATE é a plataforma institucional destinada a padronizar, governar, controlar e auditar o serviço de impressão nas OM. A solução centraliza identidade, autorização, políticas, papéis, cotas P&B/colorida, contratos, aprovações, liberação segura, auditoria, indicadores, monitoramento da pilha de impressão e telemetria das impressoras.
+
+O HECATE não é um inventário de ferramentas. A governança está acima dos componentes técnicos e define **quem decide, quais regras se aplicam, quem pode alterar essas regras e como verificar se o que foi definido está funcionando**.
+
+```text
+HECATE
+Governança e Controle de Impressão
+        ↓
+Políticas · Papéis · Cotas · Aprovações · Auditoria · Indicadores
+        ↓
+Identidade | Controle | Dados
+        ↓
+Keycloak/Samba AD | SavaPage/CUPS | PostgreSQL/Podman
+```
+
+Keycloak, Samba AD, SavaPage, CUPS, PostgreSQL, Podman e demais componentes são mecanismos de implementação. O HECATE organiza a decisão, a política, a rastreabilidade e o acompanhamento do serviço.
 
 ## Arquitetura de referência
 
@@ -14,9 +29,9 @@ Samba AD da OM ----LDAPS----> Keycloak
        |                         v
        +---------------------> HECATE <------ Catálogo MB
                                  |
-                                 | políticas, cotas,
-                                 | contratos, auditoria,
-                                 | autorização e release
+                                 | políticas, papéis, cotas,
+                                 | contratos, aprovações,
+                                 | auditoria e indicadores
                                  v
 Cliente ---------------------> SavaPage
                                  |
@@ -32,12 +47,39 @@ Responsabilidades principais:
 - **Samba AD:** identidade institucional; acesso somente leitura.
 - **Catálogo MB:** atributos funcionais e organizacionais.
 - **Keycloak:** SSO/OIDC e base para MFA/federação futura.
-- **HECATE:** fonte de verdade para política, organização, cotas, contratos, aprovação, auditoria e operação.
+- **HECATE:** fonte de verdade para política, organização, papéis, cotas, contratos, aprovação, auditoria, indicadores e operação.
 - **SavaPage:** engine de impressão, retenção, accounting e enforcement.
 - **CUPS:** spool local e transporte do job.
 - **PostgreSQL:** persistência das aplicações, com databases e owners separados.
+- **Podman:** execução conteinerizada dos componentes definidos para essa camada.
 - **hecate-agent:** operações privilegiadas locais, descoberta, monitoramento e troubleshooting.
 - **Nexus:** distribuição institucional de RPMs, imagens OCI e artefatos homologados; não é CI/CD.
+
+## Identidade visual
+
+A linguagem visual atual usa azul-marinho profundo, dourado, Hécate, chave, tocha, lua tríplice e três portais que representam os domínios **Identidade**, **Controle** e **Dados**. O cenário do Rio de Janeiro, com Cristo Redentor e Pão de Açúcar, integra a composição institucional.
+
+Os assets oficiais ficam em `public/branding/`:
+
+```text
+logo-horizontal.png
+logo-vertical.png
+symbol.png
+favicon-16x16.png
+favicon-32x32.png
+favicon-48x48.png
+favicon-180x180.png
+favicon-192x192.png
+favicon-512x512.png
+login-background.jpg
+login-background.png
+dashboard-background.jpg
+hecate-hero.jpg
+```
+
+A interface Yii3 segue a mesma concepção: superfícies escuras, realces dourados, sidebar retrátil, topbar operacional, camada de governança visível e rodapé institucional com estrela, slogan, `CTIM - YYYY` e crédito discreto.
+
+Consulte `docs/IDENTIDADE-VISUAL.md` e `public/branding/README.md`.
 
 ## Plataforma web
 
@@ -57,7 +99,7 @@ src/
   Migration/            migrations Yii3
   Model/                ActiveRecord do domínio persistente
   Shared/               componentes compartilhados
-  Web/                  actions, templates e layout da aplicação web
+  Web/                  actions, templates e layouts da aplicação web
 tests/                   testes automatizados
 runtime/                 arquivos temporários em execução
 yii                      entry point console
@@ -91,6 +133,12 @@ make setup
 ```
 
 O `composer.lock` é obrigatório e está versionado. O bootstrap executa `composer install` exclusivamente a partir do lockfile; ausência do arquivo interrompe a preparação do ambiente para evitar resolução não reproduzível de dependências.
+
+Para aplicar o schema:
+
+```bash
+./yii migrate:up
+```
 
 Para iniciar o servidor de desenvolvimento:
 
@@ -212,8 +260,8 @@ hecate-setup
 - `docs/INTEGRACOES.md` — integrações institucionais e de impressão.
 - `docs/SEGURANCA.md` — controles de segurança e auditoria.
 - `docs/IMPLANTACAO.md` — instalação e distribuição.
-- `docs/IDENTIDADE-VISUAL.md` — identidade visual e uso dos assets.
+- `docs/IDENTIDADE-VISUAL.md` — identidade visual, governança da composição e uso dos assets.
 
 ## Estado da branch Yii3
 
-A branch `yii3` é a linha de modernização do HECATE baseada no template oficial `yiisoft/app`. O lockfile está versionado e o pipeline integral de QA está aprovado. Antes de promovê-la a `main`, permanecem como validações principais a execução da migration PostgreSQL e a validação funcional local da aplicação.
+A branch `yii3` é a linha de modernização do HECATE baseada no template oficial `yiisoft/app`. O lockfile está versionado, a migration PostgreSQL já foi validada em execução local e a aplicação web está em evolução funcional e visual antes da promoção para `main`.
