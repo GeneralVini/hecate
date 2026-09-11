@@ -10,10 +10,5 @@
         <directory name="src" />
         <directory name="config" />
         <file name="public/index.php" />
-        <ignoreFiles>
-            <directory name="vendor" />
-            <directory name="runtime" />
-            <directory name="public/assets" />
-        </ignoreFiles>
     </projectFiles>
 </psalm>
