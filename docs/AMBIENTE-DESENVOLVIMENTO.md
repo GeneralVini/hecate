@@ -1,205 +1,203 @@
 # Ambiente de Desenvolvimento — HECATE
 
-## 1. IDE padrão
+## 1. Finalidade
 
-O ambiente de desenvolvimento de referência do HECATE é o **Visual Studio Code**.
+O ambiente de desenvolvimento do HECATE deve reproduzir, com o mínimo de divergência possível, as validações executadas no CI. A referência atual da aplicação web é o template oficial `yiisoft/app`, com PHP 8.2–8.5, Composer, PostgreSQL e ferramentas de qualidade versionadas no projeto.
 
-O objetivo é que o IDE apresente o mais cedo possível os mesmos problemas que bloqueariam o pipeline de CI, reduzindo retrabalho e evitando divergência entre desenvolvimento local e validação de merge/release.
+O fluxo local deve priorizar diagnóstico antecipado, correção na causa e builds reproduzíveis.
 
-A experiência local deve privilegiar diagnóstico contínuo, correção na causa e prevenção de regressões.
+## 2. IDE de referência
 
----
+O Visual Studio Code é o IDE de referência. Extensões podem facilitar navegação, análise PHP, PHPCS, PHPStan, testes e edição de arquivos auxiliares, mas não substituem os comandos versionados no repositório.
 
-## 2. Diagnósticos esperados no VS Code
+A fonte de verdade para dependências e autoload é o Composer. Configurações locais do IDE não devem contradizer `composer.json`, `phpstan.neon`, `phpcs.xml`, `psalm.xml` ou `phpunit.xml`.
 
-O VS Code deve ser configurado para apresentar, no painel **Problems** e sempre que possível diretamente no editor, os diagnósticos relevantes do projeto.
+## 3. Primeira execução
 
-Devem ser considerados, no mínimo:
+```bash
+git clone https://github.com/GeneralVini/hecate.git
+cd hecate
+git switch yii3
+make setup
+```
 
-- erros de sintaxe PHP;
-- diagnósticos do PHPStan;
-- violações de estilo/PHPCS;
-- problemas detectados pelo SonarQube for IDE/SonarLint;
-- erros de JavaScript/JSON/CSS;
-- warnings de tipagem e símbolos não resolvidos do analisador PHP;
-- problemas de testes quando executados por task ou integração apropriada.
+O `composer.lock` é obrigatório e deve estar versionado. O bootstrap não instala pacotes do sistema, não executa `composer require` e não resolve uma nova árvore de dependências. A instalação é realizada com `composer install` a partir do lockfile.
 
-O editor não substitui o pipeline. O CI continua sendo a fonte final de validação para merge e release.
+Pré-requisitos locais:
 
----
+```text
+PHP
+Composer
+Git
+ext-pdo_pgsql
+PostgreSQL acessível para testes funcionais/migrations
+```
 
-## 3. Regra para código novo e código gerado
+## 4. Qualidade local
 
-Todo código novo, inclusive código produzido por geração automática, assistentes de programação ou ferramentas de IA, deve ser tratado como código de produção.
+O comando principal é:
 
-Antes de considerar uma alteração concluída, o desenvolvedor deve:
+```bash
+composer qa
+```
 
-1. revisar os diagnostics apresentados pelo VS Code;
-2. executar lint/PHPCS/PHPStan/testes aplicáveis;
-3. revisar issues do Sonar relacionadas ao código alterado;
-4. corrigir a causa dos problemas encontrados;
-5. confirmar que a alteração não introduziu novas violações.
+Ele executa o baseline obrigatório:
 
-Ferramentas de geração de código ou assistência por IA devem receber os padrões do HECATE como restrições de implementação e devem produzir código compatível com PSR-12, PHPStan, regras de segurança e convenções Yii2 do projeto.
+```text
+PHPCS / PSR-12
+PHPStan nível 8
+Psalm
+PHPUnit
+```
 
----
+Também podem ser usados:
 
-## 4. Não silenciar ferramentas para aprovar código
+```bash
+composer lint
+composer stan
+composer psalm
+composer test
+make qa
+```
 
-Quando PHPStan, PHPCS, SonarQube, lint ou testes apontarem problema, a ação padrão é corrigir o código.
+O CI executa as mesmas configurações versionadas. Não deve existir uma configuração local mais permissiva.
+
+## 5. Regra para código novo e código gerado
+
+Código novo, inclusive código gerado por ferramentas automáticas ou assistência por IA, deve ser tratado como código de produção.
+
+Antes de considerar uma alteração concluída, deve-se revisar o código, executar os checks aplicáveis, corrigir a causa dos diagnósticos e confirmar que não foram introduzidas suppressions apenas para aprovar a alteração.
+
+O código deve seguir a arquitetura Yii3 adotada no HECATE: actions/handlers invocáveis, dependências por DI, HTTP PSR-7/PSR-17, middleware PSR-15, configuração em `config/` e código da aplicação em `src/`.
+
+## 6. Não silenciar ferramentas
+
+Quando PHPCS, PHPStan, Psalm ou PHPUnit apontarem problema, a ação padrão é corrigir o código.
 
 Não utilizar como atalho:
 
-- `@phpstan-ignore-*`;
-- `// phpcs:ignore` ou exclusões amplas de ruleset;
-- `NOSONAR`;
-- desativação de regra do Sonar;
 - redução do nível do PHPStan;
 - expansão artificial de baseline;
-- casts ou verificações redundantes apenas para esconder diagnóstico;
-- `@` para suprimir erro PHP;
-- `eslint-disable` genérico quando houver JavaScript lint configurado;
-- exclusão de arquivos próprios do escopo das ferramentas.
+- `@phpstan-ignore-*` sem falso positivo comprovado;
+- `// phpcs:ignore` genérico;
+- suppressions amplas no Psalm;
+- `@` para esconder erro PHP;
+- exclusão de código próprio do escopo das ferramentas;
+- casts ou verificações redundantes somente para satisfazer o analisador.
 
-Uma supressão somente é aceitável quando houver falso positivo ou limitação técnica comprovada. Nesse caso, deve ser:
+Supressões só são aceitáveis quando houver limitação técnica ou falso positivo comprovado, de forma localizada e com justificativa objetiva.
 
-- específica;
-- localizada;
-- comentada com justificativa objetiva;
-- revisada em code review;
-- removível quando a limitação deixar de existir.
+## 7. PHPStan
 
----
+PHPStan nível 8 é gate mínimo atual. O objetivo é aumentar rigor sem reduzir o nível para aprovar entregas.
 
-## 5. PHP no editor
+O desenvolvedor deve executar:
 
-O VS Code deve possuir suporte a análise PHP capaz de identificar, ainda durante a edição:
+```bash
+composer stan
+```
 
-- classes e namespaces incorretos;
-- imports ausentes ou inválidos;
-- chamadas para símbolos inexistentes;
-- incompatibilidades evidentes de tipos;
-- assinaturas incorretas;
-- problemas em PHPDoc;
-- referências inconsistentes com Composer/PSR-4.
+A configuração utilizada localmente é a mesma do CI.
 
-O Composer deve permanecer como fonte do autoload real. O IDE não deve depender de mapeamentos manuais que contradigam `composer.json`.
+## 8. Psalm
 
----
+Psalm complementa o PHPStan e permanece obrigatório no baseline.
 
-## 6. PHPStan no fluxo local
+```bash
+composer psalm
+```
 
-PHPStan deve fazer parte do ciclo normal de desenvolvimento e não apenas do CI.
+Erros encontrados pelo Psalm devem ser corrigidos no código ou na tipagem real do projeto. Baselines e suppressions amplas não devem ser usados para ocultar problemas novos.
 
-O desenvolvedor deve conseguir executar facilmente a análise do projeto ou do código alterado a partir do terminal integrado ou de tasks do VS Code.
+## 9. PHPCS e formatação
 
-A configuração local deve utilizar exatamente o mesmo arquivo e o mesmo nível homologado usados no pipeline.
+PHPCS aplica PSR-12 ao código próprio do projeto.
 
-**Regra:** não manter uma configuração "mais permissiva" apenas para desenvolvimento local.
+```bash
+composer lint
+```
 
-Quando houver suporte do plugin/extensão escolhida, os diagnostics do PHPStan devem aparecer no painel Problems e nas linhas correspondentes do editor.
+PHPCBF pode ser usado para correções mecânicas quando apropriado, mas não substitui revisão de código.
 
----
+## 10. Testes
 
-## 7. PHPCS e formatação
+PHPUnit é a ferramenta de testes automatizados do projeto.
 
-PHPCS deve apontar violações PSR-12 durante o desenvolvimento.
+```bash
+composer test
+```
 
-A correção automática com PHPCBF pode ser usada para regras mecânicas e seguras, mas não deve ser confundida com revisão de código.
+O baseline atual contém testes mínimos e deve evoluir com testes unitários, integração PostgreSQL e validações dos fluxos críticos do HECATE.
 
-Recomenda-se formatar no save apenas quando o formatador utilizado estiver alinhado com o ruleset do projeto e não produzir alterações incompatíveis com PHPCS.
+## 11. SonarQube
 
----
+SonarQube não é requisito para `make setup`, desenvolvimento local nem para o pipeline básico atual.
 
-## 8. SonarQube no IDE
+Quando houver servidor institucional disponível, ele poderá ser integrado como camada adicional para dashboard centralizado, histórico, dívida técnica, cobertura, duplicação e Quality Gate. A indisponibilidade do SonarQube não deve impedir o ambiente local nem substituir PHPCS, PHPStan, Psalm e PHPUnit.
 
-Deve ser utilizada integração do **SonarQube for IDE** com o VS Code sempre que o servidor institucional estiver disponível.
+Integração do SonarQube for IDE no VS Code é opcional e pode ser utilizada quando houver instância institucional configurada.
 
-Preferir modo conectado ao SonarQube institucional para que regras, Quality Profile e issues locais sejam coerentes com o pipeline.
+## 12. Estrutura relevante
 
-O desenvolvedor deve tratar issues de segurança e reliability no momento da implementação, em vez de aguardar análise posterior do CI.
+```text
+assets/                 assets-fonte
+config/                 configuração e DI
+public/                 document root
+src/                    código da aplicação
+tests/                  testes
+runtime/                artefatos temporários de execução
+composer.json           dependências e scripts
+composer.lock           versões exatas das dependências
+phpstan.neon            análise estática
+phpcs.xml               estilo PSR-12
+psalm.xml               análise estática complementar
+phpunit.xml             testes
+```
 
-Um problema apontado localmente pelo Sonar não deve ser silenciado apenas para limpar o editor. Se houver falso positivo, o tratamento deve seguir o processo de revisão definido para o projeto.
+Não utilizar convenções Yii2 como `controllers/`, `models/`, `views/`, `widgets/` ou service locator global como referência arquitetural para código novo na branch `yii3`.
 
----
+## 13. Configuração local do PostgreSQL
 
-## 9. JavaScript, CSS e arquivos auxiliares
+Exemplo de variáveis:
 
-Para JavaScript reutilizável:
+```bash
+export HECATE_DB_HOST=127.0.0.1
+export HECATE_DB_PORT=5432
+export HECATE_DB_NAME=hecate
+export HECATE_DB_USER=hecate
+export HECATE_DB_PASSWORD='senha'
+```
 
-- utilizar JSDoc conforme `docs/DOCUMENTACAO-CODIGO.md`;
-- manter lint configurado quando a base JavaScript justificar;
-- evitar `eval`, `new Function`, handlers inline e uso inseguro de `innerHTML`;
-- tratar diagnostics de JavaScript como parte da qualidade da entrega.
+As migrations ficam em `src/Migration` e utilizam `yiisoft/db-migration`.
 
-CSS deve permanecer centralizado em assets/componentes compartilhados. Warnings de sintaxe e problemas estruturais apontados pelo editor devem ser corrigidos antes do merge.
-
----
-
-## 10. VS Code e componentes reutilizáveis
-
-O IDE deve favorecer navegação e reutilização do código já existente antes da criação de novos componentes.
-
-Antes de criar um novo GridView especializado, FlashAlert, badge, card, formatter, helper ou comportamento JavaScript, verificar os componentes já disponíveis em `widgets/`, `views/` compartilhadas e assets comuns.
-
-A criação automática de código não deve gerar variantes duplicadas de componentes já padronizados.
-
----
-
-## 11. Fluxo recomendado de desenvolvimento
+## 14. Fluxo recomendado
 
 ```text
 editar código
     ↓
-VS Code Problems
-    ├─ analisador PHP
-    ├─ PHPStan
-    ├─ PHPCS/lint
-    └─ SonarQube for IDE
+revisar diagnostics no IDE
     ↓
-corrigir a causa
+composer qa
     ↓
-executar checks locais
-    ↓
-testes
+testes funcionais/migration quando aplicável
     ↓
 commit / push
     ↓
-CI + SonarQube Quality Gate
+GitHub Actions
     ↓
 merge
 ```
 
-O objetivo é que o pipeline confirme a qualidade já observada localmente, e não seja a primeira ferramenta a descobrir problemas básicos.
+O objetivo é que o CI confirme uma alteração já validada localmente, em vez de ser a primeira etapa a descobrir problemas básicos.
 
----
+## 15. Critério de conclusão local
 
-## 12. Configuração versionada
+Antes de abrir ou atualizar um PR:
 
-Configurações do VS Code que representem decisões do projeto podem ser versionadas em `.vscode/`, especialmente:
-
-- extensões recomendadas;
-- opções de lint/análise;
-- exclusões coerentes com o projeto;
-- tasks para verificações locais;
-- comportamento de formatação compartilhado.
-
-Configurações pessoais de tema, fonte, atalhos e preferências sem impacto no produto não devem ser versionadas.
-
-A configuração versionada não pode conter caminhos absolutos de uma estação, tokens, credenciais ou qualquer segredo.
-
----
-
-## 13. Critério de conclusão local
-
-Antes de abrir ou atualizar um PR, espera-se que:
-
-- [ ] não existam erros de sintaxe no código alterado;
-- [ ] não existam novas violações PHPCS;
-- [ ] não existam novas violações PHPStan;
-- [ ] issues Sonar relevantes tenham sido corrigidas ou justificadas formalmente;
-- [ ] testes aplicáveis estejam aprovados;
-- [ ] não tenham sido introduzidas suppressions para contornar as ferramentas;
-- [ ] PHPDoc/JSDoc esteja adequado aos contratos novos ou alterados;
-- [ ] componentes reutilizáveis existentes tenham sido considerados antes de criar novos arquivos/classes;
-- [ ] código gerado ou assistido por IA tenha passado pelos mesmos checks do código escrito manualmente.
+- [ ] `composer.lock` permanece sincronizado com `composer.json`;
+- [ ] `composer qa` está aprovado;
+- [ ] não foram adicionadas suppressions para contornar erros reais;
+- [ ] PHPDoc foi usado apenas onde agrega contrato ou informação não expressável pelos tipos nativos;
+- [ ] configuração e código seguem a estrutura Yii3 adotada;
+- [ ] migrations e consultas PostgreSQL alteradas foram testadas quando aplicável;
+- [ ] código gerado ou assistido por IA passou pelos mesmos checks do código escrito manualmente.
