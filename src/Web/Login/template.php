@@ -11,18 +11,30 @@ $this->setTitle('Entrar — HECATE');
 ?>
 <section class="login-panel" aria-labelledby="login-title">
     <img class="login-logo" src="/branding/logo-horizontal.png" alt="HECATE">
-    <p class="eyebrow">Acesso institucional</p>
-    <h1 id="login-title">Controle e Governança de Impressão</h1>
-    <p class="login-copy">
-        O acesso ao HECATE será realizado por autenticação institucional via Keycloak e LDAP/AD.
-    </p>
 
-    <div class="login-status" role="status">
-        <strong>POC Yii3</strong>
-        <span>Integração Keycloak/OIDC ainda não habilitada nesta etapa.</span>
+    <h1 id="login-title" class="sr-only">Acesso ao HECATE</h1>
+
+    <div class="login-fields" aria-label="Credenciais institucionais">
+        <label for="username">Usuário</label>
+        <input
+            id="username"
+            name="username"
+            type="text"
+            autocomplete="username"
+            placeholder="Usuário institucional"
+        >
+
+        <label for="password">Senha</label>
+        <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Senha"
+        >
     </div>
 
-    <a class="button button-primary button-block" href="<?= Html::encode($urlGenerator->generate('home')) ?>">
-        Acessar ambiente de validação
+    <a class="button button-primary button-block login-submit" href="<?= Html::encode($urlGenerator->generate('home')) ?>">
+        Entrar
     </a>
 </section>
