@@ -1,15 +1,12 @@
 parameters:
     level: 8
     paths:
-        - assets
-        - controllers
-        - models
-        - migrations
-    bootstrapFiles:
-        - vendor/yiisoft/yii2/Yii.php
+        - src
+        - config
+        - public/index.php
     excludePaths:
         analyse:
-            - vendor (?)
-            - runtime (?)
-            - web/assets (?)
+            - vendor
+            - runtime
+            - public/assets
     tmpDir: .phpstan-cache
