@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Shared\ApplicationParams;
 
-/** @var array $params */
+/** @var array{application: array{name: string, charset: string, locale: string}} $params */
 
 return [
     ApplicationParams::class => [
