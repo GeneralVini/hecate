@@ -23,17 +23,28 @@ $this->setTitle('Cadastrar impressora — HECATE');
 
     <label for="name">Nome lógico</label>
     <input id="name" name="name" maxlength="160" required value="<?= Html::encode($values['name']) ?>">
-    <?php if (isset($errors['name'])): ?><p class="field-error"><?= Html::encode($errors['name']) ?></p><?php endif; ?>
+    <?php if (isset($errors['name'])) : ?>
+        <p class="field-error"><?= Html::encode($errors['name']) ?></p>
+    <?php endif; ?>
 
     <label for="host">IP ou FQDN</label>
     <input id="host" name="host" maxlength="160" required value="<?= Html::encode($values['host']) ?>">
-    <?php if (isset($errors['host'])): ?><p class="field-error"><?= Html::encode($errors['host']) ?></p><?php endif; ?>
+    <?php if (isset($errors['host'])) : ?>
+        <p class="field-error"><?= Html::encode($errors['host']) ?></p>
+    <?php endif; ?>
 
     <label for="location">Localização</label>
-    <input id="location" name="location" maxlength="160" value="<?= Html::encode($values['location']) ?>">
+    <input
+        id="location"
+        name="location"
+        maxlength="160"
+        value="<?= Html::encode($values['location']) ?>"
+    >
 
     <div class="form-actions">
         <button class="button" type="submit">Salvar</button>
-        <a class="button button-secondary" href="<?= Html::encode($urlGenerator->generate('printer/index')) ?>">Cancelar</a>
+        <a class="button button-secondary" href="<?= Html::encode($urlGenerator->generate('printer/index')) ?>">
+            Cancelar
+        </a>
     </div>
 </form>
