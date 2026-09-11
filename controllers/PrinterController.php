@@ -7,12 +7,16 @@ namespace app\controllers;
 use app\models\Printer;
 use LogicException;
 use Yii;
+use yii\base\Module;
 use yii\data\ActiveDataProvider;
 use yii\web\Application;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
+/**
+ * @extends Controller<Module>
+ */
 class PrinterController extends Controller
 {
     public function actionIndex(): string
