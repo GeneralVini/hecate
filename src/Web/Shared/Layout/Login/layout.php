@@ -39,9 +39,8 @@ $this->beginPage();
         <?= $content ?>
     </div>
     <footer class="login-footerbar">
-        <strong>HECATE</strong>
-        <span>Plataforma Institucional de Governança e Controle de Impressão</span>
-        <span>Marinha do Brasil · DCTIM · Tecnologia a serviço da missão</span>
+        <span class="login-footerbar-year">CTIM - <?= date('Y') ?></span>
+        <span class="login-footerbar-credit">CC(EN) HONORATO</span>
     </footer>
 </main>
 <?php $this->endBody() ?>
