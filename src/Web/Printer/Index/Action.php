@@ -16,7 +16,14 @@ final readonly class Action
 
     public function __invoke(): ResponseInterface
     {
-        $printers = Printer::query()->all();
+        $printers = [];
+
+        foreach (Printer::query()->all() as $printer) {
+            if ($printer instanceof Printer) {
+                $printers[] = $printer;
+            }
+        }
+
         usort(
             $printers,
             static fn(Printer $a, Printer $b): int => strcasecmp($a->name, $b->name),
