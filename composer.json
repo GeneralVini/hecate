@@ -11,8 +11,24 @@
     "yiisoft/yii2-symfonymailer": "~2.0.3"
   },
   "require-dev": {
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^10.5",
+    "squizlabs/php_codesniffer": "^3.13",
+    "vimeo/psalm": "^5.26",
     "yiisoft/yii2-debug": "~2.1.25",
     "yiisoft/yii2-gii": "~2.2.6"
+  },
+  "scripts": {
+    "lint": "phpcs",
+    "stan": "phpstan analyse --configuration=phpstan.neon --no-progress",
+    "psalm": "psalm --config=psalm.xml --no-progress",
+    "test": "phpunit --configuration=phpunit.xml",
+    "qa": [
+      "@lint",
+      "@stan",
+      "@psalm",
+      "@test"
+    ]
   },
   "config": {
     "allow-plugins": {
