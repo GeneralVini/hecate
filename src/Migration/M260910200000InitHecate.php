@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Migration;
 
+use Override;
 use Yiisoft\Db\Migration\MigrationBuilder;
 use Yiisoft\Db\Migration\RevertibleMigrationInterface;
 use Yiisoft\Db\Migration\TransactionalMigrationInterface;
 
 final class M260910200000InitHecate implements RevertibleMigrationInterface, TransactionalMigrationInterface
 {
+    #[Override]
     public function up(MigrationBuilder $b): void
     {
         $b->execute(<<<'SQL'
@@ -81,6 +83,7 @@ CREATE TABLE audit_log (
 SQL);
     }
 
+    #[Override]
     public function down(MigrationBuilder $b): void
     {
         $b->dropTable('audit_log');
