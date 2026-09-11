@@ -32,7 +32,7 @@ $this->setTitle('Impressoras — HECATE');
         </tr>
         </thead>
         <tbody>
-        <?php foreach ($printers as $printer): ?>
+        <?php foreach ($printers as $printer) : ?>
             <tr>
                 <td><?= Html::encode($printer->name) ?></td>
                 <td><?= Html::encode($printer->host) ?></td>
@@ -46,7 +46,7 @@ $this->setTitle('Impressoras — HECATE');
                 </td>
             </tr>
         <?php endforeach; ?>
-        <?php if ($printers === []): ?>
+        <?php if ($printers === []) : ?>
             <tr><td colspan="5">Nenhuma impressora cadastrada.</td></tr>
         <?php endif; ?>
         </tbody>
