@@ -112,34 +112,98 @@ Um pacote de trabalho somente deve ter sua checkbox de entrega marcada quando **
 
 ### 3.1.4. Qualidade, compliance e padrões de código
 
+#### Estratégia inicial
+
+A qualidade do HECATE deve ser garantida inicialmente por ferramentas gratuitas, abertas, leves e diretamente integradas ao ecossistema PHP e ao Composer. **SonarQube não é requisito obrigatório na fase inicial**, nem para desenvolvimento local nem para o funcionamento básico do pipeline de CI/CD.
+
+As ferramentas obrigatórias devem ser instaladas como dependências de desenvolvimento do projeto e versionadas no `composer.lock`, garantindo a mesma versão entre estações de desenvolvimento e GitHub Actions.
+
+```text
+Desenvolvimento
+  ├─ VS Code
+  │   ├─ PHPStan
+  │   ├─ PHPCS / PSR-12
+  │   ├─ Psalm
+  │   └─ PHPUnit
+  │
+  └─ Composer
+      └─ dependências de desenvolvimento versionadas no projeto
+
+CI/CD
+  └─ GitHub Actions
+      ├─ composer validate
+      ├─ PHPCS
+      ├─ PHPStan
+      ├─ Psalm
+      └─ PHPUnit
+```
+
+#### Padrões e ferramentas obrigatórias
+
 - [ ] Adotar **PSR-1** como padrão básico obrigatório.
 - [ ] Adotar **PSR-4** para autoloading e namespaces.
 - [ ] Adotar **PSR-12** como padrão obrigatório de estilo.
 - [ ] Acompanhar o **PER Coding Style** da PHP-FIG e incorporar regras compatíveis com a versão PHP homologada.
 - [ ] Avaliar PSR-3, PSR-11, PSR-6/16 e PSR-18 apenas onde houver benefício real de interoperabilidade.
 - [ ] Não impor PSR-7/PSR-15 ao núcleo Yii2 apenas por conformidade formal.
+- [ ] Configurar `composer validate` como verificação obrigatória.
 - [ ] Configurar lint de sintaxe PHP (`php -l`).
 - [ ] Configurar PHP_CodeSniffer/PHPCS com ruleset PSR-12.
-- [ ] Configurar PHPCBF para correções automáticas seguras.
+- [ ] Configurar PHPCBF para correções automáticas seguras, sem mascarar falhas de projeto.
 - [ ] Configurar PHPStan com extensão compatível com Yii2.
-- [ ] Adotar PHPStan nível 8 como gate inicial mínimo.
-- [ ] Planejar elevação progressiva para nível 9 e 10/`max`.
+- [ ] Adotar PHPStan **nível 8 ou superior** quando compatível com o código e dependências homologadas.
+- [ ] Planejar elevação progressiva do PHPStan para nível 9 e 10/`max`.
 - [ ] Proibir redução de nível PHPStan para contornar falhas.
 - [ ] Controlar baseline PHPStan e impedir crescimento sem justificativa.
-- [ ] Configurar `composer validate`.
-- [ ] Configurar `composer audit`.
+- [ ] Configurar **Psalm** como camada complementar de análise estática.
+- [ ] Evitar que PHPStan e Psalm sejam configurados de forma redundante sem ganho; diferenças úteis de diagnóstico devem ser tratadas como complementaridade.
+- [ ] Configurar **PHPUnit** para testes automatizados do código próprio.
+- [ ] Configurar `composer audit` para dependências PHP.
 - [ ] Versionar `composer.lock`.
-- [ ] Integrar SonarQube institucional quando disponível.
-- [ ] Configurar Quality Gate bloqueante para `main`/release.
-- [ ] Avaliar reliability, security, security hotspots, maintainability, duplicação, complexidade e cobertura.
-- [ ] Impedir merge com vulnerabilidades/bugs novos críticos ou altos sem aceite formal.
+- [ ] Manter dependências de desenvolvimento necessárias no `composer.json` do projeto.
 - [ ] Padronizar PHPDoc para contratos, tipos complementares, exceções e comportamento não trivial.
 - [ ] Padronizar JSDoc para JavaScript reutilizável e contratos de funções/componentes.
-- [ ] Integrar VS Code aos diagnósticos de PHPStan, PHPCS/lint e SonarQube.
-- [ ] Tratar warnings das ferramentas pela correção da causa, evitando suppressions para apenas silenciar análise.
-- [ ] Documentar critérios em `docs/QUALIDADE-CODIGO.md`, `docs/DOCUMENTACAO-CODIGO.md` e `docs/AMBIENTE-DESENVOLVIMENTO.md`.
+- [ ] Integrar VS Code aos diagnósticos de PHPStan, PHPCS, Psalm e testes quando houver extensão compatível.
+- [ ] Tratar warnings das ferramentas pela correção da causa, evitando suppressions usadas apenas para silenciar análise.
 
-**Critério de conclusão:** toda alteração passa por lint, style check, análise estática, testes, auditoria de dependências e Quality Gate aplicável antes de merge/release.
+#### VS Code
+
+- [ ] Definir VS Code como IDE de referência do projeto.
+- [ ] Disponibilizar recomendações de extensões úteis em `.vscode/extensions.json` quando aplicável.
+- [ ] Disponibilizar configurações compartilháveis em `.vscode/settings.json` sem versionar preferências pessoais.
+- [ ] Disponibilizar tasks para executar lint, PHPCS, PHPStan, Psalm e PHPUnit quando útil.
+- [ ] Exibir diagnósticos no editor/Problems sempre que a integração suportar.
+- [ ] Registrar explicitamente que **extensões do VS Code são apoio ao desenvolvedor e não substituem as ferramentas instaladas via Composer**.
+
+A validação oficial deve ser realizada pelos executáveis versionados no projeto. A IDE pode antecipar problemas, mas o resultado reproduzível do Composer e do CI/CD prevalece.
+
+#### GitHub Actions e bloqueio de merge
+
+- [ ] Criar workflow de qualidade no GitHub Actions.
+- [ ] Executar `composer validate` no workflow.
+- [ ] Instalar dependências a partir do `composer.lock`.
+- [ ] Executar PHPCS/PSR-12.
+- [ ] Executar PHPStan no nível homologado.
+- [ ] Executar Psalm.
+- [ ] Executar PHPUnit.
+- [ ] Executar `composer audit` conforme política de vulnerabilidades.
+- [ ] Configurar os checks obrigatórios antes de merge na branch principal.
+- [ ] Bloquear merge quando houver falha crítica de lint/sintaxe, PSR-12, PHPStan, Psalm ou PHPUnit.
+- [ ] Não permitir bypass rotineiro de checks obrigatórios para aprovar entrega.
+
+#### SonarQube — etapa futura/opcional
+
+- [ ] Avaliar adoção futura do SonarQube quando houver necessidade de dashboard centralizado de qualidade.
+- [ ] Avaliar SonarQube para histórico de métricas.
+- [ ] Avaliar SonarQube para acompanhamento de dívida técnica.
+- [ ] Avaliar SonarQube para cobertura consolidada.
+- [ ] Avaliar SonarQube para Quality Gates centralizados.
+- [ ] Avaliar SonarQube para análise centralizada de múltiplos componentes ou repositórios.
+- [ ] Se adotado, integrar SonarQube ao CI/CD sem retirar PHPCS, PHPStan, Psalm ou PHPUnit.
+
+**Decisão técnica:** SonarQube é **opcional na fase inicial**. Sua ausência não deve impedir desenvolvimento local nem a operação do pipeline básico. PHPCS, PHPStan, Psalm e PHPUnit permanecem ferramentas obrigatórias mesmo se SonarQube for adotado posteriormente; podem alimentar ou complementar a análise centralizada.
+
+**Critério de conclusão:** `composer validate`, PHPCS/PSR-12, PHPStan, Psalm e PHPUnit executam de forma reproduzível no projeto e no GitHub Actions, com checks obrigatórios bloqueando merge em caso de falha crítica.
 
 - [ ] **Pacote 3.1.4 concluído e validado.**
 
@@ -426,6 +490,7 @@ Um pacote de trabalho somente deve ter sua checkbox de entrega marcada quando **
 
 ### 3.1.21. Testes e homologação técnica
 
+- [ ] Configurar PHPUnit como framework padrão de testes automatizados.
 - [ ] Testes unitários das regras de negócio críticas.
 - [ ] Testes de integração com PostgreSQL.
 - [ ] Testes de migrations e rollback aplicável.
@@ -440,8 +505,9 @@ Um pacote de trabalho somente deve ter sua checkbox de entrega marcada quando **
 - [ ] Validar backup/restore.
 - [ ] Executar pipeline completo de qualidade/compliance.
 - [ ] Executar testes negativos de autorização, validação e entradas maliciosas.
+- [ ] Garantir que PHPUnit seja executado no GitHub Actions antes de merge.
 
-**Critério de conclusão:** cenários críticos reproduzidos com resultado aprovado e sem falhas bloqueadoras abertas.
+**Critério de conclusão:** cenários críticos reproduzidos com resultado aprovado, PHPUnit aprovado e sem falhas bloqueadoras abertas.
 
 - [ ] **Pacote 3.1.21 concluído e validado.**
 
@@ -489,6 +555,7 @@ Um pacote de trabalho somente deve ter sua checkbox de entrega marcada quando **
 - [ ] Qualidade e padrões de código.
 - [ ] Ambiente de desenvolvimento VS Code.
 - [ ] PHPDoc/JSDoc e convenções de documentação de código.
+- [ ] Estratégia de CI/CD com GitHub Actions.
 - [ ] Manual de implantação.
 - [ ] Manual de operação.
 - [ ] Checklist de instalação.
@@ -528,12 +595,15 @@ Um pacote de trabalho somente deve ter sua checkbox de entrega marcada quando **
 ### 3.1.26. Release 1.0
 
 - [ ] Todas as POCs bloqueadoras homologadas.
-- [ ] Quality Gate aprovado.
-- [ ] PHPStan no nível mínimo definido.
+- [ ] `composer validate` aprovado.
 - [ ] PHPCS/PSR-12 sem violações bloqueadoras.
+- [ ] PHPStan aprovado no nível mínimo homologado, preferencialmente 8 ou superior.
+- [ ] Psalm aprovado.
+- [ ] PHPUnit e testes críticos aprovados.
+- [ ] GitHub Actions com checks obrigatórios aprovados.
 - [ ] `composer audit` aprovado ou riscos formalmente aceitos.
-- [ ] Testes críticos aprovados.
 - [ ] Vulnerabilidades críticas/altas tratadas.
+- [ ] SonarQube/Quality Gate aprovado somente quando o SonarQube fizer parte do ambiente institucional adotado para a release.
 - [ ] Documentação atualizada.
 - [ ] Pacotes e imagens publicados no Nexus.
 - [ ] Procedimento de instalação validado.
@@ -541,7 +611,7 @@ Um pacote de trabalho somente deve ter sua checkbox de entrega marcada quando **
 - [ ] Piloto aprovado.
 - [ ] Tag e versão da release criadas.
 
-**Critério de conclusão:** versão institucional apta a implantação controlada em novas OM.
+**Critério de conclusão:** versão institucional apta a implantação controlada em novas OM, com pipeline básico independente de SonarQube.
 
 - [ ] **Pacote 3.1.26 / Release 1.0 concluído e validado.**
 
@@ -559,33 +629,49 @@ As seguintes validações devem ser tratadas como bloqueadoras de arquitetura/re
 - [ ] Descoberta multi-vendor por IPP/SNMP/EWS.
 - [ ] Tratamento de indisponibilidade ou inconsistência do Catálogo MB.
 - [ ] Instalação reproduzível em versão homologada do Oracle Linux.
-- [ ] Pipeline de qualidade/compliance bloqueante e reproduzível.
+- [ ] Pipeline de qualidade/compliance bloqueante e reproduzível com Composer, PHPCS, PHPStan, Psalm, PHPUnit e GitHub Actions.
 
 ---
 
 # 5. Gate mínimo de qualidade para merge/release
 
-Nenhum código de produção deve ser considerado concluído sem os controles aplicáveis abaixo:
+O gate inicial não depende de SonarQube. Nenhum código de produção deve ser considerado concluído sem os controles aplicáveis abaixo:
 
 - [ ] `composer validate` aprovado.
-- [ ] Dependências instaladas de forma reproduzível a partir do lockfile.
+- [ ] Dependências instaladas de forma reproduzível a partir do `composer.lock`.
 - [ ] `php -l` aprovado.
 - [ ] PHPCS / PSR-12 aprovado.
-- [ ] PHPStan aprovado no nível homologado.
-- [ ] Testes automatizados aprovados.
+- [ ] PHPStan aprovado no nível homologado, preferencialmente nível 8 ou superior.
+- [ ] Psalm aprovado.
+- [ ] PHPUnit aprovado.
 - [ ] `composer audit` aprovado ou risco formalmente aceito.
-- [ ] SonarQube/SAST executado quando disponível.
-- [ ] Quality Gate aprovado.
+- [ ] GitHub Actions executando os checks obrigatórios.
+- [ ] Branch principal protegida contra merge quando checks obrigatórios falharem.
 - [ ] Warnings relevantes do VS Code/analisadores tratados sem suppressions indevidas.
 
-Para detalhes, consultar `docs/QUALIDADE-CODIGO.md`.
+Falhas críticas de sintaxe/lint, padrão PSR-12, PHPStan, Psalm ou PHPUnit devem bloquear merge.
+
+### 5.1. SonarQube opcional
+
+A adoção posterior do SonarQube deve complementar o gate acima, não substituí-lo. Quando adotado, pode acrescentar:
+
+- [ ] dashboard centralizado de qualidade;
+- [ ] histórico de métricas;
+- [ ] acompanhamento de dívida técnica;
+- [ ] cobertura consolidada;
+- [ ] Quality Gates;
+- [ ] visão centralizada de múltiplos componentes ou repositórios.
+
+PHPCS, PHPStan, Psalm e PHPUnit permanecem no pipeline mesmo com SonarQube.
+
+Para detalhes, consultar `docs/QUALIDADE-CODIGO.md` e `docs/AMBIENTE-DESENVOLVIMENTO.md`.
 
 ---
 
 # 6. Sequência recomendada de execução
 
 1. Arquitetura e decisões.
-2. Qualidade/compliance e CI desde o início.
+2. Qualidade/compliance e GitHub Actions desde o início, sem dependência de SonarQube.
 3. Base Yii2 e banco.
 4. Keycloak + LDAP/AD + Catálogo MB.
 5. SavaPage + CUPS.
@@ -600,7 +686,8 @@ Para detalhes, consultar `docs/QUALIDADE-CODIGO.md`.
 14. Empacotamento/Nexus.
 15. Piloto.
 16. Replicação.
-17. Release 1.0.
+17. Avaliação opcional de SonarQube conforme necessidade institucional.
+18. Release 1.0.
 
 ---
 
@@ -637,7 +724,9 @@ Além da funcionalidade, a entrega exige instalação reproduzível, backup/rest
 - [ ] Segurança e auditoria homologadas.
 - [ ] Monitoramento e diagnóstico homologados.
 - [ ] Documentação operacional aprovada.
-- [ ] Pipeline/Quality Gate aprovado.
+- [ ] `composer validate`, PHPCS, PHPStan, Psalm e PHPUnit aprovados.
+- [ ] GitHub Actions obrigatório e aprovado.
+- [ ] SonarQube aprovado somente quando fizer parte da solução de qualidade adotada.
 - [ ] **HECATE considerado entregue.**
 
 ---
@@ -651,5 +740,6 @@ Além da funcionalidade, a entrega exige instalação reproduzível, backup/rest
 - retenção permanente do conteúdo de documentos impressos;
 - alteração de usuários/grupos/GPO/OU/DNS no AD;
 - dependência obrigatória de software proprietário;
+- **dependência obrigatória de SonarQube para desenvolvimento local ou pipeline inicial**;
 - uso de IP de origem como identidade organizacional;
 - customizações específicas de uma única OM incorporadas ao núcleo do produto.
