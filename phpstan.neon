@@ -4,9 +4,4 @@ parameters:
         - src
         - config
         - public/index.php
-    excludePaths:
-        analyse:
-            - vendor
-            - runtime
-            - public/assets
     tmpDir: .phpstan-cache
