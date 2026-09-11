@@ -1,15 +1,17 @@
 <?php
 
-namespace app\\controllers;
+declare(strict_types=1);
 
-use app\\models\\Printer;
-use app\\models\\Division;
-use app\\models\\Quota;
-use yii\\web\\Controller;
+namespace app\controllers;
+
+use app\models\Division;
+use app\models\Printer;
+use app\models\Quota;
+use yii\web\Controller;
 
 class SiteController extends Controller
 {
-    public function actionIndex()
+    public function actionIndex(): string
     {
         $metrics = [
             'printers' => Printer::find()->count(),
@@ -21,7 +23,7 @@ class SiteController extends Controller
         return $this->render('index', ['metrics' => $metrics]);
     }
 
-    public function actionError()
+    public function actionError(): string
     {
         return $this->render('error');
     }
