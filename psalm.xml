@@ -11,5 +11,8 @@
         <directory name="controllers" />
         <directory name="models" />
         <directory name="migrations" />
+        <ignoreFiles>
+            <directory name="vendor" />
+        </ignoreFiles>
     </projectFiles>
 </psalm>
