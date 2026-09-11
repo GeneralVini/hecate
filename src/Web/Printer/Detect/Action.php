@@ -16,7 +16,8 @@ final readonly class Action
         private RequestProviderInterface $requestProvider,
         private ResponseFactoryInterface $responseFactory,
         private UrlGeneratorInterface $urlGenerator,
-    ) {}
+    ) {
+    }
 
     public function __invoke(): ResponseInterface
     {
