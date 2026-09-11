@@ -1,0 +1,13 @@
+parameters:
+    level: 8
+    paths:
+        - assets
+        - controllers
+        - models
+        - migrations
+    excludePaths:
+        analyse:
+            - vendor
+            - runtime
+            - web/assets
+    tmpDir: .phpstan-cache
