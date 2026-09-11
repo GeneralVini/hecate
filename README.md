@@ -2,23 +2,9 @@
 
 **Plataforma Institucional de Governança e Controle de Impressão**
 
-HECATE é a plataforma institucional destinada a padronizar, controlar e auditar o serviço de impressão nas OM. O produto centraliza identidade, autorização, políticas, cotas P&B/colorida, contratos, liberação segura, auditoria, monitoramento da pilha de impressão e telemetria das impressoras.
+HECATE é a plataforma institucional destinada a padronizar, controlar e auditar o serviço de impressão nas OM. A solução centraliza identidade, autorização, políticas, cotas P&B/colorida, contratos, liberação segura, auditoria, monitoramento da pilha de impressão e telemetria das impressoras.
 
-O HECATE não é apenas um frontend para SavaPage. Ele é o **plano de governança** do serviço de impressão. SavaPage, CUPS, Keycloak, PostgreSQL e os demais componentes fazem parte da solução, cada um com responsabilidade delimitada.
-
-## Objetivos
-
-- centralizar o fluxo de impressão;
-- autenticar usuários com identidade institucional;
-- controlar acesso por OM, divisão, grupo e exceção autorizada;
-- aplicar cotas independentes para P&B e colorida;
-- registrar quem imprimiu, quando, onde e quantas páginas;
-- controlar contratos por consumo ou franquia mensal;
-- permitir transferência auditada de quotas entre divisões;
-- exigir liberação deliberada de jobs retidos;
-- impedir, sempre que possível, impressão direta sem rastreabilidade;
-- monitorar serviços, filas, impressoras e suprimentos;
-- permitir replicação simples em outras OM.
+O HECATE é o plano de governança do serviço de impressão. SavaPage, CUPS, Keycloak, PostgreSQL e os demais componentes têm responsabilidades delimitadas e são integrados sem acoplamento indevido.
 
 ## Arquitetura de referência
 
@@ -28,7 +14,7 @@ Samba AD da OM ----LDAPS----> Keycloak
        |                         v
        +---------------------> HECATE <------ Catálogo MB
                                  |
-                                 | políticas, quotas,
+                                 | políticas, cotas,
                                  | contratos, auditoria,
                                  | autorização e release
                                  v
@@ -41,87 +27,156 @@ Cliente ---------------------> SavaPage
                              Impressora
 ```
 
-### Responsabilidades
+Responsabilidades principais:
 
-- **Samba AD:** identidade institucional; somente leitura.
+- **Samba AD:** identidade institucional; acesso somente leitura.
 - **Catálogo MB:** atributos funcionais e organizacionais.
-- **Keycloak:** SSO/OIDC e base para MFA futuro.
-- **HECATE:** fonte de verdade para política, organização, quota, contrato, aprovação, auditoria e operação.
+- **Keycloak:** SSO/OIDC e base para MFA/federação futura.
+- **HECATE:** fonte de verdade para política, organização, cotas, contratos, aprovação, auditoria e operação.
 - **SavaPage:** engine de impressão, retenção, accounting e enforcement.
 - **CUPS:** spool local e transporte do job.
-- **PostgreSQL:** persistência das aplicações, com databases separados.
+- **PostgreSQL:** persistência das aplicações, com databases e owners separados.
 - **hecate-agent:** operações privilegiadas locais, descoberta, monitoramento e troubleshooting.
-- **Nexus:** distribuição institucional de RPMs, imagens OCI e artefatos homologados.
+- **Nexus:** distribuição institucional de RPMs, imagens OCI e artefatos homologados; não é CI/CD.
 
-## Princípios de segurança
+## Plataforma web
 
-- O HECATE não altera usuários, grupos, OUs, GPOs, DNS ou senhas do Samba AD.
-- Integração com diretório é somente leitura, preferencialmente via LDAPS.
-- O PHP não recebe `sudo` genérico.
-- Ações privilegiadas passam pelo `hecate-agent`, com conjunto fechado de operações.
-- Nunca escrever diretamente no banco ou spool interno do SavaPage.
-- Filas físicas do CUPS não devem ser publicadas diretamente aos clientes.
-- Conteúdo de documentos não é arquivado permanentemente; somente metadados operacionais e de auditoria são preservados.
+A branch `yii3` utiliza o template oficial **Yii3 Web Application** (`yiisoft/app`) como referência estrutural. A aplicação usa PHP 8.2–8.5, PSR-7/PSR-17 para HTTP, middleware PSR-15, container DI, roteamento explícito e componentes desacoplados.
+
+Estrutura principal:
+
+```text
+assets/                 assets-fonte da aplicação
+config/
+  common/               parâmetros, rotas e DI compartilhados
+  console/              configuração da aplicação console
+  environments/         parâmetros dev/test/prod
+  web/                  pipeline e dependências HTTP
+public/                 document root e branding público
+src/
+  Migration/            migrations Yii3
+  Model/                ActiveRecord do domínio persistente
+  Shared/               componentes compartilhados
+  Web/                  actions, templates e layout da aplicação web
+tests/                   testes automatizados
+runtime/                 arquivos temporários em execução
+yii                      entry point console
+```
+
+Não são utilizados controllers, models e views no formato Yii2. Cada endpoint web é implementado como action/handler invocável em `src/Web`, com dependências recebidas pelo container.
+
+## Banco de dados
+
+O HECATE usa PostgreSQL pelo `yiisoft/db-pgsql` e `yiisoft/active-record`. A conexão é resolvida pelo container através de `Yiisoft\Db\Connection\ConnectionInterface`.
+
+Variáveis locais:
+
+```bash
+export HECATE_DB_HOST=127.0.0.1
+export HECATE_DB_PORT=5432
+export HECATE_DB_NAME=hecate
+export HECATE_DB_USER=hecate
+export HECATE_DB_PASSWORD='senha'
+```
+
+As migrations ficam em `src/Migration` e usam `yiisoft/db-migration`.
+
+## Primeira execução da branch Yii3
+
+```bash
+git clone https://github.com/GeneralVini/hecate.git
+cd hecate
+git switch yii3
+make setup
+```
+
+O `composer.lock` é obrigatório e está versionado. O bootstrap executa `composer install` exclusivamente a partir do lockfile; ausência do arquivo interrompe a preparação do ambiente para evitar resolução não reproduzível de dependências.
+
+Para iniciar o servidor de desenvolvimento:
+
+```bash
+APP_ENV=dev APP_DEBUG=1 composer serve
+```
+
+## Qualidade
+
+O baseline de qualidade permanece obrigatório na branch Yii3:
+
+```bash
+composer qa
+```
+
+Executa:
+
+```text
+PHPCS / PSR-12
+PHPStan nível 8
+Psalm
+PHPUnit
+```
+
+Comandos individuais:
+
+```bash
+composer lint
+composer stan
+composer psalm
+composer test
+make qa
+```
+
+O SonarQube não é requisito para o desenvolvimento local nem para o pipeline básico. Pode ser incorporado futuramente como dashboard centralizado, histórico, dívida técnica e Quality Gate.
+
+## Segurança
+
+- integração LDAP/AD somente leitura, preferencialmente por LDAPS;
+- PHP sem `sudo` genérico;
+- ações privilegiadas somente pelo `hecate-agent`, com operações fechadas;
+- sem escrita direta no banco ou spool interno do SavaPage;
+- filas físicas do CUPS não expostas diretamente aos clientes sempre que possível;
+- autorização validada no servidor;
+- CSRF no fluxo web;
+- dependências explícitas via DI em vez de service locator global;
+- logs e trilhas de auditoria sem conteúdo de documentos ou segredos.
 
 ## Liberação segura
 
-Todo job deve passar por retenção e liberação deliberada. O fluxo de referência é:
-
 ```text
 Usuário envia -> SavaPage retém -> usuário acessa HECATE
--> autenticação + PIN -> validação de política/quota/impressora
+-> autenticação + PIN -> validação de política/cota/impressora
 -> liberação -> SavaPage -> CUPS -> impressora
 ```
 
-O PIN pertence ao HECATE, não à impressora. A solução não exige release station e suporta impressoras simples. Sem hardware de proximidade, a liberação comprova autorização deliberada do usuário, não presença física junto ao equipamento.
+A integração de release deverá usar interface suportada pelo SavaPage. O HECATE não manipula diretamente banco, spool ou interfaces internas não suportadas.
 
 ## Cotas
 
-P&B e colorida são contabilizadas separadamente. Cada quota mantém:
+P&B e colorida são contabilizadas separadamente:
 
 ```text
-alocado
-reservado
-consumido
 disponível = alocado - reservado - consumido
 ```
 
-A reserva antecede a liberação para evitar concorrência entre jobs simultâneos.
+A reserva antecede a liberação para impedir estouro por concorrência entre jobs simultâneos.
 
 ## Contratos
 
-O HECATE deve suportar:
+O HECATE suporta como modelo de negócio:
 
 - contrato por consumo, com valor unitário P&B e colorido;
 - contrato por franquia mensal, com volumes incluídos e excedentes P&B/colorido.
 
-A franquia contratual da OM e a distribuição interna de quota por divisão são controles distintos.
+A franquia contratual da OM e a distribuição interna de cota por divisão são controles distintos.
 
 ## Impressoras e telemetria
 
-O cadastro deve exigir apenas o mínimo necessário, como nome lógico, IP/FQDN e localização. O `hecate-agent` tenta detectar automaticamente fabricante, modelo, serial, capacidades, protocolos, status, contadores e suprimentos.
-
-Ordem preferencial:
+O cadastro exige apenas os dados mínimos. O `hecate-agent` fará a descoberta técnica utilizando, conforme disponibilidade:
 
 ```text
 IPP/IPPS -> SNMPv3 -> SNMPv2c read-only -> EWS/API -> parser específico -> manual
 ```
 
-A ausência de telemetria nunca deve bloquear impressão.
-
-## Plataforma
-
-- Oracle Linux conforme matriz homologada pela OM;
-- Yii2 Basic;
-- Bootstrap 5;
-- SavaPage;
-- CUPS;
-- PostgreSQL;
-- Keycloak;
-- Podman;
-- Samba AD / LDAP;
-- Catálogo MB via API REST/Swagger;
-- Nexus Repository para distribuição institucional.
+A ausência de telemetria não deve bloquear impressão.
 
 ## Implantação prevista
 
@@ -146,44 +201,19 @@ dnf install hecate
 hecate-setup
 ```
 
-O instalador deve detectar automaticamente hostname, FQDN, IP e DNS e perguntar apenas os parâmetros de infraestrutura realmente necessários.
-
-## Desenvolvimento
-
-O código segue o padrão do `yii2-app-basic`, evitando camadas ou estruturas paralelas desnecessárias.
-
-```text
-controllers/
-models/
-views/
-config/
-migrations/
-assets/
-web/
-docs/
-```
-
-Para ambiente local de desenvolvimento:
-
-```bash
-composer install
-export HECATE_DB_DSN='pgsql:host=127.0.0.1;port=5432;dbname=hecate'
-export HECATE_DB_USER='hecate'
-export HECATE_DB_PASSWORD='senha'
-php yii migrate
-php yii serve
-```
-
 ## Documentação
 
 - `docs/ARQUITETURA.md` — arquitetura e fluxos.
 - `docs/DECISOES.md` — decisões técnicas consolidadas.
-- `docs/INTEGRACOES.md` — Samba AD, Catálogo MB, Keycloak, SavaPage e impressoras.
+- `docs/EAP.md` — fonte única de acompanhamento da entrega, incluindo escopo, POCs e critérios de aceite do MVP.
+- `docs/QUALIDADE-CODIGO.md` — qualidade, análise estática, segurança e compliance técnico.
+- `docs/AMBIENTE-DESENVOLVIMENTO.md` — ambiente de desenvolvimento.
+- `docs/DOCUMENTACAO-CODIGO.md` — convenções de documentação.
+- `docs/INTEGRACOES.md` — integrações institucionais e de impressão.
 - `docs/SEGURANCA.md` — controles de segurança e auditoria.
-- `docs/IMPLANTACAO.md` — modelo de instalação e distribuição.
+- `docs/IMPLANTACAO.md` — instalação e distribuição.
 - `docs/IDENTIDADE-VISUAL.md` — identidade visual e uso dos assets.
-- `docs/MVP.md` — escopo do MVP e POCs pendentes.
 
-## Estado atual
+## Estado da branch Yii3
 
-O MVP estrutural já está na `main`. As integrações críticas ainda passam por POC/homologação antes de serem consideradas prontas para produção.
+A branch `yii3` é a linha de modernização do HECATE baseada no template oficial `yiisoft/app`. O lockfile está versionado e o pipeline integral de QA está aprovado. Antes de promovê-la a `main`, permanecem como validações principais a execução da migration PostgreSQL e a validação funcional local da aplicação.

@@ -1,0 +1,89 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App;
+
+use RuntimeException;
+
+use function in_array;
+use function sprintf;
+
+final class Environment
+{
+    public const DEV = 'dev';
+    public const TEST = 'test';
+    public const PROD = 'prod';
+
+    public const ENVIRONMENTS = [self::DEV, self::TEST, self::PROD];
+
+    /** @var array<string, bool|string|null> */
+    private static array $values = [];
+
+    public static function prepare(): void
+    {
+        self::setEnvironment();
+        self::setBoolean('APP_C3', false);
+        self::setBoolean('APP_DEBUG', false);
+        self::setNonEmptyStringOrNull('APP_HOST_PATH', null);
+    }
+
+    public static function appEnv(): string
+    {
+        return (string) self::$values['APP_ENV'];
+    }
+
+    public static function appDebug(): bool
+    {
+        return (bool) self::$values['APP_DEBUG'];
+    }
+
+    public static function appC3(): bool
+    {
+        return (bool) self::$values['APP_C3'];
+    }
+
+    public static function appHostPath(): ?string
+    {
+        $value = self::$values['APP_HOST_PATH'];
+
+        return is_string($value) ? $value : null;
+    }
+
+    private static function setEnvironment(): void
+    {
+        $environment = self::getRawValue('APP_ENV') ?: self::PROD;
+        if (!in_array($environment, self::ENVIRONMENTS, true)) {
+            throw new RuntimeException(sprintf('APP_ENV="%s" is invalid.', $environment));
+        }
+        self::$values['APP_ENV'] = $environment;
+    }
+
+    private static function setBoolean(string $key, bool $default): void
+    {
+        $value = self::getRawValue($key);
+        self::$values[$key] = $value === null
+            ? $default
+            : (filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? $default);
+    }
+
+    private static function setNonEmptyStringOrNull(string $key, ?string $default): void
+    {
+        $value = self::getRawValue($key);
+        self::$values[$key] = $value === null || $value === '' ? $default : $value;
+    }
+
+    private static function getRawValue(string $key): ?string
+    {
+        $value = getenv($key, true);
+        if ($value !== false) {
+            return $value;
+        }
+        $value = getenv($key);
+        if ($value !== false) {
+            return $value;
+        }
+
+        return isset($_ENV[$key]) ? (string) $_ENV[$key] : null;
+    }
+}
