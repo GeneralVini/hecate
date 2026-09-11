@@ -32,6 +32,13 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
 
+      - name: Export generated lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: composer-lock-yii3
+          path: composer.lock
+          if-no-files-found: error
+
       - name: Validate Composer metadata
         run: composer validate --no-interaction
 
