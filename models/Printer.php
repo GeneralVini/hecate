@@ -1,12 +1,16 @@
 <?php
 
-namespace app\\models;
+namespace app\models;
 
-use yii\\db\\ActiveRecord;
+use yii\db\ActiveRecord;
 
 class Printer extends ActiveRecord
 {
-    public static function tableName() { return '{{%printer}}'; }
+    public static function tableName()
+    {
+        return '{{%printer}}';
+    }
+
     public function rules()
     {
         return [
