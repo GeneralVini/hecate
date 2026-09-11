@@ -90,7 +90,7 @@ git switch yii3
 make setup
 ```
 
-Na primeira execução da branch Yii3, se ainda não houver `composer.lock`, o bootstrap resolve as dependências e gera o lockfile inicial. Após a validação, o lockfile deve ser versionado para garantir builds reproduzíveis. Nas execuções seguintes, `composer install` é utilizado.
+O `composer.lock` é obrigatório e está versionado. O bootstrap executa `composer install` exclusivamente a partir do lockfile; ausência do arquivo interrompe a preparação do ambiente para evitar resolução não reproduzível de dependências.
 
 Para iniciar o servidor de desenvolvimento:
 
@@ -217,4 +217,4 @@ hecate-setup
 
 ## Estado da branch Yii3
 
-A branch `yii3` é a linha de modernização do HECATE baseada no template oficial `yiisoft/app`. Antes de promovê-la a `main`, devem ser concluídos o lockfile, a execução integral de QA, a migration PostgreSQL e a validação funcional local.
+A branch `yii3` é a linha de modernização do HECATE baseada no template oficial `yiisoft/app`. O lockfile está versionado e o pipeline integral de QA está aprovado. Antes de promovê-la a `main`, permanecem como validações principais a execução da migration PostgreSQL e a validação funcional local da aplicação.
