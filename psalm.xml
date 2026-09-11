@@ -23,5 +23,13 @@
     <issueHandlers>
         <!-- HECATE suporta PHP >= 8.1; #[Override] só existe nativamente a partir do PHP 8.3. -->
         <MissingOverrideAttribute errorLevel="suppress" />
+
+        <!-- Yii2 utiliza classes extensíveis por natureza; não forçar finalização automática. -->
+        <ClassMustBeFinal errorLevel="suppress" />
+
+        <!-- Propriedades herdadas de yii\db\Migration são inicializadas pelo framework. -->
+        <PropertyNotSetInConstructor errorLevel="suppress">
+            <directory name="migrations" />
+        </PropertyNotSetInConstructor>
     </issueHandlers>
 </psalm>
