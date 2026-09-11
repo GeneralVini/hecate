@@ -162,10 +162,13 @@ hecate-setup
 
 ## 17. Frontend e framework
 
-- Aplicação web baseada em `yii2-app-basic`.
-- Bootstrap 5.
-- Evitar criar arquitetura paralela fora das convenções do template.
-- Layout: sidebar retrátil, topbar, navbar/breadcrumb contextual, área central e footerbar.
+- Aplicação web baseada no template oficial Yii3 `yiisoft/app`.
+- Manter o padrão de diretórios do template, com código da aplicação em `src/`, configuração segmentada em `config/`, document root em `public/` e assets-fonte em `assets/`.
+- Rotas usam `yiisoft/router`; handlers web retornam respostas PSR-7 e recebem dependências pelo container PSR-11.
+- Middleware e serviços devem ser configurados pelo mecanismo de DI/configuração do Yii3, evitando service locator global e estruturas paralelas.
+- PostgreSQL usa os componentes `yiisoft/db`, `yiisoft/db-pgsql` e `yiisoft/active-record`.
+- Bootstrap 5 permanece como referência visual onde aplicável, sem alterar a arquitetura do template Yii3.
+- Layout institucional: sidebar retrátil, topbar, navegação contextual, área central e footerbar.
 
 ## 18. Pontos ainda sujeitos a POC
 
