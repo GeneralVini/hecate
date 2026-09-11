@@ -9,7 +9,9 @@ use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\Request;
 use yii\web\Response;
+use yii\web\Session;
 
 class PrinterController extends Controller
 {
@@ -25,8 +27,14 @@ class PrinterController extends Controller
     public function actionCreate(): string|Response
     {
         $model = new Printer(['enabled' => true]);
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->setFlash(
+
+        /** @var Request $request */
+        $request = Yii::$app->getRequest();
+
+        if ($model->load($request->post()) && $model->save()) {
+            /** @var Session $session */
+            $session = Yii::$app->getSession();
+            $session->setFlash(
                 'success',
                 'Impressora cadastrada. Execute a detecção automática para completar os dados.'
             );
@@ -40,7 +48,10 @@ class PrinterController extends Controller
     public function actionDetect(int $id): Response
     {
         $model = $this->findModel($id);
-        Yii::$app->session->setFlash(
+
+        /** @var Session $session */
+        $session = Yii::$app->getSession();
+        $session->setFlash(
             'info',
             'MVP: solicitação de detecção registrada para ' . $model->name .
             '. A integração com hecate-agent será implementada na próxima etapa.'
