@@ -19,15 +19,25 @@ final readonly class Action
 
     public function __invoke(): ResponseInterface
     {
-        $printers = Printer::query()->all();
+        $printerRows = Printer::query()->all();
+        $printerCount = 0;
+        $printersOnline = 0;
+
+        foreach ($printerRows as $printer) {
+            if (!$printer instanceof Printer) {
+                continue;
+            }
+
+            $printerCount++;
+            if ($printer->last_seen_at !== null) {
+                $printersOnline++;
+            }
+        }
 
         return $this->viewRenderer->render(__DIR__ . '/template', [
             'metrics' => [
-                'printers' => count($printers),
-                'printersOnline' => count(array_filter(
-                    $printers,
-                    static fn(Printer $printer): bool => $printer->last_seen_at !== null,
-                )),
+                'printers' => $printerCount,
+                'printersOnline' => $printersOnline,
                 'divisions' => count(Division::query()->all()),
                 'quotaRows' => count(Quota::query()->all()),
             ],
