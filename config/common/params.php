@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Shared\ApplicationParams;
 use Yiisoft\Aliases\Aliases;
 use Yiisoft\Assets\AssetManager;
+use Yiisoft\Db\Pgsql\Dsn;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\UrlGeneratorInterface;
@@ -12,9 +13,22 @@ use Yiisoft\Yii\View\Renderer\CsrfViewInjection;
 
 return [
     'application' => require __DIR__ . '/application.php',
+
     'yiisoft/aliases' => [
         'aliases' => require __DIR__ . '/aliases.php',
     ],
+
+    'yiisoft/db-pgsql' => [
+        'dsn' => new Dsn(
+            'pgsql',
+            getenv('HECATE_DB_HOST') ?: '127.0.0.1',
+            getenv('HECATE_DB_NAME') ?: 'hecate',
+            getenv('HECATE_DB_PORT') ?: '5432',
+        ),
+        'username' => getenv('HECATE_DB_USER') ?: 'hecate',
+        'password' => getenv('HECATE_DB_PASSWORD') ?: '',
+    ],
+
     'yiisoft/view' => [
         'basePath' => null,
         'parameters' => [
@@ -25,6 +39,7 @@ return [
             'currentRoute' => Reference::to(CurrentRoute::class),
         ],
     ],
+
     'yiisoft/yii-view-renderer' => [
         'viewPath' => null,
         'layout' => '@src/Web/Shared/Layout/Main/layout.php',
