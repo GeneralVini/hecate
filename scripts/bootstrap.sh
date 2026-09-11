@@ -48,7 +48,7 @@ run_qa_step() {
 }
 
 line
-printf ' HECATE - Preparação do ambiente de desenvolvimento\n'
+printf ' HECATE Yii3 - Preparação do ambiente de desenvolvimento\n'
 line
 printf '\n'
 
@@ -62,17 +62,17 @@ if [[ ! -f composer.json ]]; then
 fi
 ok 'composer.json encontrado'
 
-if [[ ! -f composer.lock ]]; then
-    error 'composer.lock não encontrado.'
-    printf 'O lockfile é obrigatório para builds reproduzíveis.\n' >&2
-    exit 1
-fi
-ok 'composer.lock encontrado'
-
 printf '\n'
-info 'Instalando dependências...'
-composer install --no-interaction --prefer-dist
-ok 'Dependências instaladas'
+if [[ -f composer.lock ]]; then
+    info 'Instalando dependências a partir do composer.lock...'
+    composer install --no-interaction --prefer-dist
+    ok 'Dependências instaladas de forma reproduzível'
+else
+    info 'composer.lock ainda não existe nesta branch Yii3.'
+    info 'Resolvendo a nova árvore de dependências e gerando o lockfile inicial...'
+    composer update --no-interaction --prefer-dist
+    ok 'composer.lock inicial gerado; ele deve ser versionado após a validação.'
+fi
 
 printf '\n'
 info 'Validando composer.json...'
@@ -96,7 +96,7 @@ run_qa_step 'PHPUnit' test
 
 printf '\n'
 line
-printf ' Ambiente HECATE pronto para desenvolvimento.\n'
+printf ' Ambiente HECATE Yii3 pronto para desenvolvimento.\n'
 line
 printf '\nComandos disponíveis:\n\n'
 printf '  composer lint\n'
@@ -104,3 +104,4 @@ printf '  composer stan\n'
 printf '  composer psalm\n'
 printf '  composer test\n'
 printf '  composer qa\n'
+printf '  composer serve\n'
