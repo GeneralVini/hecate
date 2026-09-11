@@ -7,8 +7,12 @@ namespace app\controllers;
 use app\models\Division;
 use app\models\Printer;
 use app\models\Quota;
+use yii\base\Module;
 use yii\web\Controller;
 
+/**
+ * @extends Controller<Module>
+ */
 class SiteController extends Controller
 {
     public function actionIndex(): string
