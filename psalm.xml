@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<psalm
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    errorLevel="4"
+    resolveFromConfigFile="true"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="false"
+>
+    <projectFiles>
+        <directory name="assets" />
+        <directory name="controllers" />
+        <directory name="models" />
+        <directory name="migrations" />
+        <ignoreFiles>
+            <directory name="vendor" />
+            <directory name="runtime" />
+            <directory name="web/assets" />
+        </ignoreFiles>
+    </projectFiles>
+</psalm>
