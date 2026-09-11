@@ -5,8 +5,9 @@ declare(strict_types=1);
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Pgsql\Connection;
 use Yiisoft\Db\Pgsql\Driver;
+use Yiisoft\Db\Pgsql\Dsn;
 
-/** @var array $params */
+/** @var array{'yiisoft/db-pgsql': array{dsn: Dsn|string, username: string, password: string}} $params */
 
 return [
     ConnectionInterface::class => [
