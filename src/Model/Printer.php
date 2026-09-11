@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Model;
 
+use Override;
 use Yiisoft\ActiveRecord\ActiveRecord;
 
 final class Printer extends ActiveRecord
@@ -21,6 +22,7 @@ final class Printer extends ActiveRecord
     public bool $enabled = true;
     public ?string $created_at = null;
 
+    #[Override]
     public function tableName(): string
     {
         return '{{%printer}}';
