@@ -6,6 +6,8 @@ Esta EAP organiza a entrega completa do **HECATE — Plataforma Institucional de
 
 Ela funciona como checklist prático de entrega. Não substitui cronograma, plano formal de projeto ou procedimento técnico detalhado.
 
+A EAP é também a **fonte única de acompanhamento do MVP**. O escopo, as POCs, os critérios de aceite e os itens fora do MVP permanecem consolidados neste documento, evitando duplicação com documentação paralela.
+
 ## 2. Objetivo da entrega
 
 Entregar uma solução institucional capaz de centralizar o fluxo de impressão, autenticar usuários do domínio, controlar acesso a filas e impressoras, aplicar cotas P&B/colorida, controlar contratos, exigir liberação deliberada de jobs, manter auditoria, monitorar o stack e permitir implantação padronizada em diferentes OM.
@@ -85,6 +87,7 @@ Um pacote somente deve ser marcado como concluído quando todos os itens aplicá
 - [x] Configurar PostgreSQL via `yiisoft/db-pgsql`.
 - [x] Implementar dashboard inicial.
 - [x] Implementar cadastro e listagem inicial de impressoras.
+- [x] Manter CSRF ativo nas operações web mutáveis.
 - [ ] Implementar autenticação Keycloak/OIDC.
 - [ ] Implementar autorização por perfil.
 - [ ] Consolidar componentes visuais reutilizáveis em `src/Web/Shared` e assets compartilhados.
@@ -105,6 +108,7 @@ Um pacote somente deve ser marcado como concluído quando todos os itens aplicá
 - [x] Configurar scripts Composer `lint`, `stan`, `psalm`, `test` e `qa`.
 - [x] Configurar `make setup` e `make qa`.
 - [x] Configurar GitHub Actions para `composer install`, `composer validate` e `composer qa`.
+- [x] Obter pipeline integral de QA aprovado na branch Yii3.
 - [ ] Configurar `composer audit` conforme política de vulnerabilidades.
 - [ ] Configurar checks obrigatórios antes de merge na branch principal.
 - [ ] Evoluir PHPStan para níveis superiores quando o código permitir.
@@ -117,6 +121,7 @@ Um pacote somente deve ser marcado como concluído quando todos os itens aplicá
 - [x] Configurar driver PostgreSQL para Yii3.
 - [x] Criar migration inicial Yii3.
 - [x] Criar tabelas iniciais de divisão, impressora, cota, contrato e auditoria.
+- [ ] Executar e validar a migration inicial em PostgreSQL local.
 - [ ] Modelar OM, usuários, filas e políticas.
 - [ ] Modelar reservas e transferências de cota.
 - [ ] Modelar jobs sem armazenar conteúdo documental.
@@ -185,6 +190,7 @@ Um pacote somente deve ser marcado como concluído quando todos os itens aplicá
 ### 3.1.12. Cadastro, descoberta e telemetria de impressoras
 
 - [x] Implementar cadastro mínimo de impressoras no MVP Yii3.
+- [x] Proteger cadastro e detecção com CSRF no fluxo web.
 - [ ] Implementar descoberta via Agent.
 - [ ] Priorizar IPP/IPPS e SNMPv3.
 - [ ] Permitir SNMPv2c read-only como fallback controlado.
@@ -259,7 +265,7 @@ Um pacote somente deve ser marcado como concluído quando todos os itens aplicá
 ### 3.1.20. Segurança e auditoria
 
 - [ ] Implementar autenticação e autorização de menor privilégio.
-- [ ] Manter CSRF em operações web mutáveis.
+- [x] Manter CSRF em operações web mutáveis do MVP atual.
 - [ ] Implementar headers de segurança.
 - [ ] Evitar XSS, SQL injection, SSRF, command injection e traversal.
 - [ ] Não registrar secrets, PIN ou conteúdo documental.
@@ -269,11 +275,12 @@ Um pacote somente deve ser marcado como concluído quando todos os itens aplicá
 
 ### 3.1.21. Testes e homologação técnica
 
+- [x] Manter smoke test coerente com o autoload Yii3.
+- [x] Executar QA integral no CI.
 - [ ] Expandir testes unitários além do smoke test.
 - [ ] Criar testes de integração de banco e serviços críticos.
 - [ ] Testar autorização, cotas, concorrência e release.
 - [ ] Testar falhas de LDAP, Catálogo, SavaPage, CUPS e Agent.
-- [ ] Executar QA integral no CI.
 
 **Critério de conclusão:** funcionalidades críticas possuem cobertura compatível com o risco.
 
@@ -326,3 +333,81 @@ Um pacote somente deve ser marcado como concluído quando todos os itens aplicá
 - [ ] Piloto aprovado.
 
 **Critério de conclusão:** HECATE 1.0 apto para implantação institucional controlada.
+
+# 4. MVP — recorte de validação
+
+O MVP não é mantido em documento separado. Este recorte define o mínimo necessário para validar a arquitetura antes da implantação completa.
+
+## 4.1. Escopo do MVP
+
+- [x] Base web Yii3 estruturada a partir do `yiisoft/app`.
+- [x] HTTP PSR-7/PSR-17, middleware PSR-15 e container DI/PSR-11.
+- [x] PostgreSQL configurado e migration inicial criada.
+- [x] Dashboard inicial.
+- [x] Cadastro e listagem de impressoras.
+- [x] CSRF nas operações mutáveis já implementadas.
+- [x] `composer.lock` versionado.
+- [x] PHPCS, PHPStan nível 8, Psalm e PHPUnit integrados ao `composer qa`.
+- [x] GitHub Actions executando QA integral.
+- [ ] Migration inicial executada e validada em PostgreSQL local.
+- [ ] Aplicação iniciada localmente e fluxos web básicos validados.
+- [ ] Integração mínima com identidade, SavaPage e CUPS demonstrada.
+- [ ] Primeira descoberta de impressora pelo `hecate-agent` demonstrada.
+
+## 4.2. POCs críticas
+
+- [ ] **POC 1 — Base Yii3:** bootstrap HTTP, DI, middleware, CSRF, PostgreSQL, migration, dashboard, cadastro/listagem e QA.
+- [ ] **POC 2 — Clientes Windows e Ubuntu:** validar username, documento, origem, páginas, P&B/colorida e envio ao SavaPage sem prompts redundantes.
+- [ ] **POC 3 — Hold/release SavaPage:** liberar job já retido exclusivamente por interface suportada, sem acesso direto a banco/spool e sem automação de UI.
+- [ ] **POC 4 — ACL por divisão:** materializar no SavaPage as impressoras permitidas por divisão.
+- [ ] **POC 5 — Exceção temporária:** permitir acesso excepcional auditado sem alterar grupos do AD.
+- [ ] **POC 6 — Accounting e cota:** validar contagem P&B/colorida e reserva transacional antes do release.
+- [ ] **POC 7 — Descoberta multi-vendor:** validar IPP/IPPS, SNMPv3, SNMPv2c read-only e EWS/API conforme disponibilidade.
+- [ ] **POC 8 — Catálogo MB:** validar lookup, lotação/divisão, cache, indisponibilidade, divergência e override auditado.
+
+## 4.3. Fluxos mínimos a demonstrar
+
+```text
+usuário Samba AD
+  -> Catálogo MB informa divisão
+  -> HECATE aplica política
+  -> usuário visualiza apenas impressoras autorizadas
+```
+
+```text
+job -> SavaPage retém
+    -> HECATE valida identidade/política/cota/impressora
+    -> reserva cota
+    -> usuário confirma com PIN
+    -> SavaPage libera
+    -> CUPS entrega
+    -> accounting confirma consumo
+```
+
+Em falha, cancelamento ou expiração, a reserva deve ser devolvida sem incrementar consumo.
+
+## 4.4. Critérios de aceite do MVP
+
+- [ ] Base Yii3 executável e reproduzível.
+- [ ] Migration PostgreSQL validada.
+- [ ] Identidade institucional consumida sem escrita no AD.
+- [ ] Associação usuário -> divisão demonstrada.
+- [ ] Política divisão -> impressora demonstrada.
+- [ ] Job retido e liberado pelo HECATE via integração suportada.
+- [ ] Accounting P&B/colorida confiável.
+- [ ] Reserva de cota transacional demonstrada.
+- [ ] Auditoria básica disponível.
+- [ ] Cadastro e descoberta de impressora demonstrados.
+- [ ] Monitoramento mínimo da stack disponível.
+- [x] PHPCS, PHPStan, Psalm e PHPUnit aprovados no CI.
+
+## 4.5. Fora do MVP
+
+- alta disponibilidade;
+- cluster PostgreSQL;
+- substituição integral do parque de impressoras;
+- OCR de páginas EWS;
+- browser headless para telemetria;
+- aplicativo móvel nativo;
+- MFA obrigatório na primeira POC;
+- automação de alterações no Samba AD.
