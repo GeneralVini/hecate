@@ -10,5 +10,6 @@ final readonly class ApplicationParams
         public string $name = 'HECATE',
         public string $charset = 'UTF-8',
         public string $locale = 'pt-BR',
-    ) {}
+    ) {
+    }
 }
