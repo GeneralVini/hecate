@@ -5,6 +5,8 @@ parameters:
         - controllers
         - models
         - migrations
+    bootstrapFiles:
+        - vendor/yiisoft/yii2/Yii.php
     excludePaths:
         analyse:
             - vendor (?)
