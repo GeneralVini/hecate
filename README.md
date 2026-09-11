@@ -205,7 +205,7 @@ hecate-setup
 
 - `docs/ARQUITETURA.md` — arquitetura e fluxos.
 - `docs/DECISOES.md` — decisões técnicas consolidadas.
-- `docs/EAP.md` — checklist de entrega completa do produto.
+- `docs/EAP.md` — fonte única de acompanhamento da entrega, incluindo escopo, POCs e critérios de aceite do MVP.
 - `docs/QUALIDADE-CODIGO.md` — qualidade, análise estática, segurança e compliance técnico.
 - `docs/AMBIENTE-DESENVOLVIMENTO.md` — ambiente de desenvolvimento.
 - `docs/DOCUMENTACAO-CODIGO.md` — convenções de documentação.
@@ -213,7 +213,6 @@ hecate-setup
 - `docs/SEGURANCA.md` — controles de segurança e auditoria.
 - `docs/IMPLANTACAO.md` — instalação e distribuição.
 - `docs/IDENTIDADE-VISUAL.md` — identidade visual e uso dos assets.
-- `docs/MVP.md` — escopo do MVP e POCs pendentes.
 
 ## Estado da branch Yii3
 
