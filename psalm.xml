@@ -28,8 +28,10 @@
         <ClassMustBeFinal errorLevel="suppress" />
 
         <!-- Propriedades herdadas de yii\db\Migration são inicializadas pelo framework. -->
-        <PropertyNotSetInConstructor errorLevel="suppress">
-            <directory name="migrations" />
+        <PropertyNotSetInConstructor>
+            <errorLevel type="suppress">
+                <directory name="migrations" />
+            </errorLevel>
         </PropertyNotSetInConstructor>
     </issueHandlers>
 </psalm>
