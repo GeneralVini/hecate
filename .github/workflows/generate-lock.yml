@@ -1,0 +1,37 @@
+name: Generate Composer lock
+
+on:
+  push:
+    branches:
+      - docs/compliance-qualidade
+    paths:
+      - composer.json
+      - .github/workflows/generate-lock.yml
+
+permissions:
+  contents: write
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: docs/compliance-qualidade
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          coverage: none
+          tools: composer:v2
+      - name: Resolve dependencies and write lockfile
+        run: composer update --no-interaction --prefer-dist --no-progress
+      - name: Commit lockfile
+        run: |
+          if git diff --quiet -- composer.lock && git ls-files --error-unmatch composer.lock >/dev/null 2>&1; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add composer.lock
+          git commit -m "build: versiona composer.lock"
+          git push
