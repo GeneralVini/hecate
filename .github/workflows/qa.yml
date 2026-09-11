@@ -10,7 +10,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   php-quality:
@@ -32,12 +32,17 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
 
-      - name: Export generated lockfile
-        uses: actions/upload-artifact@v4
-        with:
-          name: composer-lock-yii3
-          path: composer.lock
-          if-no-files-found: error
+      - name: Commit generated lockfile
+        if: github.event_name == 'push' && github.ref == 'refs/heads/yii3' && hashFiles('composer.lock') != ''
+        run: |
+          if git ls-files --error-unmatch composer.lock >/dev/null 2>&1; then
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add composer.lock
+          git commit -m 'build: add Yii3 dependency lockfile'
+          git push origin HEAD:yii3
 
       - name: Validate Composer metadata
         run: composer validate --no-interaction
