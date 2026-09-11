@@ -9,6 +9,7 @@
     <testsuites>
         <testsuite name="HECATE">
             <directory>tests</directory>
+            <exclude>vendor</exclude>
         </testsuite>
     </testsuites>
 </phpunit>
