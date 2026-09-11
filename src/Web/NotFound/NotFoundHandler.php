@@ -12,7 +12,9 @@ use Yiisoft\Yii\View\Renderer\WebViewRenderer;
 
 final readonly class NotFoundHandler implements RequestHandlerInterface
 {
-    public function __construct(private WebViewRenderer $viewRenderer) {}
+    public function __construct(private WebViewRenderer $viewRenderer)
+    {
+    }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
