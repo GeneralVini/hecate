@@ -7,31 +7,13 @@
     findUnusedCode="false"
 >
     <projectFiles>
-        <directory name="assets" />
-        <directory name="controllers" />
-        <directory name="models" />
-        <directory name="migrations" />
+        <directory name="src" />
+        <directory name="config" />
+        <file name="public/index.php" />
         <ignoreFiles>
             <directory name="vendor" />
+            <directory name="runtime" />
+            <directory name="public/assets" />
         </ignoreFiles>
     </projectFiles>
-
-    <stubs>
-        <file name="vendor/yiisoft/yii2/Yii.php" />
-    </stubs>
-
-    <issueHandlers>
-        <!-- HECATE suporta PHP >= 8.1; #[Override] só existe nativamente a partir do PHP 8.3. -->
-        <MissingOverrideAttribute errorLevel="suppress" />
-
-        <!-- Yii2 utiliza classes extensíveis por natureza; não forçar finalização automática. -->
-        <ClassMustBeFinal errorLevel="suppress" />
-
-        <!-- Propriedades herdadas de yii\db\Migration são inicializadas pelo framework. -->
-        <PropertyNotSetInConstructor>
-            <errorLevel type="suppress">
-                <directory name="migrations" />
-            </errorLevel>
-        </PropertyNotSetInConstructor>
-    </issueHandlers>
 </psalm>
