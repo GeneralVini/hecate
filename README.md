@@ -51,7 +51,7 @@ Cliente ---------------------> SavaPage
 - **CUPS:** spool local e transporte do job.
 - **PostgreSQL:** persistência das aplicações, com databases separados.
 - **hecate-agent:** operações privilegiadas locais, descoberta, monitoramento e troubleshooting.
-- **Nexus:** distribuição institucional de RPMs, imagens OCI e artefatos homologados.
+- **Nexus:** distribuição institucional de RPMs, imagens OCI e artefatos homologados; não é ferramenta de CI/CD.
 
 ## Princípios de segurança
 
@@ -65,7 +65,7 @@ Cliente ---------------------> SavaPage
 
 ## Liberação segura
 
-Todo job deve passar por retenção e liberação deliberada. O fluxo de referência é:
+Todo job deve passar por retenção e liberação deliberada:
 
 ```text
 Usuário envia -> SavaPage retém -> usuário acessa HECATE
@@ -77,7 +77,7 @@ O PIN pertence ao HECATE, não à impressora. A solução não exige release sta
 
 ## Cotas
 
-P&B e colorida são contabilizadas separadamente. Cada quota mantém:
+P&B e colorida são contabilizadas separadamente:
 
 ```text
 alocado
@@ -100,8 +100,6 @@ A franquia contratual da OM e a distribuição interna de quota por divisão sã
 ## Impressoras e telemetria
 
 O cadastro deve exigir apenas o mínimo necessário, como nome lógico, IP/FQDN e localização. O `hecate-agent` tenta detectar automaticamente fabricante, modelo, serial, capacidades, protocolos, status, contadores e suprimentos.
-
-Ordem preferencial:
 
 ```text
 IPP/IPPS -> SNMPv3 -> SNMPv2c read-only -> EWS/API -> parser específico -> manual
@@ -146,7 +144,49 @@ dnf install hecate
 hecate-setup
 ```
 
-O instalador deve detectar automaticamente hostname, FQDN, IP e DNS e perguntar apenas os parâmetros de infraestrutura realmente necessários.
+## Primeira execução
+
+Em uma máquina de desenvolvimento nova:
+
+```bash
+git clone https://github.com/GeneralVini/hecate.git
+cd hecate
+make setup
+```
+
+Alternativamente:
+
+```bash
+./scripts/bootstrap.sh
+```
+
+O bootstrap verifica PHP, Composer e Git; exige `composer.lock`; instala as dependências com `composer install`; valida o Composer e executa a suíte local de qualidade.
+
+As ferramentas de desenvolvimento são dependências versionadas no projeto. Extensões do VS Code podem fornecer feedback durante a edição, mas não substituem o Composer nem os arquivos de configuração do repositório.
+
+Comandos principais:
+
+```bash
+make qa
+composer qa
+composer lint
+composer stan
+composer psalm
+composer test
+```
+
+O fluxo de QA local e do CI/CD deve usar as mesmas configurações:
+
+```text
+composer validate
+composer qa
+  ├── PHPCS / PSR-12
+  ├── PHPStan
+  ├── Psalm
+  └── PHPUnit
+```
+
+O SonarQube não é requisito para o desenvolvimento local nem para o pipeline básico. Pode ser incorporado futuramente para dashboard centralizado, histórico, dívida técnica, cobertura consolidada e Quality Gates, sem substituir PHPCS, PHPStan, Psalm ou PHPUnit.
 
 ## Desenvolvimento
 
@@ -163,10 +203,9 @@ web/
 docs/
 ```
 
-Para ambiente local de desenvolvimento:
+Após a preparação do ambiente, configure as variáveis locais necessárias e execute a aplicação:
 
 ```bash
-composer install
 export HECATE_DB_DSN='pgsql:host=127.0.0.1;port=5432;dbname=hecate'
 export HECATE_DB_USER='hecate'
 export HECATE_DB_PASSWORD='senha'
@@ -178,6 +217,10 @@ php yii serve
 
 - `docs/ARQUITETURA.md` — arquitetura e fluxos.
 - `docs/DECISOES.md` — decisões técnicas consolidadas.
+- `docs/EAP.md` — checklist de entrega completa do produto.
+- `docs/QUALIDADE-CODIGO.md` — qualidade, análise estática, segurança e compliance técnico.
+- `docs/AMBIENTE-DESENVOLVIMENTO.md` — ambiente de desenvolvimento e integração com VS Code.
+- `docs/DOCUMENTACAO-CODIGO.md` — PHPDoc, JSDoc e convenções de documentação.
 - `docs/INTEGRACOES.md` — Samba AD, Catálogo MB, Keycloak, SavaPage e impressoras.
 - `docs/SEGURANCA.md` — controles de segurança e auditoria.
 - `docs/IMPLANTACAO.md` — modelo de instalação e distribuição.
