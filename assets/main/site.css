@@ -109,26 +109,28 @@ img { max-width: 100%; }
 .button-block { width: 100%; text-align: center; }
 .login-footerbar {
     grid-area: footer;
+    position: relative;
     min-width: 0;
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    display: flex;
     align-items: center;
-    gap: 20px;
+    justify-content: center;
     height: var(--login-footer-height);
     padding: 0 24px;
     border-top: 1px solid rgba(200, 163, 74, .32);
     background: #041326;
-    color: #9fb0c4;
-    font-size: .72rem;
-    letter-spacing: .02em;
 }
-.login-footerbar strong {
+.login-footerbar-year {
     color: var(--hecate-gold);
-    letter-spacing: .14em;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .08em;
 }
-.login-footerbar span:last-child {
-    color: #d4dce6;
-    text-align: right;
+.login-footerbar-credit {
+    position: absolute;
+    right: 24px;
+    color: rgba(212, 220, 230, .48);
+    font-size: .64rem;
+    letter-spacing: .04em;
 }
 
 /* Application shell */
@@ -320,21 +322,11 @@ th { background: #f8fafc; color: #475467; font-size: .82rem; text-transform: upp
         background-position: center 38%;
     }
     .login-form-area { min-height: 48dvh; overflow: visible; }
-    .login-logo {
-        width: min(360px, 100%);
-        max-width: 100%;
-        margin: 0 auto 28px;
-    }
     .login-footerbar {
-        grid-template-columns: 1fr;
-        justify-items: center;
-        gap: 2px;
-        height: auto;
         min-height: 58px;
         padding: 8px 16px;
-        text-align: center;
     }
-    .login-footerbar span:last-child { text-align: center; }
+    .login-footerbar-credit { right: 16px; }
 }
 
 @media (max-width: 720px) {
@@ -349,5 +341,8 @@ th { background: #f8fafc; color: #475467; font-size: .82rem; text-transform: upp
 @media (max-width: 520px) {
     .metric-grid { grid-template-columns: 1fr; }
     .login-form-area { padding: 30px 24px; }
+    .login-footerbar-credit {
+        display: none;
+    }
     .workspace-navbar { padding-inline: 18px; }
 }
