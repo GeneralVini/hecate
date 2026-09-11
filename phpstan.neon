@@ -7,7 +7,7 @@ parameters:
         - migrations
     excludePaths:
         analyse:
-            - vendor
-            - runtime
-            - web/assets
+            - vendor (?)
+            - runtime (?)
+            - web/assets (?)
     tmpDir: .phpstan-cache
