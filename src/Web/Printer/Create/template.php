@@ -19,7 +19,7 @@ $this->setTitle('Cadastrar impressora — HECATE');
 </section>
 
 <form class="form-card" method="post" action="<?= Html::encode($urlGenerator->generate('printer/create')) ?>">
-    <?= $csrf ?? '' ?>
+    <input type="hidden" name="_csrf" value="<?= Html::encode($csrf ?? '') ?>">
 
     <label for="name">Nome lógico</label>
     <input id="name" name="name" maxlength="160" required value="<?= Html::encode($values['name']) ?>">
