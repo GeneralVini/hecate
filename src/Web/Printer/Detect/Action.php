@@ -25,7 +25,7 @@ final readonly class Action
         $data = is_array($body) ? $body : [];
         $id = filter_var($data['id'] ?? null, FILTER_VALIDATE_INT);
 
-        if ($id !== false && $id !== null) {
+        if ($id !== false) {
             $printer = Printer::query()->findByPk($id);
             if ($printer instanceof Printer) {
                 // MVP: o hecate-agent assumirá a descoberta e persistência de telemetria.
