@@ -20,7 +20,7 @@
             "@psalm",
             "@test"
         ],
-        "qa:all": "bash ./scripts/qa-all.sh",
+        "qa:all": "sh -c 'status=0; composer lint || status=1; composer stan || status=1; composer psalm || status=1; composer test || status=1; exit $status'",
         "qa:fix": [
             "@lint:fix",
             "@qa:all"
