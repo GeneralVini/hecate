@@ -15,7 +15,7 @@ $this->setTitle('Cadastrar impressora — HECATE');
 
 $indexUrl = $urlGenerator->generate('printer/index');
 $baseUrl = $_ENV['HECATE_BASE_URL'] ?? '';
-if (is_string($baseUrl) && $baseUrl !== '' && str_starts_with($indexUrl, '/')) {
+if ($baseUrl !== '' && str_starts_with($indexUrl, '/')) {
     $indexUrl = rtrim($baseUrl, '/') . $indexUrl;
 }
 ?>
