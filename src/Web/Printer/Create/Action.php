@@ -59,12 +59,12 @@ final readonly class Action
                     $this->registerPrinter->execute(new RegisterPrinterInput(
                         $values['name'],
                         $values['host'],
-                        $locationId === null ? null : (int) $locationId,
+                        $locationId,
                     ));
 
                     $location = $this->urlGenerator->generate('printer/index');
                     $baseUrl = $_ENV['HECATE_BASE_URL'] ?? '';
-                    if (is_string($baseUrl) && $baseUrl !== '' && str_starts_with($location, '/')) {
+                    if ($baseUrl !== '' && str_starts_with($location, '/')) {
                         $location = rtrim($baseUrl, '/') . $location;
                     }
 
