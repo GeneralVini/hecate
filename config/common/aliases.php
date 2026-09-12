@@ -2,8 +2,14 @@
 
 declare(strict_types=1);
 
+$configuredBaseUrl = $_ENV['HECATE_BASE_URL'] ?? $_SERVER['HECATE_BASE_URL'] ?? null;
 $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-$baseUrl = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+$detectedBaseUrl = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+
+$baseUrl = is_string($configuredBaseUrl) && $configuredBaseUrl !== ''
+    ? '/' . trim($configuredBaseUrl, '/')
+    : $detectedBaseUrl;
+
 if ($baseUrl === '.' || $baseUrl === '/') {
     $baseUrl = '';
 }
