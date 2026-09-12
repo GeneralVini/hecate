@@ -49,6 +49,55 @@ $this->beginPage();
     <link rel="apple-touch-icon" sizes="180x180" href="/branding/favicon-180x180.png">
     <title><?= Html::encode($this->getTitle()) ?></title>
     <?php $this->head() ?>
+    <style>
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-icon {
+            flex: 0 0 22px;
+            width: 22px;
+            color: var(--hecate-gold-soft);
+            font-size: 1rem;
+            line-height: 1;
+            text-align: center;
+            opacity: .92;
+        }
+        .nav-label { min-width: 0; }
+        .nav-section {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .nav-section-icon {
+            color: rgba(210, 173, 82, .72);
+            font-size: .76rem;
+        }
+        .sidebar-nav .nav-section-gold,
+        .sidebar-nav .nav-section-gold .nav-section-icon {
+            color: var(--hecate-gold-strong);
+        }
+        .sidebar-nav .nav-section-gold {
+            padding-top: 5px;
+            border-top: 1px solid rgba(210, 173, 82, .12);
+        }
+        .app-shell[data-sidebar-state="collapsed"] .sidebar-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .app-shell[data-sidebar-state="collapsed"] .sidebar-header img {
+            display: none;
+        }
+        .app-shell[data-sidebar-state="collapsed"] .sidebar-nav a .nav-icon {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .app-shell[data-sidebar-state="collapsed"] .sidebar-nav a {
+            justify-content: center;
+        }
+    </style>
 </head>
 <body class="app-page">
 <?php $this->beginBody() ?>
