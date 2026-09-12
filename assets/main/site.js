@@ -88,6 +88,19 @@
 })();
 
 (() => {
+    for (const flash of document.querySelectorAll('[data-flash-message]')) {
+        if (!(flash instanceof HTMLElement)) {
+            continue;
+        }
+
+        window.setTimeout(() => {
+            flash.classList.add('is-hiding');
+            window.setTimeout(() => flash.remove(), 220);
+        }, 4200);
+    }
+})();
+
+(() => {
     const modal = document.querySelector('[data-location-modal]');
     const form = document.querySelector('[data-location-form]');
 
