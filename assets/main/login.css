@@ -22,13 +22,13 @@
     min-height: 100%;
     background:
         linear-gradient(180deg, rgba(2, 11, 23, .01) 0%, rgba(2, 11, 23, .02) 74%, rgba(2, 11, 23, .08) 100%),
-        url('/branding/login-background.jpg') center center / cover no-repeat;
+        url('/branding/login-background.jpg') center bottom / cover no-repeat;
 }
 
 .login-form-area {
     position: absolute;
     left: 50%;
-    top: clamp(355px, 60vh, 455px);
+    bottom: clamp(88px, 16vh, 150px);
     z-index: 2;
     width: min(320px, calc(100vw - 40px));
     min-width: 0;
@@ -77,7 +77,7 @@
 
 @media (max-height: 760px) and (min-width: 821px) {
     .login-form-area {
-        top: clamp(330px, 58vh, 400px);
+        bottom: clamp(72px, 14vh, 112px);
     }
 
     .login-panel {
@@ -96,7 +96,7 @@
 @media (max-width: 1100px) and (min-width: 821px) {
     .login-form-area {
         left: 50%;
-        top: clamp(335px, 58vh, 410px);
+        bottom: clamp(78px, 15vh, 120px);
         width: min(300px, calc(100vw - 32px));
     }
 }
@@ -115,14 +115,14 @@
         position: relative;
         inset: auto;
         min-height: 52dvh;
-        background-position: center top;
+        background-position: center bottom;
         background-size: cover;
     }
 
     .login-form-area {
         position: relative;
         left: auto;
-        top: auto;
+        bottom: auto;
         width: 100%;
         padding: 24px 20px 32px;
         transform: none;
