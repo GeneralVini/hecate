@@ -1,4 +1,4 @@
-.PHONY: setup install hooks fix qa lint rector stan psalm test
+.PHONY: setup install hooks fix qa check security security-dast lint rector stan psalm psalm-taint test
 
 setup:
 	./scripts/bootstrap.sh
@@ -15,6 +15,15 @@ fix:
 qa:
 	composer qa
 
+check:
+	composer check
+
+security:
+	composer security
+
+security-dast:
+	composer security:dast
+
 lint:
 	composer lint
 
@@ -26,6 +35,9 @@ stan:
 
 psalm:
 	composer psalm
+
+psalm-taint:
+	composer psalm:taint
 
 test:
 	composer test
