@@ -9,6 +9,8 @@ use Yiisoft\Router\Route;
 
 return [
     Group::create()->routes(
+        Route::get('/hecate')->action(Action::class),
+        Route::get('/hecate/')->action(Action::class),
         Route::get('/')
             ->action(Action::class)
             ->name('login'),

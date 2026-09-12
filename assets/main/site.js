@@ -10,6 +10,7 @@
         const collapsed = shell.dataset.sidebarState === 'collapsed';
         shell.dataset.sidebarState = collapsed ? 'expanded' : 'collapsed';
         toggle.setAttribute('aria-label', collapsed ? 'Recolher menu' : 'Expandir menu');
+        toggle.setAttribute('aria-expanded', String(collapsed));
     });
 })();
 
