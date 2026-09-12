@@ -126,3 +126,7 @@ IDENTIDADE-VISUAL.md
 ```
 
 Novo `.md` exige responsabilidade própria, público ou ciclo de manutenção distinto.
+
+Registrar decisões aceitas em conversa no documento canônico responsável antes de orientar alterações seguintes. Manter propostas identificadas como abertas e não tratar memória/chat como substituto do registro versionado. Ao revisar documentação, conferir referências e distinguir decisão aprovada de implementação validada na EAP.
+
+Para leitura/escrita e federação, consultar as seções 6.1 e 13 de `docs/ARQUITETURA.md` e os controles correspondentes de `docs/SEGURANCA.md`; não reproduzir seus contratos em novos arquivos.

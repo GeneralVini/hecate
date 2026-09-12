@@ -6,7 +6,7 @@ Este documento consolida o ambiente de desenvolvimento, o baseline de qualidade 
 
 ## 2. Ambiente local
 
-A aplicação web segue o template oficial `yiisoft/app`, com PHP compatível com a matriz homologada do projeto, Composer, PostgreSQL e ferramentas de QA versionadas no repositório.
+A aplicação web segue o template oficial `yiisoft/app`, com Composer, PostgreSQL e ferramentas de QA versionadas no repositório. `composer.json` declara PHP 8.2–8.5; o CI configura PHP 8.5 e Rector usa regras PHP 8.2. Isso não comprova homologação de toda a faixa: a matriz de versões permanece pendente na EAP.
 
 O Lefthook é um executável externo ao Composer e deve estar disponível no `PATH` antes do primeiro `make setup`. Em Ubuntu/Kubuntu/Debian:
 
@@ -33,16 +33,9 @@ O `make setup` valida PHP, Composer, Git e Lefthook; instala as dependências a 
 
 `composer update` é operação de manutenção do conjunto de dependências e não faz parte da instalação normal de uma máquina nova. Quando `composer.json` for alterado intencionalmente, o responsável pela mudança deve atualizar e versionar o lockfile antes de considerar a alteração concluída.
 
-Na transição atual para Rector/ECS, executar uma vez:
+O lockfile atual já inclui Rector, ECS e PHPStan do baseline adotado. Novas instalações usam `composer install`; não repetir a atualização de transição. Para manutenção deliberada, atualizar apenas as dependências afetadas, revisar o lockfile e executar `composer validate --no-interaction` e `composer qa` antes de versionar a mudança.
 
-```bash
-composer update rector/rector symplify/easy-coding-standard phpstan/phpstan --with-all-dependencies
-composer validate --no-interaction
-composer fix
-composer qa
-```
-
-Revisar as alterações e versionar `composer.lock`. Depois disso, instalações novas e CI devem continuar usando somente `composer install`.
+### 2.2. Banco e execução local
 
 Variáveis locais de referência para PostgreSQL:
 
@@ -53,6 +46,15 @@ export HECATE_DB_NAME=hecate
 export HECATE_DB_USER=hecate
 export HECATE_DB_PASSWORD='senha'
 ```
+
+Depois de configurar um banco de desenvolvimento:
+
+```bash
+./yii migrate:up
+APP_ENV=dev APP_DEBUG=1 composer serve
+```
+
+Esses comandos não são procedimento de implantação em produção; consultar [IMPLANTACAO.md](IMPLANTACAO.md).
 
 ## 3. Estrutura Yii3
 
@@ -177,6 +179,10 @@ Preferir tipos nativos, `declare(strict_types=1);`, dependências explícitas vi
 ActiveRecord não é modelo compartilhado da aplicação. Seu uso novo deve ser pontual, restrito à infraestrutura e justificado. Para persistência e consultas, preferir SQL explícito e parametrizado via Yii DB quando isso tornar a intenção mais clara.
 
 Não introduzir `GenericRepository`, `BaseRepository`, `BaseService`, service locator global ou abstrações genéricas sem necessidade concreta.
+
+Para novas leituras e escritas, seguir os [fluxos de arquitetura](ARQUITETURA.md#61-caminhos-de-escrita-e-leitura). Queries recebem escopo autorizado obrigatório e retornam projeções específicas; não aceitar um escopo ausente como acesso global. Não usar a permissão de release como substituta genérica da permissão de consulta contratual. Testar limites de acesso também nos agregados e exportações.
+
+Contratos de apresentação e federação evoluem separadamente; DTO de tela não é automaticamente payload do Master. Consultar o [contrato federado](ARQUITETURA.md#132-contrato-de-sincronização) antes de implementar sincronização, sem antecipar buses ou repositories genéricos.
 
 ## 8. Segurança de código
 

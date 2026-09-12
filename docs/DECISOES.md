@@ -142,14 +142,7 @@ O agente é um componente separado da aplicação web e concentra operações lo
 
 ## 17. Homologações pendentes
 
-Permanecem sujeitos a POC ou validação técnica:
-
-- liberação de job retido no SavaPage por interface suportada;
-- regras dinâmicas de acesso no SavaPage;
-- contabilização P&B/colorida em diferentes drivers e fabricantes;
-- atribuição confiável de usuário nos clientes;
-- telemetria multi-fabricante;
-- fallback para Catálogo MB indisponível ou desatualizado.
+POCs, evidências e critérios pendentes são mantidos exclusivamente na [EAP](EAP.md#42-pocs-críticas), incluindo o [incremento federado](EAP.md#5-incremento-de-leitura-e-federação). Decisão arquitetural aceita não significa integração homologada.
 
 ## 18. Qualidade e hooks de desenvolvimento
 
@@ -183,3 +176,21 @@ Documentos canônicos em `docs/`:
 - `SEGURANCA.md` — controles de segurança e auditoria;
 - `IMPLANTACAO.md` — instalação, operação e replicação;
 - `IDENTIDADE-VISUAL.md` — identidade e UI institucional.
+
+Decisões aceitas em chat devem ser incorporadas à fonte canônica correspondente antes de orientar mudanças posteriores. Propostas e dúvidas permanecem identificadas como abertas; memória/chat não substituem o registro versionado. Mudanças posteriores devem registrar o que foi superado e o motivo. README apresenta o projeto e remete às fontes; AGENTS orienta o trabalho sem duplicar os contratos técnicos.
+
+## 20. Leitura otimizada e escrita protegida
+
+**Decisão:** separar conceitualmente leitura e escrita, mantendo SQL encapsulado em queries específicas e autorização de leitura composta por permissão e escopo obrigatório dos dados.
+
+**Motivo:** projeções de governança e contratos exigem agregações eficientes e isolamento de dados, enquanto operações de negócio exigem invariantes, persistência e auditoria confiáveis.
+
+**Consequência:** não exigir entidades/ActiveRecord/repository para apresentação nem introduzir CQRS formal ou infraestrutura adicional. A direção API-first preserva as views atuais e a escolha aberta de frontend. Fluxos em [ARQUITETURA.md](ARQUITETURA.md#61-caminhos-de-escrita-e-leitura); perfis e escopos em [SEGURANCA.md](SEGURANCA.md#6-autorização).
+
+## 21. Federação por agregados e identidade por instância
+
+**Decisão:** HECATE Local envia agregados por push ao Master, consumidor de governança sem administração da operação local. Nexus distribui/versiona artefatos genéricos; o Master registra instâncias e sua associação à OM após a instalação.
+
+**Motivo:** permitir governança central sem copiar o banco operacional, exigir acesso de entrada nas OMs ou distribuir credenciais compartilhadas no software.
+
+**Consequência:** enrollment de uso limitado e credencial própria por instância; sincronização automática, idempotente, versionável e recuperável. Autenticação M2M compatível com Keycloak, preferencialmente OAuth2 Client Credentials ou equivalente, fica sujeita à avaliação; mTLS é possibilidade futura, não requisito atual. Contrato e questões abertas em [ARQUITETURA.md](ARQUITETURA.md#13-federação-e-apis); controles em [SEGURANCA.md](SEGURANCA.md#17-segurança-da-federação); ciclo operacional em [IMPLANTACAO.md](IMPLANTACAO.md#18-enrollment-e-operação-federada). A [EAP](EAP.md#5-incremento-de-leitura-e-federação) registra as pendências e a definição do recorte de entrega.

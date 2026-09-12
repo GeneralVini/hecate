@@ -33,6 +33,8 @@ A direção adotada é **Yii3 + monólito modular + DDD pragmático**.
 
 Organizar por responsabilidade, preferir SQL explícito e parametrizado via Yii DB quando apropriado e usar DTOs/read models específicos nas fronteiras que os justifiquem. ActiveRecord não deve funcionar como modelo compartilhado da aplicação.
 
+A direção API-first preserva as views atuais. Leitura com escopo autorizado, escrita protegida e federação por agregados Local → Master estão detalhadas na arquitetura; seu acompanhamento está na [EAP](docs/EAP.md#5-incremento-de-leitura-e-federação).
+
 As decisões e seus motivos estão em [DECISOES.md](docs/DECISOES.md). A arquitetura e as integrações estão em [ARQUITETURA.md](docs/ARQUITETURA.md).
 
 ## Arquitetura de referência
@@ -87,15 +89,7 @@ A organização modular está em evolução e deve acompanhar o domínio real, s
 
 ## Primeira execução
 
-O ambiente local usa **Lefthook** para instalar os hooks Git do projeto. Em Ubuntu/Kubuntu/Debian, instale-o uma vez no sistema antes do primeiro `make setup`:
-
-```bash
-curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | sudo -E bash
-sudo apt install lefthook
-lefthook version
-```
-
-Depois prepare o projeto:
+Prepare PHP, Composer, PostgreSQL e Lefthook conforme [DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md#2-ambiente-local). Depois:
 
 ```bash
 git clone https://github.com/GeneralVini/hecate.git
@@ -104,77 +98,16 @@ git switch yii3
 make setup
 ```
 
-O `make setup` executa `composer install`, valida o Composer, confirma as ferramentas de QA, instala e valida os hooks do Lefthook e executa o baseline de qualidade. O bootstrap não instala pacotes do sistema silenciosamente; se o Lefthook não estiver disponível, ele informa os comandos necessários e encerra.
-
-> Em uma instalação normal, com `composer.lock` já atualizado e versionado, use `composer install`/`make setup`. `composer update` não faz parte do bootstrap rotineiro.
-
-### Transição atual do baseline de QA
-
-Enquanto a alteração de dependências para Rector/ECS ainda não estiver refletida no `composer.lock`, execute uma vez:
-
-```bash
-composer update rector/rector symplify/easy-coding-standard phpstan/phpstan --with-all-dependencies
-composer validate --no-interaction
-composer fix
-composer qa
-```
-
-Depois versione o `composer.lock`. A partir desse ponto, novas máquinas voltam ao fluxo normal com `make setup` e `composer install`.
-
-Para reinstalar ou validar os hooks manualmente:
-
-```bash
-lefthook install
-lefthook validate
-```
-
-Após configurar o PostgreSQL:
-
-```bash
-./yii migrate:up
-```
-
-Para iniciar o ambiente de desenvolvimento:
-
-```bash
-APP_ENV=dev APP_DEBUG=1 composer serve
-```
+O bootstrap instala dependências pelo lockfile, configura hooks e executa QA. Configuração do banco, migrations e execução local estão no [guia de desenvolvimento](docs/DESENVOLVIMENTO.md#22-banco-e-execução-local).
 
 ## Qualidade
 
-A decisão de baseline de desenvolvimento é:
-
-```text
-Lefthook     hooks Git e orquestração local
-Rector       refatoração automática homologada
-ECS          coding standard e autofix
-PHPStan      análise estática principal
-Psalm        análise estática complementar
-PHPUnit      testes
-```
-
-Validação integral:
-
 ```bash
-composer qa
+composer qa   # validação
+composer fix  # autocorreções determinísticas; revisar o diff
 ```
 
-Autocorreções determinísticas de código e estilo:
-
-```bash
-composer fix
-```
-
-Execução manual dos hooks:
-
-```bash
-lefthook run pre-commit
-lefthook run pre-push
-```
-
-O Lefthook aplica Rector e ECS no `pre-commit` e executa a validação completa no `pre-push`. PHPStan, Psalm e PHPUnit permanecem validadores: problemas sem correção determinística exigem alteração consciente de código. O CI repete `composer qa`; hooks locais não substituem validação no servidor.
-
-Detalhes de ambiente, qualidade e documentação de código estão em [DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md).
+Ferramentas, hooks e manutenção de dependências têm como fonte [DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md). O estado de validação permanece na EAP.
 
 ## Fluxo previsto de impressão
 

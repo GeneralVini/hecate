@@ -53,7 +53,7 @@ O PIN é um segundo gesto de autorização do job, não prova presença física 
 
 ## 6. Autorização
 
-A decisão de acesso considera:
+Para liberação de impressão, a decisão de acesso considera:
 
 - usuário autenticado;
 - vínculo organizacional;
@@ -64,6 +64,10 @@ A decisão de acesso considera:
 - estado do contrato/política quando aplicável.
 
 IP não substitui identidade.
+
+Para leituras, aplicar `Request -> RBAC/Permission -> resolução de escopo autorizado -> Query -> SQL restrito`. Autorizar o endpoint não autoriza todos os registros. Escopo é calculado no servidor a partir de identidade e vínculos confiáveis, nunca ampliado por parâmetros enviados pelo cliente.
+
+Queries expostas a usuários devem exigir o escopo resolvido, sem fallback implícito para todos os dados. Escopo ausente é negado; escopo vazio não produz acesso global. Acesso global local deve ser uma concessão explícita. Centralizar a resolução e tornar seu uso obrigatório nas entradas de leitura evita depender de filtros lembrados manualmente. Filtros de tela apenas restringem o escopo e devem ser aplicados também a totais, exportações e agregações antes da paginação.
 
 ## 7. Fluxo de impressão controlado
 
@@ -172,7 +176,13 @@ Nunca armazenar esses valores em código-fonte ou documentação versionada.
 
 ## 15. Perfis administrativos
 
-Perfis de referência:
+Necessidades atuais:
+
+- **Administrador geral do HECATE:** dashboards, CRUDs, configurações e gestão global da instância local, com concessão explícita; não implica privilégio de sistema operacional ou de outras OMs.
+- **Gestor de contrato de impressão:** leitura predominante de contratos, consumo, franquias, custos, impressoras vinculadas e indicadores, limitada aos contratos autorizados. Escritas eventuais exigem permissão própria; leitura não concede administração.
+- **HECATE Master:** consumidor federado de agregados, não usuário administrativo local; ver seção 17.
+
+Os perfis funcionais abaixo continuam como referência de responsabilidades e segregação. Não são substituídos pelos três cenários acima nem devem virar roles obrigatórias sem necessidade:
 
 ### Administrador Técnico
 
@@ -214,3 +224,15 @@ Como HA não é requisito inicial, segurança operacional inclui capacidade de r
 - documentação de instalação;
 - imagens/pacotes homologados no Nexus;
 - restauração testada periodicamente.
+
+## 17. Segurança da federação
+
+O pacote genérico não deve conter `OM_ID`, `MASTER_TOKEN` permanente, client secret global ou credencial compartilhada. A identidade federada é estabelecida após a instalação. Código/token de enrollment tem validade e uso limitados, com proteção contra reutilização; a associação à OM precisa ser autorizada pelo Master. Cada instância recebe credencial própria, revogável e substituível.
+
+Avaliar M2M compatível com Keycloak, preferencialmente OAuth2 Client Credentials ou equivalente. Provedor/realm, provisionamento de clientes, escopos e ciclo de credenciais ainda precisam de homologação. Em caso de OAuth2, validar emissor, destinatário, validade e permissões; o Master deve vincular a identidade autenticada à instância/OM registrada. Não reutilizar sessão de administrador local. mTLS permanece opção futura condicionada à necessidade operacional.
+
+Usar TLS com validação de certificado. Restringir a configuração de destino a administradores autorizados e validar URL/destinos permitidos, inclusive redirecionamentos, para evitar SSRF e envio a destinatário indevido. Segredos ficam em armazenamento operacional protegido, fora de pacote, Git e logs; enrollment, rotação, revogação e sincronizações devem ser auditáveis sem expor tokens.
+
+Enviar apenas métricas e dimensões aprovadas no contrato. Conteúdo de documentos, nomes de jobs, identidades individuais, credenciais e cópia das trilhas operacionais não integram o envio de governança. Os metadados da seção 12 são locais, com retenção e acesso controlados; não autorizam exportação ao Master. Definir granularidade que evite identificação indireta em grupos pequenos.
+
+O receptor limita tamanho e frequência dos envios, valida versão e vínculo instância/OM e trata reenvios sem duplicação. Permissões federadas não concedem leitura irrestrita nem comandos sobre a OM. Retenção dos agregados e acesso dos usuários centrais devem ser definidos antes da homologação.

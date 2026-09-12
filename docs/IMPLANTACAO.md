@@ -4,6 +4,8 @@
 
 Este documento define o modelo técnico de implantação do HECATE em uma OM, priorizando simplicidade, repetibilidade e operação local.
 
+Os pacotes e procedimentos abaixo são o modelo previsto; disponibilidade e homologação devem ser verificadas na [EAP](EAP.md).
+
 ## 2. Modelo inicial por OM
 
 Uma VM dedicada por OM.
@@ -44,7 +46,7 @@ Cada database deve possuir owner e credencial próprios.
 
 ## 5. Podman
 
-Componentes candidatos a container:
+Componentes definidos para Podman no modelo inicial:
 
 - HECATE Web;
 - Keycloak.
@@ -262,3 +264,29 @@ Variáveis locais esperadas:
 - quotas.
 
 Código, pacotes e arquitetura permanecem padronizados.
+
+## 18. Enrollment e operação federada
+
+Nexus distribui/versiona o software genérico; não registra a identidade federada. O Master é responsável pelo registro e associação da instância à OM, conforme [DECISOES.md](DECISOES.md#21-federação-por-agregados-e-identidade-por-instância).
+
+Fluxo previsto após a instalação:
+
+```text
+configurar Master -> apresentar código/token limitado -> registrar instância
+-> autorizar associação à OM -> obter credencial própria -> sincronizar automaticamente
+```
+
+Configuração conceitual; estas variáveis ainda não são consumidas pela aplicação:
+
+```env
+HECATE_MASTER_URL=https://hecate-master.exemplo.mil.br
+HECATE_FEDERATION_ENABLED=true
+```
+
+O setup deve permitir configurar o destino e realizar enrollment quando a federação for habilitada. Um identificador de OM informado localmente não substitui a associação autorizada no Master. Os controles de credenciais e destino estão em [SEGURANCA.md](SEGURANCA.md#17-segurança-da-federação).
+
+A conexão parte da OM para o Master. Homologar DNS, TLS, proxy/saída de rede e sincronismo de relógio conforme o ambiente; não exigir abertura de conexão de entrada do Master na OM. Falha ou desativação da federação não deve bloquear impressão e administração locais.
+
+A operação deve mostrar última sincronização confirmada, período enviado, atraso acumulado e erro acionável sem secrets. Manter reenvio controlado após falhas e estado persistente suficiente para retomada, com limites de armazenamento e política de retenção a definir. Isso não exige broker. Confirmar recebimento antes de considerar o envio concluído e tratar correções conforme o contrato de [ARQUITETURA.md](ARQUITETURA.md#132-contrato-de-sincronização).
+
+Backup/restore deve considerar identidade, credenciais protegidas e estado de sincronização. Clonar uma VM para outra OM exige novo enrollment; não reutilizar a identidade federada da origem. Homologar recuperação da mesma instância, rotação/revogação e prevenção de envios concorrentes por cópias restauradas. Atualizações precisam preservar compatibilidade do contrato federado além dos schemas locais.

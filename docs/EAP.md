@@ -110,7 +110,7 @@ Um pacote somente deve ser marcado como concluído quando todos os itens aplicá
 - [x] Configurar scripts Composer `fix`, `lint`, `rector`, `stan`, `psalm`, `test` e `qa`.
 - [x] Configurar `make setup`, `make hooks`, `make fix` e `make qa`.
 - [x] Configurar GitHub Actions para `composer install`, `composer validate` e `composer qa`.
-- [ ] Sincronizar `composer.lock` com Rector, ECS e a versão de PHPStan requerida pelo novo baseline.
+- [x] Sincronizar `composer.lock` com Rector, ECS e a versão de PHPStan requerida pelo novo baseline. Evidência da revisão de 2026-09-12: `composer validate --no-interaction --no-check-publish` aprovado; lock contém Rector 2.6.6, ECS 13.3.2 e PHPStan 2.2.13. Isso não comprova aprovação do QA/CI.
 - [ ] Obter pipeline integral de QA aprovado após a migração do baseline.
 - [ ] Configurar `composer audit` conforme política de vulnerabilidades.
 - [ ] Configurar checks obrigatórios antes de merge na branch principal.
@@ -222,11 +222,13 @@ Um pacote somente deve ser marcado como concluído quando todos os itens aplicá
 - [ ] Implementar saldos separados P&B/colorido.
 - [ ] Implementar `disponível = alocado - consumido - reservado`.
 - [ ] Reservar antes da liberação.
-- [ ] Converter reserva em consumo no sucesso.
-- [ ] Liberar reserva em falha, cancelamento ou expiração.
+- [ ] Converter reserva em consumo conforme accounting confirmado, inclusive consumo parcial.
+- [ ] Liberar reserva em falha, cancelamento ou expiração confirmados sem consumo; preservar saldo reservado em resultado incerto até reconciliação.
 - [ ] Implementar comportamentos BLOQUEAR, AVISAR_E_PERMITIR e EXIGIR_APROVACAO.
 
-**Critério de conclusão:** controle concorrente de cotas sem saldo negativo ou dupla utilização.
+**Critério de conclusão:** reservas e consumo sem dupla contabilização, respeitando a política de limite. Na política BLOQUEAR, novas reservas não podem exceder o saldo disponível.
+
+Permanece aberta a representação de excedente em AVISAR_E_PERMITIR e EXIGIR_APROVACAO, inclusive quando o consumo real superar a estimativa reservada. Accounting deve preservar o consumo real; não truncar valores para aparentar saldo não negativo. O código atual implementa somente BLOQUEAR.
 
 ### 3.1.16. Transferência de cotas
 
@@ -428,3 +430,35 @@ Em falha, cancelamento ou expiração confirmados sem consumo, a reserva deve se
 - aplicativo móvel nativo;
 - MFA obrigatório na primeira POC;
 - automação de alterações no Samba AD.
+
+# 5. Incremento de leitura e federação
+
+As decisões das seções 20–21 de [DECISOES.md](DECISOES.md) estão aceitas arquiteturalmente. Não comprovam implementação ou homologação. A inclusão da federação no MVP/release e a sequência de entrega permanecem abertas; este incremento não altera silenciosamente o recorte da seção 4.
+
+## 5.1. Leitura e escrita
+
+- [ ] Integrar identidade confiável, RBAC e resolução obrigatória de escopo nas leituras de inventário e indicadores.
+- [ ] Distinguir administrador global local, gestor com contratos autorizados e consumidor federado, preservando segregação funcional.
+- [ ] Testar acesso negado, escopo vazio, troca indevida de contrato/divisão e ausência de vazamento em totais, filtros, paginação e exportações.
+- [ ] Integrar autorização e auditoria no cadastro de impressoras.
+
+Na revisão documental, `src/Web/Printer/Index/Action.php` chama `PrinterListQuery::all()` sem autorização/escopo; `src/Web/HomePage/Action.php` usa `InventoryMetricsQuery::get()` com totais globais. A consulta `availableTo()` limita por divisão, mas está ligada a `print.release`; não representa a permissão de acompanhamento contratual. Correção mínima: resolver identidade/permissão/escopo no servidor e exigir esse escopo nas consultas, concedendo visão global apenas explicitamente.
+
+`src/Printing/Application/RegisterPrinter.php` grava sem ator, política ou auditoria. Correção mínima: incorporar autorização do cadastro e registro auditável junto à persistência. O middleware atual em `config/web/di/application.php` oferece sessão e CSRF, mas não autenticação institucional/RBAC. CSRF não substitui esses controles. A implementação desses ajustes exige testes e permanece pendente; esta revisão não refatora o código.
+
+A ação `src/Web/Printer/Detect/Action.php` apenas verifica existência e redireciona; não chama o agente nem coleta telemetria. Ao implementar a integração, autorizar a operação e o alvo antes da chamada e auditar seu resultado. A presença do botão e do CSRF não comprova descoberta funcional.
+
+## 5.2. Federação
+
+Não há implementação de enrollment, sincronização, APIs federadas ou configuração Master em `src/` e `config/` na revisão deste incremento.
+
+- [ ] Definir recorte de entrega e responsabilidades operacionais do Master.
+- [ ] Homologar autenticação M2M, enrollment, associação à OM, rotação e revogação.
+- [ ] Fechar métricas, dimensões, granularidade, períodos/fuso, precisão, retenção e acesso central.
+- [ ] Fechar envelope, versionamento, confirmação, duplicatas, correções tardias e comportamento após restore.
+- [ ] Implementar agregação local e push automático com retomada e limites operacionais.
+- [ ] Validar pacote genérico e novo enrollment ao replicar para outra OM.
+- [ ] Testar isolamento entre OMs, credencial revogada, replay, falha de rede, envio duplicado, atualização e restore.
+- [ ] Demonstrar que indisponibilidade do Master não bloqueia a operação local.
+
+**Critério de conclusão:** agregados autorizados chegam ao Master sem duplicação ou exportação de detalhes operacionais, com recuperação e rastreabilidade demonstradas.
