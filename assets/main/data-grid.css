@@ -1,0 +1,142 @@
+.page-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: -8px 0 14px;
+}
+
+.icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid rgba(210, 173, 82, .28);
+    border-radius: 7px;
+    background: rgba(8, 35, 65, .72);
+    color: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color .16s ease, background .16s ease, transform .16s ease;
+}
+
+.icon-button:hover {
+    border-color: rgba(240, 208, 123, .62);
+    background: rgba(12, 47, 84, .92);
+    transform: translateY(-1px);
+}
+
+.icon-button-danger:hover {
+    border-color: rgba(220, 90, 90, .68);
+    background: rgba(90, 25, 25, .38);
+}
+
+.icon-button svg,
+.button-with-icon svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+.button-with-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
+.data-grid tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, .025);
+}
+
+.data-grid tbody tr:nth-child(odd) {
+    background: rgba(4, 19, 37, .14);
+}
+
+.data-grid tbody tr:hover {
+    background: rgba(210, 173, 82, .055);
+}
+
+.data-grid .grid-actions {
+    width: 1%;
+    white-space: nowrap;
+    text-align: right;
+}
+
+.grid-action-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.grid-action-group form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, .62);
+    backdrop-filter: blur(3px);
+}
+
+.modal-backdrop.is-open {
+    display: flex;
+}
+
+.app-modal {
+    width: min(620px, 100%);
+    max-height: calc(100dvh - 40px);
+    overflow: auto;
+    border: 1px solid rgba(210, 173, 82, .42);
+    border-radius: 12px;
+    background: #071a30;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .48);
+}
+
+.app-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(210, 173, 82, .18);
+}
+
+.app-modal__header h2 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.app-modal__body {
+    padding: 16px;
+}
+
+.app-modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+body.has-open-modal {
+    overflow: hidden;
+}
+
+@media (max-width: 720px) {
+    .page-toolbar {
+        margin-top: 0;
+    }
+
+    .app-modal {
+        width: 100%;
+    }
+}
