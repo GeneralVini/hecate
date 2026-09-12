@@ -8,7 +8,7 @@ use InvalidArgumentException;
 
 final readonly class RegisterPrinterInput
 {
-    public function __construct(public string $name, public string $host, public ?string $location)
+    public function __construct(public string $name, public string $host, public ?int $locationId)
     {
         if (trim($name) === '' || preg_match('/^.{1,160}$/us', $name) !== 1) {
             throw new InvalidArgumentException('Nome deve conter entre 1 e 160 caracteres.');
@@ -20,8 +20,8 @@ final readonly class RegisterPrinterInput
         ) {
             throw new InvalidArgumentException('Informe um IP ou hostname válido de até 160 caracteres.');
         }
-        if ($location !== null && preg_match('/^.{0,160}$/us', $location) !== 1) {
-            throw new InvalidArgumentException('Localização deve conter até 160 caracteres.');
+        if ($locationId !== null && $locationId < 1) {
+            throw new InvalidArgumentException('Selecione um local válido.');
         }
     }
 }
