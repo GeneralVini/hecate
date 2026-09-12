@@ -9,21 +9,23 @@
             "Composer\\Config::disableProcessTimeout",
             "@php ./yii serve"
         ],
-        "lint": "phpcs",
-        "lint:fix": "phpcbf",
+        "lint": "ecs check --ansi",
+        "lint:fix": "ecs check --ansi --fix",
+        "rector": "rector process --dry-run --no-progress-bar",
+        "rector:fix": "rector process --no-progress-bar",
         "stan": "phpstan analyse --configuration=phpstan.neon --no-progress",
         "psalm": "psalm --config=psalm.xml --no-progress",
         "test": "phpunit --configuration=phpunit.xml",
+        "fix": [
+            "@rector:fix",
+            "@lint:fix"
+        ],
         "qa": [
             "@lint",
+            "@rector",
             "@stan",
             "@psalm",
             "@test"
-        ],
-        "qa:all": "sh -c 'status=0; composer lint || status=1; composer stan || status=1; composer psalm || status=1; composer test || status=1; exit $status'",
-        "qa:fix": [
-            "@lint:fix",
-            "@qa:all"
         ]
     },
     "require": {
@@ -66,9 +68,10 @@
         "yiisoft/yii-view-renderer": "^7.4.1"
     },
     "require-dev": {
-        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan": "^2.2.10",
         "phpunit/phpunit": "^11.5",
-        "squizlabs/php_codesniffer": "^3.13",
+        "rector/rector": "^2.6",
+        "symplify/easy-coding-standard": "^13.2",
         "vimeo/psalm": "^6.17",
         "vlucas/phpdotenv": "^5.6"
     },
