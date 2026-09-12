@@ -104,6 +104,7 @@ $this->beginPage();
 
             <p class="nav-section-gold">Organização</p>
             <a aria-disabled="true" title="Divisões — Em breve" aria-label="Divisões"><svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6v5H9ZM3 16h6v5H3ZM15 16h6v5h-6ZM12 8v4M6 16v-4h12v4"/></svg><span>Divisões</span></a>
+            <a href="<?= Html::encode($routeUrl('location/index')) ?>" title="Locais" aria-label="Locais"><svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6 7-12a7 7 0 1 0-14 0c0 6 7 12 7 12Z"/><circle cx="12" cy="9" r="2"/></svg><span>Locais</span></a>
             <a aria-disabled="true" title="Usuários — Em breve" aria-label="Usuários"><svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-3a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v3M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8M17 4a4 4 0 0 1 0 8M22 21v-3a4 4 0 0 0-3-4"/></svg><span>Usuários</span></a>
 
             <p>Governança</p>
