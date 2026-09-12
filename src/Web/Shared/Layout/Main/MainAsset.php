@@ -24,5 +24,5 @@ final class MainAsset extends AssetBundle
     ];
 
     /** @var list<string> */
-    public array $js = ['site.js'];
+    public array $js = ['site.js', 'crud-modal.js'];
 }
