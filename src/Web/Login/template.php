@@ -10,32 +10,34 @@ use Yiisoft\Html\Html;
 $this->setTitle('Entrar — HECATE');
 ?>
 <section class="login-panel" aria-labelledby="login-title">
-    <img class="login-logo" src="/branding/logo-horizontal.png" alt="HECATE">
-
     <h1 id="login-title" class="sr-only">Acesso ao HECATE</h1>
 
     <div class="login-fields" aria-label="Credenciais institucionais">
-        <label for="username">Usuário</label>
-        <input
-            id="username"
-            name="username"
-            type="text"
-            autocomplete="username"
-            placeholder="Usuário institucional"
-        >
+        <div class="login-field">
+            <label for="username">Usuário</label>
+            <input
+                id="username"
+                name="username"
+                type="text"
+                autocomplete="username"
+                placeholder="Usuário institucional"
+            >
+        </div>
 
-        <label for="password">Senha</label>
-        <input
-            id="password"
-            name="password"
-            type="password"
-            autocomplete="current-password"
-            placeholder="Senha"
-        >
+        <div class="login-field">
+            <label for="password">Senha</label>
+            <input
+                id="password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Senha"
+            >
+        </div>
     </div>
 
     <a
-        class="button button-primary button-block login-submit"
+        class="button button-primary login-submit"
         href="<?= Html::encode($urlGenerator->generate('home')) ?>"
     >
         Entrar
