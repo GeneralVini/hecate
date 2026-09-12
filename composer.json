@@ -15,7 +15,13 @@
         "rector:fix": "rector process --no-progress-bar",
         "stan": "phpstan analyse --configuration=phpstan.neon --no-progress",
         "psalm": "psalm --config=psalm.xml --no-progress",
+        "psalm:taint": "psalm --config=psalm.xml --taint-analysis --no-progress",
         "test": "phpunit --configuration=phpunit.xml",
+        "security:dependencies": "@composer audit --locked --no-interaction",
+        "security": [
+            "@security:dependencies",
+            "@psalm:taint"
+        ],
         "fix": [
             "@rector:fix",
             "@lint:fix"
@@ -26,6 +32,10 @@
             "@stan",
             "@psalm",
             "@test"
+        ],
+        "check": [
+            "@qa",
+            "@security"
         ]
     },
     "require": {
