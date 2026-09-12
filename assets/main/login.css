@@ -37,7 +37,7 @@
     top: auto !important;
     bottom: clamp(138px, 20vh, 166px) !important;
     z-index: 2;
-    width: min(760px, calc(100vw - 88px));
+    width: min(680px, calc(100vw - 88px));
     min-width: 0;
     padding: 0;
     margin: 0 !important;
@@ -51,13 +51,13 @@
     position: relative;
     width: 100%;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 154px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 176px;
     align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
+    gap: 14px;
+    padding: 12px 14px;
     color: #fff;
     border: 1px solid rgba(240, 208, 123, .58);
-    border-radius: 12px;
+    border-radius: 14px;
     background:
         radial-gradient(circle at 50% -40%, rgba(210, 173, 82, .08), transparent 42%),
         linear-gradient(180deg, rgba(8, 27, 50, .94), rgba(3, 14, 28, .92));
@@ -85,7 +85,7 @@
     content: "";
     position: absolute;
     inset: 1px;
-    border-radius: 11px;
+    border-radius: 13px;
     pointer-events: none;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .025);
 }
@@ -105,10 +105,10 @@
 
 .login-input-icon {
     position: absolute;
-    left: 10px;
+    left: 12px;
     top: 50%;
-    width: 15px;
-    height: 15px;
+    width: 17px;
+    height: 17px;
     transform: translateY(-50%);
     display: grid;
     place-items: center;
@@ -129,12 +129,11 @@
 
 .login-field input {
     width: 100%;
-    min-height: 34px;
-    padding: 0 10px 0 33px;
+    min-height: 38px;
+    padding: 0 12px 0 39px;
     border-color: rgba(210, 173, 82, .24);
     background: rgba(8, 35, 65, .90);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .025);
-    font-size: .88rem;
     transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
 }
 
@@ -161,16 +160,16 @@
 }
 
 .login-submit {
-    min-width: 154px;
-    min-height: 40px;
+    min-width: 176px;
+    min-height: 46px;
     margin: 0;
-    padding: 8px 20px;
+    padding: 10px 24px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     white-space: nowrap;
     border: 1px solid rgba(255, 236, 173, .28);
-    font-size: .9rem;
+    font-size: .96rem;
     font-weight: 800;
     letter-spacing: .025em;
     box-shadow:
@@ -269,16 +268,16 @@
     }
 
     .login-panel {
-        padding: 7px 9px;
-        gap: 9px;
+        padding: 12px 14px;
+        gap: 14px;
     }
 
     .login-field input {
-        min-height: 32px;
+        min-height: 38px;
     }
 
     .login-submit {
-        min-height: 38px;
+        min-height: 46px;
     }
 
     .institutional-footer {
@@ -290,16 +289,16 @@
 
 @media (max-width: 900px) and (min-width: 821px) {
     .login-form-area {
-        width: min(680px, calc(100vw - 48px));
+        width: min(640px, calc(100vw - 48px));
     }
 
     .login-panel {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 142px;
-        gap: 9px;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 168px;
+        gap: 12px;
     }
 
     .login-submit {
-        min-width: 142px;
+        min-width: 168px;
     }
 }
 
@@ -327,27 +326,27 @@
         left: 50% !important;
         right: auto !important;
         bottom: clamp(112px, 15vh, 132px) !important;
-        width: min(332px, calc(100vw - 28px));
+        width: min(350px, calc(100vw - 28px));
         transform: translateX(-50%) !important;
     }
 
     .login-panel {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 8px;
-        padding: 10px 12px 12px;
+        gap: 9px;
+        padding: 12px 14px 14px;
     }
 
     .login-fields {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 8px;
+        gap: 9px;
     }
 
     .login-submit {
         width: 100%;
         min-width: 0;
-        margin-top: 1px;
+        margin-top: 2px;
     }
 
     .institutional-footer {
@@ -373,11 +372,11 @@
 @media (max-width: 520px) {
     .login-form-area {
         bottom: clamp(104px, 14vh, 120px) !important;
-        width: min(306px, calc(100vw - 20px));
+        width: min(318px, calc(100vw - 20px));
     }
 
     .login-panel {
-        padding: 9px 10px 10px;
+        padding: 11px 12px 12px;
     }
 
     .institutional-footer {
