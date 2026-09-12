@@ -18,10 +18,10 @@ final readonly class SqlAuditLog
         $this->db->createCommand(<<<'SQL'
 INSERT INTO audit_log (actor, action, entity, entity_id)
 VALUES (:actor, :action, 'print_release_request', :request)
-SQL)->bindValues([
-            ':actor' => $entry->actor,
-            ':action' => $entry->action,
-            ':request' => $entry->requestId,
-        ])->execute();
+SQL)
+            ->bindValue(':actor', $entry->actor)
+            ->bindValue(':action', $entry->action)
+            ->bindValue(':request', $entry->requestId)
+            ->execute();
     }
 }
