@@ -97,6 +97,6 @@ final readonly class Action
         if ($id === false) {
             throw new DomainException('Identificador inválido.');
         }
-        return (int) $id;
+        return $id;
     }
 }
