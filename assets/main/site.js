@@ -96,7 +96,7 @@
         window.setTimeout(() => {
             flash.classList.add('is-hiding');
             window.setTimeout(() => flash.remove(), 220);
-        }, 4200);
+        }, 2800);
     }
 })();
 
@@ -145,6 +145,8 @@
 
     const textInputs = Array.from(form.querySelectorAll('input[type="text"], input:not([type])'))
         .filter((input) => input instanceof HTMLInputElement);
+    const hiddenInputs = Array.from(form.querySelectorAll('input[type="hidden"]'))
+        .filter((input) => input instanceof HTMLInputElement);
     const selects = Array.from(form.querySelectorAll('select'))
         .filter((select) => select instanceof HTMLSelectElement);
     const submitButton = form.querySelector('button[type="submit"]');
@@ -156,6 +158,14 @@
 
     const applyFilters = () => {
         const params = new URLSearchParams();
+
+        for (const input of hiddenInputs) {
+            if (!(input instanceof HTMLInputElement) || input.name === '' || input.value === '') {
+                continue;
+            }
+
+            params.set(input.name, input.value);
+        }
 
         for (const input of textInputs) {
             if (!(input instanceof HTMLInputElement) || input.name === '') {
