@@ -10,7 +10,9 @@ final readonly class PrinterListItem
         public int $id,
         public string $name,
         public string $host,
+        public ?int $locationId,
         public ?string $location,
+        public bool $active,
         public ?string $lastSeenAt,
     ) {
     }
