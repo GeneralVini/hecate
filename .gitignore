@@ -11,6 +11,7 @@
 /.psalm/
 /.psalm-cache/
 /coverage/
+/.tools/
 
 /lefthook-local.yml
 
