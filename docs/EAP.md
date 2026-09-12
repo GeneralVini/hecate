@@ -100,18 +100,20 @@ Um pacote somente deve ser marcado como concluído quando todos os itens aplicá
 - [x] Adotar PSR-1, PSR-4 e PSR-12.
 - [x] Adotar PSR-7, PSR-11, PSR-15 e PSR-17 onde fazem parte da arquitetura Yii3.
 - [x] Configurar `composer validate`.
-- [x] Configurar PHPCS/PSR-12.
-- [x] Configurar PHPStan nível 8.
+- [x] Configurar ECS/PSR-12 como coding standard e autofix.
+- [x] Configurar Rector com regras compatíveis com a versão mínima de PHP.
+- [x] Configurar Lefthook para `pre-commit` e `pre-push`.
+- [x] Configurar PHPStan.
 - [x] Configurar Psalm.
 - [x] Configurar PHPUnit.
 - [x] Versionar `composer.lock`.
-- [x] Configurar scripts Composer `lint`, `stan`, `psalm`, `test` e `qa`.
-- [x] Configurar `make setup` e `make qa`.
+- [x] Configurar scripts Composer `fix`, `lint`, `rector`, `stan`, `psalm`, `test` e `qa`.
+- [x] Configurar `make setup`, `make hooks`, `make fix` e `make qa`.
 - [x] Configurar GitHub Actions para `composer install`, `composer validate` e `composer qa`.
-- [x] Obter pipeline integral de QA aprovado na branch Yii3.
+- [ ] Sincronizar `composer.lock` com Rector, ECS e a versão de PHPStan requerida pelo novo baseline.
+- [ ] Obter pipeline integral de QA aprovado após a migração do baseline.
 - [ ] Configurar `composer audit` conforme política de vulnerabilidades.
 - [ ] Configurar checks obrigatórios antes de merge na branch principal.
-- [ ] Evoluir PHPStan para níveis superiores quando o código permitir.
 - [ ] Manter SonarQube opcional/futuro, sem torná-lo requisito do ambiente local.
 
 **Critério de conclusão:** QA reproduzível localmente e no CI, sem redução artificial de regras para aprovar código.
@@ -347,8 +349,8 @@ O MVP não é mantido em documento separado. Este recorte define o mínimo neces
 - [x] Cadastro e listagem de impressoras.
 - [x] CSRF nas operações mutáveis já implementadas.
 - [x] `composer.lock` versionado.
-- [x] PHPCS, PHPStan nível 8, Psalm e PHPUnit integrados ao `composer qa`.
-- [x] GitHub Actions executando QA integral.
+- [ ] ECS, Rector, PHPStan, Psalm e PHPUnit integrados ao `composer qa`, com Lefthook homologado localmente.
+- [x] GitHub Actions executando QA integral antes da migração do baseline.
 - [ ] Migration inicial executada e validada em PostgreSQL local.
 - [ ] Aplicação iniciada localmente e fluxos web básicos validados.
 - [ ] Integração mínima com identidade, SavaPage e CUPS demonstrada.
@@ -358,7 +360,7 @@ O MVP não é mantido em documento separado. Este recorte define o mínimo neces
 
 O código contém componentes por módulo para Printing, Quota, IdentityAccess, Audit e Monitoring, com consultas SQL, DTOs e um esqueleto de reserva/solicitação de release. A migration `M260911210000ReleaseArchitectureSlice` está presente, além da migration inicial. Isso registra implementação parcial, não homologação.
 
-O login ainda é demonstrativo; o gateway configurado é `UnavailableHeldJobGateway`. Os dois smoke tests atuais não demonstram o fluxo novo. A consolidação documental e os [ADRs](adr/README.md) não alteram por si só o estado dos critérios de aceite.
+O login ainda é demonstrativo; o gateway configurado é `UnavailableHeldJobGateway`. Os dois smoke tests atuais não demonstram o fluxo novo. A consolidação documental e arquitetural não altera por si só o estado dos critérios de aceite.
 
 Pendências de validação da fatia arquitetural, associadas às POCs 1, 3, 4 e 6:
 
@@ -414,7 +416,7 @@ Em falha, cancelamento ou expiração confirmados sem consumo, a reserva deve se
 - [ ] Auditoria básica disponível.
 - [ ] Cadastro e descoberta de impressora demonstrados.
 - [ ] Monitoramento mínimo da stack disponível.
-- [x] PHPCS, PHPStan, Psalm e PHPUnit aprovados no CI.
+- [ ] ECS, Rector, PHPStan, Psalm e PHPUnit aprovados no CI após a migração do baseline.
 
 ## 4.5. Fora do MVP
 
