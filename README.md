@@ -89,7 +89,7 @@ A organização modular está em evolução e deve acompanhar o domínio real, s
 
 ## Primeira execução
 
-Prepare PHP, Composer, PostgreSQL e Lefthook conforme [DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md#2-ambiente-local). Depois:
+Prepare PHP, Composer, PostgreSQL e Lefthook conforme [DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md#2-ambiente-local). O baseline de segurança local também requer Python 3.10+ com `venv`, Java 17+, `curl` e `sha256sum`. Depois:
 
 ```bash
 git clone https://github.com/GeneralVini/hecate.git
@@ -98,16 +98,20 @@ git switch yii3
 make setup
 ```
 
-O bootstrap instala dependências pelo lockfile, configura hooks e executa QA. Configuração do banco, migrations e execução local estão no [guia de desenvolvimento](docs/DESENVOLVIMENTO.md#22-banco-e-execução-local).
+O bootstrap instala dependências pelo lockfile, configura hooks, prepara Semgrep CE e OWASP ZAP em `.tools/` e executa as verificações locais. Essas ferramentas são executadas nativamente; Docker não faz parte do baseline de desenvolvimento.
 
-## Qualidade
+## Qualidade e segurança
 
 ```bash
-composer qa   # validação
-composer fix  # autocorreções determinísticas; revisar o diff
+composer qa        # qualidade: ECS, Rector, PHPStan, Psalm e PHPUnit
+composer security  # Composer Audit + Psalm Taint + Semgrep CE
+composer check     # QA + security
+composer fix       # autocorreções determinísticas; revisar o diff
 ```
 
-Ferramentas, hooks e manutenção de dependências têm como fonte [DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md). O estado de validação permanece na EAP.
+O baseline adotado combina PHPStan, Composer Audit, Psalm Taint Analysis, Semgrep CE e OWASP ZAP. A primeira combinação priorizada é `composer audit` + `psalm --taint-analysis`, por acrescentar análise de vulnerabilidades com pouca complexidade ao fluxo já existente. Semgrep complementa o gate estático; ZAP fica separado porque depende da aplicação em execução.
+
+Ferramentas, hooks e manutenção de dependências têm como fontes [DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md) e [SEGURANCA.md](docs/SEGURANCA.md). O estado de validação permanece na EAP.
 
 ## Fluxo previsto de impressão
 
