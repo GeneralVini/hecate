@@ -106,6 +106,21 @@ make setup
 
 O `make setup` executa `composer install`, valida o Composer, confirma as ferramentas de QA, instala e valida os hooks do Lefthook e executa o baseline de qualidade. O bootstrap não instala pacotes do sistema silenciosamente; se o Lefthook não estiver disponível, ele informa os comandos necessários e encerra.
 
+> Em uma instalação normal, com `composer.lock` já atualizado e versionado, use `composer install`/`make setup`. `composer update` não faz parte do bootstrap rotineiro.
+
+### Transição atual do baseline de QA
+
+Enquanto a alteração de dependências para Rector/ECS ainda não estiver refletida no `composer.lock`, execute uma vez:
+
+```bash
+composer update rector/rector symplify/easy-coding-standard phpstan/phpstan --with-all-dependencies
+composer validate --no-interaction
+composer fix
+composer qa
+```
+
+Depois versione o `composer.lock`. A partir desse ponto, novas máquinas voltam ao fluxo normal com `make setup` e `composer install`.
+
 Para reinstalar ou validar os hooks manualmente:
 
 ```bash
