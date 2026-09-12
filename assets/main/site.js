@@ -86,3 +86,97 @@
         });
     }, {passive: true});
 })();
+
+(() => {
+    const modal = document.querySelector('[data-location-modal]');
+    const form = document.querySelector('[data-location-form]');
+
+    if (!(modal instanceof HTMLElement) || !(form instanceof HTMLFormElement)) {
+        return;
+    }
+
+    const title = modal.querySelector('[data-location-modal-title]');
+    const operation = form.querySelector('[data-location-operation]');
+    const id = form.querySelector('[data-location-id]');
+    const name = form.querySelector('[data-location-name]');
+    const description = form.querySelector('[data-location-description]');
+    const active = form.querySelector('[data-location-active]');
+    const activeField = form.querySelector('[data-location-active-field]');
+
+    if (
+        !(title instanceof HTMLElement)
+        || !(operation instanceof HTMLInputElement)
+        || !(id instanceof HTMLInputElement)
+        || !(name instanceof HTMLInputElement)
+        || !(description instanceof HTMLInputElement)
+        || !(active instanceof HTMLInputElement)
+        || !(activeField instanceof HTMLElement)
+    ) {
+        return;
+    }
+
+    const open = () => {
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('has-open-modal');
+        window.requestAnimationFrame(() => name.focus());
+    };
+
+    const close = () => {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('has-open-modal');
+    };
+
+    const prepareCreate = () => {
+        form.reset();
+        operation.value = 'create';
+        id.value = '';
+        active.checked = true;
+        activeField.hidden = true;
+        title.textContent = 'Cadastrar local';
+        open();
+    };
+
+    const prepareEdit = (button) => {
+        form.reset();
+        operation.value = 'update';
+        id.value = button.dataset.locationId ?? '';
+        name.value = button.dataset.locationName ?? '';
+        description.value = button.dataset.locationDescription ?? '';
+        active.checked = button.dataset.locationActive === '1';
+        activeField.hidden = false;
+        title.textContent = 'Editar local';
+        open();
+    };
+
+    for (const button of document.querySelectorAll('[data-location-modal-create]')) {
+        if (button instanceof HTMLButtonElement) {
+            button.addEventListener('click', prepareCreate);
+        }
+    }
+
+    for (const button of document.querySelectorAll('[data-location-modal-edit]')) {
+        if (button instanceof HTMLButtonElement) {
+            button.addEventListener('click', () => prepareEdit(button));
+        }
+    }
+
+    for (const button of modal.querySelectorAll('[data-location-modal-close]')) {
+        if (button instanceof HTMLButtonElement) {
+            button.addEventListener('click', close);
+        }
+    }
+
+    modal.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            close();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+            close();
+        }
+    });
+})();
