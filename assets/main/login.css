@@ -1,40 +1,66 @@
 /* Login composition overrides.
  * The institutional footer is part of login-background.jpg and must not be duplicated in HTML.
  */
-.login-shell {
-    height: 100dvh;
+.login-page {
     min-height: 100dvh;
-    grid-template-columns: minmax(0, 3.15fr) minmax(320px, 1fr);
-    grid-template-rows: minmax(0, 1fr);
-    grid-template-areas: "art form";
     overflow: hidden;
+    background: var(--hecate-navy-950);
+}
+
+.login-shell {
+    position: relative;
+    width: 100%;
+    min-height: 100dvh;
+    overflow: hidden;
+    background: var(--hecate-navy-950);
 }
 
 .login-art {
+    position: absolute;
+    inset: 0;
+    min-width: 0;
     min-height: 100%;
     background:
-        linear-gradient(90deg, rgba(2, 11, 23, .01) 0%, rgba(2, 11, 23, .04) 70%, rgba(2, 11, 23, .22) 100%),
+        linear-gradient(90deg, rgba(2, 11, 23, .01) 0%, rgba(2, 11, 23, .03) 72%, rgba(2, 11, 23, .12) 100%),
         url('/branding/login-background.jpg') center center / cover no-repeat;
-    box-shadow: inset -18px 0 34px rgba(2, 11, 23, .18);
 }
 
 .login-form-area {
-    padding: clamp(20px, 2.4vw, 36px);
+    position: absolute;
+    top: clamp(205px, 33vh, 315px);
+    right: clamp(28px, 4vw, 58px);
+    z-index: 2;
+    width: min(310px, calc(100vw - 40px));
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    background: transparent;
+    border-left: 0;
+    overflow: visible;
 }
 
 .login-panel {
-    width: min(300px, 100%);
-    padding: 24px 22px 24px;
+    width: 100%;
+    padding: 22px 22px 24px;
+    color: #fff;
+    border: 1px solid rgba(210, 173, 82, .18);
     border-radius: 15px;
+    background: linear-gradient(180deg, rgba(11, 35, 64, .78), rgba(4, 19, 38, .76));
+    box-shadow: 0 18px 45px rgba(0, 0, 0, .24);
+    backdrop-filter: blur(14px);
 }
 
 .login-logo {
-    width: min(230px, 82%);
+    display: block;
+    width: min(220px, 82%);
     max-width: 100%;
-    margin: 0 auto 24px;
+    margin: 0 auto 22px;
+    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .22));
 }
 
 .login-fields {
+    display: grid;
     gap: 7px;
 }
 
@@ -52,27 +78,11 @@
     margin-top: 18px;
 }
 
-@media (max-width: 980px) and (min-width: 821px) {
-    .login-page {
-        overflow: hidden;
-    }
-
-    .login-shell {
-        height: 100dvh;
-        min-height: 100dvh;
-        grid-template-columns: minmax(0, 2.25fr) minmax(300px, 1fr);
-        grid-template-rows: minmax(0, 1fr);
-        grid-template-areas: "art form";
-        overflow: hidden;
-    }
-
+@media (max-width: 1100px) {
     .login-form-area {
-        min-height: 0;
-        overflow: hidden;
-    }
-
-    .login-panel {
-        margin-block: 0;
+        top: clamp(190px, 31vh, 275px);
+        right: clamp(20px, 3vw, 36px);
+        width: min(300px, calc(100vw - 32px));
     }
 }
 
@@ -82,29 +92,45 @@
     }
 
     .login-shell {
-        height: auto;
         min-height: 100dvh;
-        grid-template-columns: 1fr;
-        grid-template-rows: minmax(48dvh, 330px) auto;
-        grid-template-areas:
-            "art"
-            "form";
         overflow: visible;
     }
 
     .login-art {
-        min-height: 330px;
-        background-position: center center;
+        position: relative;
+        inset: auto;
+        min-height: 52dvh;
+        background-position: center top;
+        background-size: cover;
     }
 
     .login-form-area {
-        min-height: 0;
-        padding: 28px 20px 34px;
-        overflow: visible;
+        position: relative;
+        top: auto;
+        right: auto;
+        width: 100%;
+        padding: 24px 20px 32px;
+        background:
+            radial-gradient(circle at 50% 0%, rgba(210, 173, 82, .06), transparent 30%),
+            linear-gradient(180deg, #071c35 0%, #03101f 100%);
     }
 
     .login-panel {
-        width: min(330px, 100%);
-        margin: 0;
+        width: min(340px, 100%);
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 520px) {
+    .login-art {
+        min-height: 46dvh;
+    }
+
+    .login-form-area {
+        padding: 22px 16px 28px;
+    }
+
+    .login-panel {
+        padding: 22px 18px 24px;
     }
 }
