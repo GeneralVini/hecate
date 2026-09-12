@@ -46,6 +46,7 @@ $routeUrl = static function (string $route) use ($urlGenerator, $basePath): stri
 $brandingUrl = static fn (string $file): string => $basePath . '/branding/' . ltrim($file, '/');
 $logoutUrl = $basePath === '' ? '/' : $basePath . '/';
 $demoScenarioUrl = static fn (string $scenario): string => $basePath . '/demo/select?scenario=' . $scenario;
+$organizationLabel = $demoMode ? strtoupper($demoScenario) : 'não selecionada';
 
 $this->beginPage();
 ?>
@@ -113,7 +114,7 @@ $this->beginPage();
             <img src="<?= Html::encode($brandingUrl('logo-horizontal.png')) ?>" alt="HECATE">
         </a>
         <div class="topbar-context" aria-label="Contexto operacional">
-            <span><strong>OM</strong> não selecionada</span>
+            <span><strong>OM</strong> <?= Html::encode($organizationLabel) ?></span>
             <span><strong>Jobs</strong> 0</span>
         </div>
     </header>
