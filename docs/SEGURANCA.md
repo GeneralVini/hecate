@@ -280,3 +280,35 @@ Falha de atualização não deve apagar o último snapshot válido. O estado de 
 Enviar apenas métricas e dimensões aprovadas no contrato. Conteúdo de documentos, nomes de jobs, identidades individuais, credenciais e cópia das trilhas operacionais não integram o envio de governança. Os metadados da seção 12 são locais, com retenção e acesso controlados; não autorizam exportação ao Master. Definir granularidade que evite identificação indireta em grupos pequenos.
 
 O receptor limita tamanho e frequência dos envios, valida versão e vínculo instância/OM e trata reenvios sem duplicação. Permissões federadas não concedem leitura irrestrita nem comandos sobre a OM. Retenção dos agregados e acesso dos usuários centrais devem ser definidos antes da homologação.
+
+## 18. Segurança no desenvolvimento
+
+O baseline de segurança de código é composto por ferramentas livres/gratuitas e executadas nativamente no ambiente de desenvolvimento:
+
+- **PHPStan:** análise estática principal de tipos e inconsistências;
+- **Composer Audit:** SCA de dependências e advisories conhecidos a partir do lockfile;
+- **Psalm Taint Analysis:** rastreamento de dados não confiáveis entre sources e sinks;
+- **Semgrep Community Edition:** SAST complementar e regras locais versionadas em `security/semgrep.yml`;
+- **OWASP ZAP:** DAST separado para aplicação em execução.
+
+O comando padrão de segurança estática é:
+
+```bash
+composer security
+```
+
+Ele executa, nessa ordem, `composer audit`, Psalm com `--taint-analysis` e Semgrep CE. A combinação `composer audit` + Psalm Taint é o núcleo inicial por oferecer cobertura adicional com pouca complexidade operacional; Semgrep amplia a detecção de padrões inseguros e permite regras específicas do HECATE.
+
+O gate completo de desenvolvimento é:
+
+```bash
+composer check
+```
+
+`composer check` executa `composer qa` seguido de `composer security`. A mesma composição deve ser repetida no CI.
+
+OWASP ZAP não integra o `composer check`, pois depende da aplicação em execução. O comando `composer security:dast` é destinado exclusivamente a ambiente local/de teste autorizado; o wrapper versionado restringe o alvo automatizado a `localhost`/`127.0.0.1`.
+
+Semgrep CE e OWASP ZAP são instalados em `.tools/` pelo `make setup`, sem Docker e sem instalação global obrigatória. Semgrep é mantido em virtualenv Python próprio. O pacote Linux do ZAP é baixado em versão fixada e validado por SHA-256 antes da extração. O diretório `.tools/` não é versionado.
+
+Achado de scanner não deve ser silenciado apenas para liberar o pipeline. Falso positivo deve ser analisado e, se necessário, tratado de forma localizada e documentável. Regras globais ou baselines amplos não devem esconder vulnerabilidades reais.
