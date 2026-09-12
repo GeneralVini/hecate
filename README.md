@@ -67,9 +67,11 @@ Responsabilidades principais:
 
 ## Plataforma web
 
-A branch `yii3` utiliza o template oficial **Yii3 Web Application** (`yiisoft/app`) como referência estrutural, com HTTP PSR-7/PSR-17, middleware PSR-15, DI e roteamento explícito.
+A branch `yii3` utiliza o template oficial **Yii3 Web Application** (`yiisoft/app`) como referência estrutural do backend, com HTTP PSR-7/PSR-17, middleware PSR-15, DI e roteamento explícito.
 
-Estrutura principal:
+A tecnologia do frontend permanece uma decisão aberta. O HECATE pode usar views nativas do Yii3 onde forem suficientes ou evoluir para frontend separado consumindo APIs do backend. A arquitetura não deve acoplar regras de domínio à camada de apresentação.
+
+Estrutura principal atual:
 
 ```text
 assets/
@@ -106,22 +108,32 @@ APP_ENV=dev APP_DEBUG=1 composer serve
 
 ## Qualidade
 
-O baseline obrigatório é executado por:
+O baseline de qualidade é composto por:
+
+```text
+Lefthook
+Rector
+ECS / PSR-12
+PHPStan
+Psalm
+PHPUnit
+```
+
+Validação integral:
 
 ```bash
 composer qa
 ```
 
-Inclui:
+Autocorreções determinísticas de código e estilo:
 
-```text
-PHPCS / PSR-12
-PHPStan nível 8
-Psalm
-PHPUnit
+```bash
+composer fix
 ```
 
-Detalhes de ambiente, qualidade e documentação de código estão em [DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md).
+O Lefthook aplica autofix em PHP no `pre-commit` e executa as verificações completas no `pre-push`. PHPStan, Psalm e PHPUnit permanecem validadores: problemas sem correção determinística exigem alteração consciente de código.
+
+Detalhes de ambiente, instalação do Lefthook, qualidade e documentação de código estão em [DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md).
 
 ## Fluxo previsto de impressão
 
