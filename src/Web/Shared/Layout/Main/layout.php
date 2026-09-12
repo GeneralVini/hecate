@@ -20,6 +20,22 @@ $this->addJsFiles($assetManager->getJsFiles());
 $this->addJsStrings($assetManager->getJsStrings());
 $this->addJsVars($assetManager->getJsVars());
 
+$scriptName = (string) ($_SERVER['SCRIPT_NAME'] ?? '');
+$basePath = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+if ($basePath === '.' || $basePath === '/') {
+    $basePath = '';
+}
+
+$routeUrl = static function (string $route) use ($urlGenerator, $basePath): string {
+    $url = $urlGenerator->generate($route);
+
+    if ($basePath !== '' && str_starts_with($url, '/') && !str_starts_with($url, $basePath . '/')) {
+        return $basePath . $url;
+    }
+
+    return $url;
+};
+
 $this->beginPage();
 ?>
 <!DOCTYPE html>
@@ -38,7 +54,7 @@ $this->beginPage();
 <?php $this->beginBody() ?>
 <div class="app-shell" data-sidebar-state="expanded">
     <header class="app-topbar">
-        <a class="app-brand" href="<?= Html::encode($urlGenerator->generate('home')) ?>">
+        <a class="app-brand" href="<?= Html::encode($routeUrl('home')) ?>">
             <img src="/branding/logo-horizontal.png" alt="HECATE">
         </a>
         <div class="topbar-context" aria-label="Contexto operacional">
@@ -55,36 +71,38 @@ $this->beginPage();
     <aside class="app-sidebar" aria-label="Menu principal">
         <div class="sidebar-header">
             <img src="/branding/symbol.png" alt="" aria-hidden="true">
-            <button class="sidebar-toggle" type="button" data-sidebar-toggle aria-label="Recolher menu">☰</button>
+            <button class="sidebar-toggle" type="button" data-sidebar-toggle aria-label="Recolher menu" aria-expanded="true">☰</button>
         </div>
 
         <nav class="sidebar-nav">
-            <a href="<?= Html::encode($urlGenerator->generate('home')) ?>"><span>Dashboard</span></a>
+            <a href="<?= Html::encode($routeUrl('home')) ?>">
+                <span class="nav-icon" aria-hidden="true">⌂</span><span class="nav-label">Dashboard</span>
+            </a>
 
-            <p>Impressão</p>
-            <a href="<?= Html::encode($urlGenerator->generate('printer/index')) ?>"><span>Impressoras</span></a>
-            <a href="#"><span>Filas</span></a>
-            <a href="#"><span>Jobs pendentes</span></a>
-            <a href="#"><span>Liberação</span></a>
+            <p class="nav-section"><span class="nav-section-icon" aria-hidden="true">▣</span><span>Impressão</span></p>
+            <a href="<?= Html::encode($routeUrl('printer/index')) ?>"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Impressoras</span></a>
+            <a href="#"><span class="nav-icon" aria-hidden="true">≡</span><span class="nav-label">Filas</span></a>
+            <a href="#"><span class="nav-icon" aria-hidden="true">◷</span><span class="nav-label">Jobs pendentes</span></a>
+            <a href="#"><span class="nav-icon" aria-hidden="true">✓</span><span class="nav-label">Liberação</span></a>
 
-            <p>Organização</p>
-            <a href="#"><span>Divisões</span></a>
-            <a href="#"><span>Usuários</span></a>
+            <p class="nav-section nav-section-gold"><span class="nav-section-icon" aria-hidden="true">◇</span><span>Organização</span></p>
+            <a href="#"><span class="nav-icon" aria-hidden="true">▦</span><span class="nav-label">Divisões</span></a>
+            <a href="#"><span class="nav-icon" aria-hidden="true">♙</span><span class="nav-label">Usuários</span></a>
 
-            <p>Governança</p>
-            <a href="#"><span>Políticas</span></a>
-            <a href="#"><span>Papéis e aprovações</span></a>
-            <a href="#"><span>Cotas</span></a>
-            <a href="#"><span>Contratos</span></a>
-            <a href="#"><span>Indicadores</span></a>
+            <p class="nav-section"><span class="nav-section-icon" aria-hidden="true">◆</span><span>Governança</span></p>
+            <a href="#"><span class="nav-icon" aria-hidden="true">§</span><span class="nav-label">Políticas</span></a>
+            <a href="#"><span class="nav-icon" aria-hidden="true">♜</span><span class="nav-label">Papéis e aprovações</span></a>
+            <a href="#"><span class="nav-icon" aria-hidden="true">◫</span><span class="nav-label">Cotas</span></a>
+            <a href="#"><span class="nav-icon" aria-hidden="true">▧</span><span class="nav-label">Contratos</span></a>
+            <a href="#"><span class="nav-icon" aria-hidden="true">⌁</span><span class="nav-label">Indicadores</span></a>
 
-            <p>Operação</p>
-            <a href="#"><span>Monitoramento</span></a>
-            <a href="#"><span>Auditoria</span></a>
+            <p class="nav-section"><span class="nav-section-icon" aria-hidden="true">◉</span><span>Operação</span></p>
+            <a href="#"><span class="nav-icon" aria-hidden="true">◎</span><span class="nav-label">Monitoramento</span></a>
+            <a href="#"><span class="nav-icon" aria-hidden="true">≣</span><span class="nav-label">Auditoria</span></a>
 
-            <p>Sistema</p>
-            <a href="#"><span>Integrações</span></a>
-            <a href="#"><span>Configurações</span></a>
+            <p class="nav-section"><span class="nav-section-icon" aria-hidden="true">⚙</span><span>Sistema</span></p>
+            <a href="#"><span class="nav-icon" aria-hidden="true">↔</span><span class="nav-label">Integrações</span></a>
+            <a href="#"><span class="nav-icon" aria-hidden="true">⚙</span><span class="nav-label">Configurações</span></a>
         </nav>
     </aside>
 
@@ -95,7 +113,7 @@ $this->beginPage();
                 <span class="breadcrumb-separator">/</span>
                 <span><?= Html::encode($this->getTitle()) ?></span>
             </div>
-            <a class="workspace-login-link" href="<?= Html::encode($urlGenerator->generate('login')) ?>">Sair</a>
+            <a class="workspace-login-link" href="<?= Html::encode($routeUrl('login')) ?>">Sair</a>
         </div>
 
         <main class="app-content">
