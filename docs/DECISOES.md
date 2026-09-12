@@ -218,3 +218,21 @@ Decisões aceitas em chat devem ser incorporadas à fonte canônica corresponden
 - CatalogoMB e eventual phpIPAM são integrações exclusivas do Master.
 
 **Premissa de segurança:** o bootstrap ocorre em ambiente institucional controlado e considera cooperação entre as OM. Na primeira versão, não é requisito resistir a tentativa deliberada de personificação de outra OM por agente interno. A combinação entre domínio AD validado, identificação oficial pelo Catálogo MB e confirmação pelo operador é considerada suficiente para o bootstrap inicial. Eventual validação via phpIPAM é apenas evidência complementar. Divergências entre as fontes não devem ser corrigidas automaticamente e devem impedir o vínculo automático ou exigir verificação administrativa.
+
+## 23. HECATE Demo
+
+**Decisão:** manter **HECATE Demo** como variante instalável permanente baseada no mesmo código do HECATE Local, destinada a demonstração, treinamento e homologação visual/funcional.
+
+**Motivo:** permitir demonstrações reproduzíveis com dados fictícios sem transformar a instalação local real em multi-OM nem introduzir regras de domínio exclusivas para apresentação.
+
+**Consequências:**
+
+- a invariável do HECATE Local permanece: uma instalação pertence a uma única OM;
+- a edição demo pode oferecer seleção entre cenários, mas esse seletor é exclusivo da apresentação demo e não representa funcionalidade multi-OM do produto;
+- os cenários iniciais são DCTIM, com contrato por franquia de 5.000 páginas P&B e 1.000 coloridas mais excedentes, e CTIM, com contrato por consumo e preço fixo por página P&B/colorida;
+- cada cenário usa database PostgreSQL próprio (`hecate_demo_dctim` e `hecate_demo_ctim`), preservando isolamento equivalente a duas instalações locais distintas;
+- migrations de produto permanecem comuns às edições; dados demonstrativos são carregados por seeds próprios e descartáveis, fora da migration funcional;
+- `HECATE_EDITION=demo` habilita o comportamento demonstrativo; a edição normal não exibe seleção de cenário nem depende dos bancos demo;
+- o HECATE Demo deve reutilizar as mesmas queries, regras e componentes do produto real sempre que o domínio correspondente existir;
+- é proibido criar números hardcoded em dashboard ou tabelas exclusivas apenas para simular funcionalidades ainda não modeladas; novos indicadores devem esperar o schema funcional correspondente;
+- dados demonstrativos devem ser determinísticos, explicitamente fictícios e recriáveis sem afetar a instalação normal.
