@@ -12,11 +12,11 @@ Este documento consolida as decisões já fechadas para o HECATE e substitui a n
 
 ## 2. Yii3
 
-**Decisão:** utilizar Yii3.
+**Decisão:** utilizar Yii3 como base do backend da aplicação.
 
 **Motivo:** DI, padrões PSR, middleware, modularidade, testabilidade e integração com o ecossistema PHP moderno.
 
-**Consequência:** Yii3 é ferramenta da aplicação, não o modelo arquitetural do domínio.
+**Consequência:** Yii3 é ferramenta da aplicação, não o modelo arquitetural do domínio. A tecnologia do frontend permanece aberta; views nativas podem ser usadas quando adequadas, mas um frontend separado por API também é compatível com a arquitetura.
 
 ## 3. Monólito modular e DDD pragmático
 
@@ -151,7 +151,26 @@ Permanecem sujeitos a POC ou validação técnica:
 - telemetria multi-fabricante;
 - fallback para Catálogo MB indisponível ou desatualizado.
 
-## 18. Regra documental
+## 18. Qualidade e hooks de desenvolvimento
+
+**Decisão:** adotar Lefthook, Rector, ECS, PHPStan, Psalm e PHPUnit como baseline de qualidade.
+
+**Motivo:** separar claramente orquestração de hooks, autofix/refatoração, coding standard, análise estática e testes, mantendo o fluxo válido mesmo se o repositório passar a incluir frontend separado ou outras stacks além de PHP.
+
+**Consequências:**
+
+- Lefthook é o orquestrador de hooks Git;
+- Rector aplica refatorações automáticas homologadas;
+- ECS é a fonte do coding standard PHP e do autofix de estilo;
+- PHPStan é a análise estática principal;
+- Psalm permanece como análise complementar;
+- PHPUnit valida comportamento;
+- `composer qa` é o comando de validação integral para desenvolvimento e CI;
+- `composer fix` executa apenas correções automáticas determinísticas;
+- PHPCS/PHPCBF deixam de ser ferramentas diretas do projeto;
+- hooks locais não substituem a validação no CI.
+
+## 19. Regra documental
 
 Não criar novo arquivo Markdown quando o conteúdo puder ser incorporado claramente a um documento canônico existente.
 
