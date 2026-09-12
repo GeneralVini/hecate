@@ -29,7 +29,9 @@ final readonly class ReleaseRequestStore
     {
         $row = $this->db->createCommand(<<<'SQL'
 SELECT actor, division_id, job_reference, printer_id, state FROM print_release_request WHERE request_id = :request
-SQL)->bindValues([':request' => $input->requestId])->queryOne();
+SQL)
+            ->bindValue(':request', $input->requestId)
+            ->queryOne();
         if ($row === null) {
             return null;
         }
@@ -51,7 +53,8 @@ SQL)->bindValues([':request' => $input->requestId])->queryOne();
         return $this->db->transaction(function () use ($actor, $input, $job, $period): ReleaseReceipt {
             // Serializes retries of one request, including before the request row exists.
             $this->db->createCommand('SELECT pg_advisory_xact_lock(hashtextextended(:request, 0))')
-                ->bindValues([':request' => $input->requestId])->queryScalar();
+                ->bindValue(':request', $input->requestId)
+                ->queryScalar();
             $existing = $this->find($actor, $input);
             if ($existing !== null) {
                 return $existing;
@@ -60,7 +63,10 @@ SQL)->bindValues([':request' => $input->requestId])->queryOne();
 SELECT p.id FROM printer p JOIN division_printer_access a ON a.printer_id = p.id
 WHERE p.id = :printer AND a.division_id = :division AND p.enabled = TRUE
 FOR SHARE OF p, a
-SQL)->bindValues([':printer' => $input->printerId, ':division' => $actor->divisionId])->queryScalar();
+SQL)
+                ->bindValue(':printer', $input->printerId)
+                ->bindValue(':division', $actor->divisionId)
+                ->queryScalar();
             if ($allowed === null || $allowed === false) {
                 throw new DomainException('Impressora não autorizada para a divisão.');
             }
@@ -70,16 +76,16 @@ INSERT INTO print_release_request
 (request_id, actor, division_id, job_reference, printer_id, quota_id, bw_pages, color_pages, state)
 VALUES (:request, :actor, :division, :job, :printer, :quota, :bw, :color, 'pending')
 ON CONFLICT DO NOTHING RETURNING request_id
-SQL)->bindValues([
-                ':request' => $input->requestId,
-                ':actor' => $actor->subject,
-                ':division' => $actor->divisionId,
-                ':job' => $job->reference,
-                ':printer' => $input->printerId,
-                ':quota' => $quotaId,
-                ':bw' => $job->bwPages,
-                ':color' => $job->colorPages,
-            ])->queryScalar();
+SQL)
+                ->bindValue(':request', $input->requestId)
+                ->bindValue(':actor', $actor->subject)
+                ->bindValue(':division', $actor->divisionId)
+                ->bindValue(':job', $job->reference)
+                ->bindValue(':printer', $input->printerId)
+                ->bindValue(':quota', $quotaId)
+                ->bindValue(':bw', $job->bwPages)
+                ->bindValue(':color', $job->colorPages)
+                ->queryScalar();
             if ($inserted === null || $inserted === false) {
                 throw new DomainException('Job já possui solicitação de liberação.');
             }
@@ -95,7 +101,10 @@ SQL)->bindValues([
             $changed = $this->db->createCommand(<<<'SQL'
 UPDATE print_release_request SET state = 'dispatching', updated_at = CURRENT_TIMESTAMP
 WHERE request_id = :request AND actor = :actor AND state = 'pending'
-SQL)->bindValues([':request' => $input->requestId, ':actor' => $actor->subject])->execute();
+SQL)
+                ->bindValue(':request', $input->requestId)
+                ->bindValue(':actor', $actor->subject)
+                ->execute();
             if ($changed !== 1) {
                 return false;
             }
@@ -113,7 +122,11 @@ SQL)->bindValues([':request' => $input->requestId, ':actor' => $actor->subject])
             $changed = $this->db->createCommand(<<<'SQL'
 UPDATE print_release_request SET state = :state, updated_at = CURRENT_TIMESTAMP
 WHERE request_id = :request AND actor = :actor AND state = 'dispatching'
-SQL)->bindValues([':state' => $state, ':request' => $input->requestId, ':actor' => $actor->subject])->execute();
+SQL)
+                ->bindValue(':state', $state)
+                ->bindValue(':request', $input->requestId)
+                ->bindValue(':actor', $actor->subject)
+                ->execute();
             if ($changed !== 1) {
                 throw new LogicException('Solicitação não está em envio.');
             }
