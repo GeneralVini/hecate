@@ -354,6 +354,21 @@ O MVP não é mantido em documento separado. Este recorte define o mínimo neces
 - [ ] Integração mínima com identidade, SavaPage e CUPS demonstrada.
 - [ ] Primeira descoberta de impressora pelo `hecate-agent` demonstrada.
 
+### 4.1.1. Estado da evolução arquitetural
+
+O código contém componentes por módulo para Printing, Quota, IdentityAccess, Audit e Monitoring, com consultas SQL, DTOs e um esqueleto de reserva/solicitação de release. A migration `M260911210000ReleaseArchitectureSlice` está presente, além da migration inicial. Isso registra implementação parcial, não homologação.
+
+O login ainda é demonstrativo; o gateway configurado é `UnavailableHeldJobGateway`. Os dois smoke tests atuais não demonstram o fluxo novo. A consolidação documental e os [ADRs](adr/README.md) não alteram por si só o estado dos critérios de aceite.
+
+Pendências de validação da fatia arquitetural, associadas às POCs 1, 3, 4 e 6:
+
+- [ ] Validar ambas as migrations em PostgreSQL isolado e registrar versão, comando e resultado.
+- [ ] Testar cadastro/listagem e indicadores SQL, defaults, mapeamento de tipos e erros esperados.
+- [ ] Demonstrar identidade confiável, permissão e escopo divisão/impressora no fluxo integrado.
+- [ ] Testar reserva e auditoria atômicas, rollback, idempotência e concorrência com conexões independentes.
+- [ ] Integrar PIN e homologar release de job já retido no SavaPage.
+- [ ] Demonstrar accounting e reconciliação de solicitações aceitas, pendentes ou de resultado desconhecido.
+
 ## 4.2. POCs críticas
 
 - [ ] **POC 1 — Base Yii3:** bootstrap HTTP, DI, middleware, CSRF, PostgreSQL, migration, dashboard, cadastro/listagem e QA.
@@ -384,7 +399,7 @@ job -> SavaPage retém
     -> accounting confirma consumo
 ```
 
-Em falha, cancelamento ou expiração, a reserva deve ser devolvida sem incrementar consumo.
+Em falha, cancelamento ou expiração confirmados sem consumo, a reserva deve ser devolvida sem incrementar consumo. Timeout ou interrupção após envio não comprova falha: preservar a reserva e reconciliar o resultado antes de devolver saldo ou reenviar. Accounting deve tratar consumo efetivo, inclusive parcial, sem duplicação.
 
 ## 4.4. Critérios de aceite do MVP
 

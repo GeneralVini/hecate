@@ -34,7 +34,12 @@ config/
 public/
 src/
   Migration/
-  Model/
+  Printing/
+  Quota/
+  IdentityAccess/
+  Audit/
+  Monitoring/
+  Model/  # legado ActiveRecord em transição
   Shared/
   Web/
 tests/
@@ -185,7 +190,7 @@ Todo dado não confiável exibido deve ser escapado no contexto correto. Entrada
 
 ### SQL Injection
 
-Utilizar ActiveRecord, Query Builder ou comandos parametrizados do Yii DB. Nunca concatenar dados de requisição diretamente em SQL.
+Preferir SQL explícito com comandos parametrizados do Yii DB; Query Builder pode ser usado quando trouxer clareza. ActiveRecord permanece restrito a usos pontuais de infraestrutura justificados. Nunca concatenar dados de requisição diretamente em SQL.
 
 Identificadores dinâmicos, como nomes de coluna ou ordenação, devem vir de allowlist.
 

@@ -57,9 +57,13 @@ Usar quando houver informação adicional real:
 
 `@property` e `@method` devem ser usados apenas quando uma biblioteca realmente expuser comportamento dinâmico não representável de forma melhor por tipos nativos.
 
-## 5. Yii3 e ActiveRecord
+## 5. Persistência, DTOs e domínio
 
-Os modelos persistentes do HECATE utilizam `yiisoft/active-record` e ficam em `src/Model`.
+Preferir SQL explícito e parametrizado via Yii DB em componentes de consulta ou persistência. DTOs representam contratos específicos de input/output e leitura quando houver uma fronteira real. Entidades e Value Objects devem encapsular semântica ou invariantes relevantes.
+
+Os models ActiveRecord ainda presentes em `src/Model` são legado em transição, não orientação para novos módulos. Uso novo de ActiveRecord deve ser pontual, restrito à infraestrutura e justificado; não expor esses objetos como modelo universal entre módulos.
+
+Documentar bindings, mapeamento de tipos, transações, concorrência e idempotência quando fizerem parte do contrato.
 
 Documentar quando necessário:
 

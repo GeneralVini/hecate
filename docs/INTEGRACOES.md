@@ -125,7 +125,7 @@ O SavaPage é o motor de impressão e accounting.
 
 ### Regra de implementação
 
-A integração deve ficar encapsulada em código compatível com a estrutura padrão do Yii2 Basic, evitando espalhar dependência do SavaPage pelo sistema.
+A integração deve ficar encapsulada em adapter específico do módulo responsável, configurado por DI no Yii3. O contrato deve refletir as capacidades homologadas do SavaPage, evitando expor detalhes de sua API aos demais módulos. CUPS é transporte/infraestrutura e não um substituto intercambiável do SavaPage para release controlado.
 
 Ordem de preferência:
 

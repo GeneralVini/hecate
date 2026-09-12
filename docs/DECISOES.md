@@ -86,7 +86,7 @@ Cliente -> SavaPage -> retenção -> HECATE valida -> liberação -> CUPS -> imp
 - Para cada tipo, manter `alocado`, `reservado`, `consumido` e `disponível`.
 - `disponível = alocado - consumido - reservado`.
 - A reserva ocorre antes da liberação para evitar corrida concorrente.
-- Em sucesso, reserva vira consumo; em cancelamento, falha ou expiração, a reserva é devolvida.
+- Reserva vira consumo conforme accounting efetivo. Cancelamento, falha ou expiração confirmados sem consumo permitem devolução; timeout exige reconciliação antes de devolver saldo ou reenviar. Aceite de release não comprova impressão.
 - Política ao esgotar quota é configurável: bloquear, avisar e permitir, ou exigir aprovação.
 
 ## 10. Contratos
@@ -184,3 +184,9 @@ Sequência preferencial de descoberta:
 - Duplicação localizada entre boundaries pode ser preferível a um modelo compartilhado que aumente o acoplamento conceitual.
 - Evitar `GenericRepository`, `BaseRepository`, `BaseService`, DTO universal e ActiveRecord compartilhado entre módulos.
 - SQL explícito e parametrizado via Yii DB é aceitável e preferível quando tornar a intenção mais clara.
+
+## 20. Racional e acompanhamento
+
+Os [ADRs](adr/README.md) registram o racional das decisões arquiteturais consolidadas. Seu status de aceitação não comprova implementação ou homologação. A [EAP](EAP.md) permanece a fonte única de escopo, POCs, critérios e acompanhamento; o [resumo executivo](RESUMO-EXECUTIVO.md) sintetiza a direção e o estágio atual.
+
+Usar `docs/ARQUITETURA.md` e `docs/SEGURANCA.md` como documentos canônicos, sem duplicá-los em `ARCHITECTURE.md` ou `SECURITY.md` na raiz.

@@ -204,8 +204,10 @@ Usado para distribuir:
 9. SavaPage encaminha ao CUPS
 10. CUPS entrega à impressora
 11. Accounting confirma consumo
-12. HECATE converte reserva em consumo ou devolve a reserva em caso de falha
+12. HECATE reconcilia consumo efetivo e saldo reservado
 ```
+
+Aceite de release não comprova impressão. Falha, cancelamento ou expiração confirmados sem consumo permitem devolver a reserva; timeout mantém resultado desconhecido até reconciliação. As transações locais não devem permanecer abertas durante chamadas ao SavaPage.
 
 ## 5. Identidade, lotação e política
 
@@ -321,3 +323,9 @@ A arquitetura está fechada conceitualmente, mas os seguintes mecanismos devem s
 - accounting P&B/colorida em diferentes drivers e fabricantes;
 - telemetria IPP/SNMP/EWS multi-vendor;
 - fallback quando o Catálogo MB estiver desatualizado ou indisponível.
+
+## 15. Estado de implementação e documentação
+
+Esta arquitetura descreve responsabilidades e direção de evolução. O estado atual é resumido em [RESUMO-EXECUTIVO.md](RESUMO-EXECUTIVO.md); a [EAP](EAP.md) contém os critérios e pendências de validação. O código já contém SQL, DTOs e um esqueleto de reserva/release, mas isso não comprova autenticação, PIN, integração ou accounting operacional.
+
+O racional das decisões está nos [ADRs](adr/README.md). Manter estes documentos em português, sem cópias paralelas em arquivos de arquitetura/segurança na raiz.

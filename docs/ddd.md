@@ -687,9 +687,12 @@ Criar e manter:
 
 ```text
 README.md
-ARCHITECTURE.md
 AGENTS.md
-SECURITY.md
+docs/ARQUITETURA.md
+docs/DECISOES.md
+docs/SEGURANCA.md
+docs/RESUMO-EXECUTIVO.md
+docs/EAP.md
 docs/adr/
 ```
 
@@ -711,7 +714,7 @@ ADRs iniciais:
 0007-rbac-plus-contextual-authorization.md
 ```
 
-Registrar nos ADRs o racional, não apenas a decisão.
+Registrar nos ADRs o racional, não apenas a decisão. O índice fica em [adr/README.md](adr/README.md). Usar os documentos existentes em português; não criar cópias paralelas em `ARCHITECTURE.md` ou `SECURITY.md`. A [EAP](EAP.md) é a fonte única de escopo, POCs, critérios e acompanhamento; diretriz aceita não significa implementação validada.
 
 ---
 
@@ -755,28 +758,36 @@ Antes de gerar grande quantidade de código:
 4. identifique módulos e responsabilidades existentes;
 5. proponha uma estrutura modular inicial;
 6. identifique o primeiro vertical slice do HECATE;
-7. crie ou ajuste `ARCHITECTURE.md`;
+7. ajuste `docs/ARQUITETURA.md`;
 8. crie os ADRs principais;
 9. crie ou ajuste `AGENTS.md`;
 10. implemente apenas o necessário para validar a arquitetura.
 
-Primeiro vertical slice preferencial:
+Primeiro vertical slice preferencial, conforme a EAP:
 
 ```text
-usuário autenticado
+cliente envia job ao SavaPage, que o retém
         ↓
-lista impressoras disponíveis
+usuário autenticado consulta seus jobs e impressoras autorizadas
         ↓
-solicita trabalho de impressão
+solicita liberação de job já retido
         ↓
-quota é verificada
+HECATE valida ownership, permissão, divisão, política e cota
         ↓
-PrintJob é registrado
+reserva cota e registra solicitação/auditoria em transação
         ↓
-adapter de impressão é acionado
+usuário confirma com PIN conforme fluxo homologado
         ↓
-evento é auditado
+adapter solicita release suportado ao SavaPage
+        ↓
+SavaPage encaminha ao CUPS
+        ↓
+accounting confirma consumo e HECATE reconcilia a reserva
 ```
+
+O job local representa metadados e estado; este recorte não cria um serviço de upload, recepção ou spool de documentos no HECATE. `SubmitPrintJob` é somente um exemplo de nomenclatura, não escopo adicional aprovado.
+
+Não manter transação de saldo aberta durante chamadas externas. Timeout é resultado desconhecido; não devolver a reserva nem reenviar automaticamente sem reconciliação. Aceite do release não prova impressão nem consumo final.
 
 Mocks/fakes são aceitáveis inicialmente para:
 
@@ -787,6 +798,8 @@ CUPS
 SavaPage
 HECATE Agent
 ```
+
+Fakes validam comportamento e fronteiras em testes; não concluem a POC de integração real do SavaPage. A validação arquitetural parcial não autoriza expor release operacional sem OIDC, autorização e PIN.
 
 O objetivo inicial é validar:
 

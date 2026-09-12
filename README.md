@@ -4,7 +4,7 @@
 
 ![HECATE — Governança e Controle de Impressão](public/branding/hecate-hero.jpg)
 
-HECATE é a plataforma institucional destinada a padronizar, governar, controlar e auditar o serviço de impressão nas OM. A solução centraliza identidade, autorização, políticas, papéis, cotas P&B/colorida, contratos, aprovações, liberação segura, auditoria, indicadores, monitoramento da pilha de impressão e telemetria das impressoras.
+HECATE é a plataforma institucional destinada a padronizar, governar, controlar e auditar o serviço de impressão nas OM. O escopo previsto abrange identidade, autorização, políticas, papéis, cotas P&B/colorida, contratos, aprovações, liberação segura, auditoria, indicadores, monitoramento e telemetria. Essas capacidades estão em desenvolvimento; sua validação é acompanhada na [EAP](docs/EAP.md).
 
 O HECATE não é um inventário de ferramentas. A governança está acima dos componentes técnicos e define **quem decide, quais regras se aplicam, quem pode alterar essas regras e como verificar se o que foi definido está funcionando**.
 
@@ -20,6 +20,22 @@ Keycloak/Samba AD | SavaPage/CUPS | PostgreSQL/Podman
 ```
 
 Keycloak, Samba AD, SavaPage, CUPS, PostgreSQL, Podman e demais componentes são mecanismos de implementação. O HECATE organiza a decisão, a política, a rastreabilidade e o acompanhamento do serviço.
+
+## Estado atual
+
+A branch `yii3` está em estágio de **POC**, sem prontidão demonstrada para o MVP ou produção. Há base HTTP/DI, cadastro e consultas de inventário com SQL e DTOs, além de um esqueleto de reserva e solicitação de release.
+
+O login permanece demonstrativo. O gateway de release configurado é indisponível por padrão; não há integração SavaPage homologada. A suíte versionada contém dois smoke tests e não comprova os fluxos HTTP, a persistência, a concorrência ou a recuperação de falhas.
+
+A prioridade é demonstrar uma operação autenticada, autorizada, persistida e auditada, seguida de um job retido liberado com reserva e accounting reconciliados. Consulte o [resumo executivo](docs/RESUMO-EXECUTIVO.md) e os critérios da [EAP](docs/EAP.md), fonte única de acompanhamento do MVP.
+
+## Direção arquitetural
+
+**Yii3 + monólito modular + DDD pragmático. A complexidade deve ser justificada pelo domínio.**
+
+Organizar por responsabilidade, preferir SQL parametrizado via Yii DB/Command e usar DTOs específicos nas fronteiras que os justifiquem. ActiveRecord não deve ser o modelo compartilhado da aplicação; uso pontual fica restrito à infraestrutura e exige justificativa. Não criar camadas, repositories genéricos ou entidades duplicadas por convenção.
+
+As decisões e seus motivos estão em [DECISOES.md](docs/DECISOES.md) e nos [ADRs](docs/adr/README.md). As orientações operacionais ficam em [AGENTS.md](AGENTS.md).
 
 ## Arquitetura de referência
 
@@ -83,9 +99,9 @@ Consulte `docs/IDENTIDADE-VISUAL.md` e `public/branding/README.md`.
 
 ## Plataforma web
 
-A branch `yii3` utiliza o template oficial **Yii3 Web Application** (`yiisoft/app`) como referência estrutural. A aplicação usa PHP 8.2–8.5, PSR-7/PSR-17 para HTTP, middleware PSR-15, container DI, roteamento explícito e componentes desacoplados.
+A branch `yii3` utiliza o template oficial **Yii3 Web Application** (`yiisoft/app`) como referência estrutural. O CI está configurado para PHP 8.5. O Composer declara PHP 8.2–8.5, mas a compatibilidade da faixa completa depende do lockfile e de validação específica; não representa homologação automática. A aplicação usa HTTP PSR-7/PSR-17, middleware PSR-15, container DI e roteamento explícito.
 
-Estrutura principal:
+Estrutura presente no repositório (a organização modular está em transição):
 
 ```text
 assets/                 assets-fonte da aplicação
@@ -97,7 +113,12 @@ config/
 public/                 document root e branding público
 src/
   Migration/            migrations Yii3
-  Model/                ActiveRecord do domínio persistente
+  Model/                models ActiveRecord legados; não são padrão para código novo
+  Printing/             cadastro, consultas e esqueleto de release
+  Quota/                regra inicial e persistência de reserva
+  IdentityAccess/       representação de ator; não implementa login OIDC
+  Audit/                escrita de eventos do esqueleto
+  Monitoring/           consultas e DTOs dos indicadores
   Shared/               componentes compartilhados
   Web/                  actions, templates e layouts da aplicação web
 tests/                   testes automatizados
@@ -109,7 +130,7 @@ Não são utilizados controllers, models e views no formato Yii2. Cada endpoint 
 
 ## Banco de dados
 
-O HECATE usa PostgreSQL pelo `yiisoft/db-pgsql` e `yiisoft/active-record`. A conexão é resolvida pelo container através de `Yiisoft\Db\Connection\ConnectionInterface`.
+O HECATE usa PostgreSQL pelos componentes `yiisoft/db` e `yiisoft/db-pgsql`, com `ConnectionInterface` injetada nos componentes de consulta e persistência. A evolução prioriza SQL explícito com bindings. A dependência `yiisoft/active-record` e os models em `src/Model` ainda existem como legado em transição; sua presença não altera a decisão arquitetural.
 
 Variáveis locais:
 
@@ -121,7 +142,7 @@ export HECATE_DB_USER=hecate
 export HECATE_DB_PASSWORD='senha'
 ```
 
-As migrations ficam em `src/Migration` e usam `yiisoft/db-migration`.
+As migrations ficam em `src/Migration` e usam `yiisoft/db-migration`. Existem a migration inicial e a do esqueleto de release. Presença no código não comprova aplicação ou validação em uma instância PostgreSQL; esses critérios permanecem pendentes na EAP.
 
 ## Primeira execução da branch Yii3
 
@@ -134,7 +155,7 @@ make setup
 
 O `composer.lock` é obrigatório e está versionado. O bootstrap executa `composer install` exclusivamente a partir do lockfile; ausência do arquivo interrompe a preparação do ambiente para evitar resolução não reproduzível de dependências.
 
-Para aplicar o schema:
+Após configurar um banco de desenvolvimento, aplicar as migrations pendentes:
 
 ```bash
 ./yii migrate:up
@@ -175,7 +196,9 @@ make qa
 
 O SonarQube não é requisito para o desenvolvimento local nem para o pipeline básico. Pode ser incorporado futuramente como dashboard centralizado, histórico, dívida técnica e Quality Gate.
 
-## Segurança
+## Requisitos de segurança
+
+Os itens abaixo são requisitos de entrega, não uma declaração de controles integralmente implementados. CSRF está conectado ao fluxo web; autenticação institucional e autorização integrada ainda precisam ser demonstradas.
 
 - integração LDAP/AD somente leitura, preferencialmente por LDAPS;
 - PHP sem `sudo` genérico;
@@ -187,7 +210,7 @@ O SonarQube não é requisito para o desenvolvimento local nem para o pipeline b
 - dependências explícitas via DI em vez de service locator global;
 - logs e trilhas de auditoria sem conteúdo de documentos ou segredos.
 
-## Liberação segura
+## Fluxo previsto de liberação segura
 
 ```text
 Usuário envia -> SavaPage retém -> usuário acessa HECATE
@@ -199,17 +222,17 @@ A integração de release deverá usar interface suportada pelo SavaPage. O HECA
 
 ## Cotas
 
-P&B e colorida são contabilizadas separadamente:
+A regra de negócio prevê contabilização separada de P&B e colorida:
 
 ```text
 disponível = alocado - reservado - consumido
 ```
 
-A reserva antecede a liberação para impedir estouro por concorrência entre jobs simultâneos.
+A reserva deve anteceder a liberação e ser protegida por transação e controle de concorrência. O esqueleto atual ainda exige testes PostgreSQL e integração com accounting. Timeout de release representa resultado desconhecido: não autoriza devolver reserva nem repetir o envio automaticamente.
 
 ## Contratos
 
-O HECATE suporta como modelo de negócio:
+O escopo de contratos prevê:
 
 - contrato por consumo, com valor unitário P&B e colorido;
 - contrato por franquia mensal, com volumes incluídos e excedentes P&B/colorido.
@@ -251,6 +274,10 @@ hecate-setup
 
 ## Documentação
 
+- [RESUMO-EXECUTIVO.md](docs/RESUMO-EXECUTIVO.md) — direção, estado atual e bloqueios.
+- [ddd.md](docs/ddd.md) — diretrizes detalhadas.
+- [ADRs](docs/adr/README.md) — decisões e racional.
+- [AGENTS.md](AGENTS.md) — regras para alterações no projeto.
 - `docs/ARQUITETURA.md` — arquitetura e fluxos.
 - `docs/DECISOES.md` — decisões técnicas consolidadas.
 - `docs/EAP.md` — fonte única de acompanhamento da entrega, incluindo escopo, POCs e critérios de aceite do MVP.
@@ -264,4 +291,4 @@ hecate-setup
 
 ## Estado da branch Yii3
 
-A branch `yii3` é a linha de modernização do HECATE baseada no template oficial `yiisoft/app`. O lockfile está versionado, a migration PostgreSQL já foi validada em execução local e a aplicação web está em evolução funcional e visual antes da promoção para `main`.
+O lockfile está versionado. A consolidação documental não conclui homologações técnicas: validação das migrations, fluxos HTTP, autenticação, autorização, integração e concorrência deve ter evidência registrada na [EAP](docs/EAP.md). Um resultado de QA anterior não certifica automaticamente alterações posteriores.
