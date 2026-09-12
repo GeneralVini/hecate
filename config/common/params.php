@@ -14,9 +14,9 @@ use Yiisoft\Yii\View\Renderer\CsrfViewInjection;
 $edition = strtolower($_ENV['HECATE_EDITION'] ?? $_SERVER['HECATE_EDITION'] ?? 'local');
 $demoMode = $edition === 'demo';
 $requestedDemoScenario = strtolower(
-    $_ENV['HECATE_DEMO_SCENARIO']
+    $_COOKIE['hecate_demo_scenario']
+    ?? $_ENV['HECATE_DEMO_SCENARIO']
     ?? $_SERVER['HECATE_DEMO_SCENARIO']
-    ?? $_COOKIE['hecate_demo_scenario']
     ?? 'dctim'
 );
 $demoScenario = in_array($requestedDemoScenario, ['dctim', 'ctim'], true) ? $requestedDemoScenario : 'dctim';
