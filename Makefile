@@ -1,4 +1,4 @@
-.PHONY: setup install qa qa-all qa-fix lint lint-fix stan psalm test
+.PHONY: setup install hooks fix qa lint rector stan psalm test
 
 setup:
 	./scripts/bootstrap.sh
@@ -6,20 +6,20 @@ setup:
 install:
 	composer install
 
+hooks:
+	lefthook install
+
+fix:
+	composer fix
+
 qa:
 	composer qa
-
-qa-all:
-	composer qa:all
-
-qa-fix:
-	composer qa:fix
 
 lint:
 	composer lint
 
-lint-fix:
-	composer lint:fix
+rector:
+	composer rector
 
 stan:
 	composer stan
