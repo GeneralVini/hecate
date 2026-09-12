@@ -1,192 +1,166 @@
 # Decisões Técnicas do HECATE
 
-Este documento consolida as decisões já fechadas para o HECATE. Ele serve como referência para evitar regressões de arquitetura e mudanças contraditórias durante a evolução do produto.
+Este documento consolida as decisões já fechadas para o HECATE e substitui a necessidade de ADRs individuais para as decisões atuais. A EAP permanece a fonte única de escopo, POCs, critérios de aceite e acompanhamento.
 
-## 1. Identidade do produto
+## 1. Produto
 
-- Nome oficial do produto: **HECATE**.
+- Nome oficial: **HECATE**.
 - Descrição: **Plataforma Institucional de Governança e Controle de Impressão**.
-- O nome provisório `APP-PRINT` foi abandonado e não deve aparecer na interface, documentação, pacotes ou serviços novos.
+- O HECATE governa políticas, organização, cotas, contratos, aprovações, auditoria, indicadores e operação do serviço.
 
-## 2. Papel do HECATE
+**Motivo:** separar governança institucional dos mecanismos de execução mantém o produto independente da implementação específica do spool e do controle de impressão.
 
-O HECATE não é apenas um frontend para SavaPage. Ele é o plano institucional de governança do serviço de impressão e concentra:
+## 2. Yii3
 
-- modelo organizacional da OM;
-- políticas de acesso;
-- cotas P&B e colorida;
-- contratos e franquias;
-- transferências de quota;
-- autorizações excepcionais;
-- fluxo de liberação;
-- auditoria administrativa;
-- monitoramento da pilha;
-- troubleshooting e diagnóstico;
-- telemetria de impressoras e suprimentos.
+**Decisão:** utilizar Yii3.
 
-## 3. Distribuição de responsabilidades
+**Motivo:** DI, padrões PSR, middleware, modularidade, testabilidade e integração com o ecossistema PHP moderno.
 
-- **Samba AD da OM:** identidade institucional. Somente leitura.
-- **Catálogo MB:** fonte preferencial de atributos organizacionais e funcionais.
-- **Keycloak:** SSO/OIDC do portal HECATE e base para MFA futuro.
-- **HECATE:** fonte de verdade para governança, política, quota, contrato, aprovação e auditoria administrativa.
-- **SavaPage:** engine de impressão, retenção, accounting e enforcement.
-- **CUPS:** spool local e transporte até a impressora.
-- **PostgreSQL:** persistência das aplicações, com databases separados por componente.
-- **hecate-agent:** operações privilegiadas locais, monitoramento, descoberta e diagnóstico.
-- **Nexus:** distribuição institucional de RPMs, imagens OCI e artefatos homologados.
+**Consequência:** Yii3 é ferramenta da aplicação, não o modelo arquitetural do domínio.
 
-## 4. Samba AD e LDAP
+## 3. Monólito modular e DDD pragmático
 
-- O HECATE não cria, altera ou remove usuários, grupos, OUs, GPOs, DNS ou senhas do domínio.
-- Integrações com o domínio são somente leitura.
-- Preferir LDAPS.
-- Contas de serviço distintas para Keycloak e SavaPage.
-- Privilégios mínimos necessários.
+**Decisão:** utilizar monólito modular com DDD pragmático.
 
-## 5. Catálogo MB
+**Motivo:** o domínio exige limites claros entre responsabilidades, mas não justifica microserviços ou uma estrutura acadêmica antecipada.
 
-- Usado para enriquecer o usuário com nome, posto/graduação, telefone, função, departamento/divisão e outros atributos administrativos.
-- Exemplo de associação: `09051937 -> DCTIM-33`.
-- Como o Catálogo MB é mantido manualmente pelas OM, o HECATE deve detectar dados ausentes ou divergentes.
-- Overrides locais só podem existir de forma controlada, com justificativa, autor, validade e auditoria.
+**Consequência:** módulos e abstrações surgem somente quando regras, integrações ou acoplamentos concretos os justificarem.
 
-## 6. Política organizacional
+> **A complexidade deve ser justificada pelo domínio.**
 
-- O HECATE mantém seu próprio modelo OM -> divisão -> usuários/grupos -> impressoras.
-- Não é obrigatório espelhar OUs ou grupos do AD.
-- Exemplos de divisão devem seguir o padrão institucional real, como `DCTIM-01`, `DCTIM-10`, `DCTIM-33`.
-- A política mestre vive no banco do HECATE e é materializada no SavaPage por interfaces suportadas.
+## 4. Boundaries
 
-## 7. Fluxo de impressão
+**Decisão:** preservar limites de responsabilidade mesmo quando isso exigir duplicação localizada.
 
-Fluxo de referência:
+**Motivo:** um modelo universal compartilhado aumenta o acoplamento conceitual entre módulos.
+
+**Consequência:** módulos podem possuir DTOs e read models próprios para a mesma origem de dados.
+
+> **Duplication between boundaries may be cheaper than coupling across boundaries.**
+
+## 5. ActiveRecord
+
+**Decisão:** ActiveRecord não será o modelo compartilhado da aplicação.
+
+**Motivo:** um modelo persistente global tende a misturar responsabilidades de persistência, apresentação, integração e domínio.
+
+**Consequência:** uso pontual fica restrito à infraestrutura e deve ser justificado.
+
+## 6. Persistência e DTOs
+
+**Decisão:** preferir SQL explícito e parametrizado via Yii DB quando tornar a intenção mais clara, com DTOs/read models específicos onde houver fronteira real.
+
+**Motivo:** manter consultas compreensíveis e evitar modelos universais ou abstrações genéricas sem ganho concreto.
+
+**Consequência:** SQL fica em componentes de consulta/persistência; repositories são criados somente quando houver benefício demonstrável.
+
+## 7. Autorização
+
+**Decisão:** combinar RBAC com políticas contextuais.
+
+**Motivo:** perfis institucionais não representam sozinhos regras de escopo organizacional, alçada, estado do recurso e segregação de funções.
+
+**Consequência:** Keycloak pode fornecer identidade e roles, enquanto o HECATE controla permissões específicas do domínio.
+
+## 8. Responsabilidades dos componentes
+
+- **Samba AD:** identidade institucional, somente leitura.
+- **Catálogo MB:** atributos funcionais e organizacionais.
+- **Keycloak:** SSO/OIDC e base para autenticação reforçada futura.
+- **HECATE:** governança, políticas, cotas, contratos, aprovações e auditoria.
+- **SavaPage:** retenção, contabilização e aplicação das regras de impressão.
+- **CUPS:** filas físicas e transporte até o equipamento.
+- **PostgreSQL:** persistência com isolamento lógico por componente.
+- **hecate-agent:** operações locais privilegiadas, descoberta e diagnóstico.
+- **Nexus:** distribuição institucional de pacotes, imagens e artefatos homologados; não é CI/CD.
+
+## 9. Identidade e organização
+
+- integração com o domínio é somente leitura;
+- preferir LDAPS;
+- usar contas técnicas de privilégio mínimo;
+- o HECATE mantém seu próprio modelo de OM, divisão, usuários/grupos e impressoras;
+- Catálogo MB é a fonte preferencial para atributos organizacionais;
+- correções locais devem ser controladas e auditáveis.
+
+## 10. Fluxo de impressão
 
 ```text
 Cliente -> SavaPage -> retenção -> HECATE valida -> liberação -> CUPS -> impressora
 ```
 
-- Filas físicas do CUPS não devem ser publicadas diretamente aos usuários.
-- A impressão direta cliente -> IP da impressora deve ser restringida sempre que possível pela infraestrutura da OM.
-- IP não é identidade nem critério de lotação.
+- filas físicas do CUPS não são o caminho normal dos usuários;
+- acesso direto às impressoras deve ser restringido pela infraestrutura sempre que possível;
+- endereço IP não substitui identidade ou lotação.
 
-## 8. Liberação segura
+## 11. Liberação e cotas
 
-- Toda impressão deve passar por liberação deliberada.
-- Não haverá release station como requisito do produto.
-- Impressoras simples são suportadas.
-- O PIN pertence ao HECATE, não à impressora.
-- O PIN deve ser armazenado com hash forte.
-- O HECATE controla tentativas, bloqueio, reset, expiração e auditoria.
-- Sem estação física/NFC, a solução comprova autorização deliberada, não proximidade física à impressora.
+- toda impressão passa por liberação deliberada;
+- o PIN pertence ao HECATE;
+- cotas P&B e colorida são independentes;
+- `disponível = alocado - consumido - reservado`;
+- reserva ocorre antes da liberação e deve ser protegida contra concorrência;
+- aceite de release não comprova impressão concluída;
+- resultados incertos exigem reconciliação antes de devolver saldo ou repetir operação.
 
-## 9. Cotas
+## 12. Contratos e exceções
 
-- Cotas P&B e colorida são independentes.
-- Para cada tipo, manter `alocado`, `reservado`, `consumido` e `disponível`.
-- `disponível = alocado - consumido - reservado`.
-- A reserva ocorre antes da liberação para evitar corrida concorrente.
-- Reserva vira consumo conforme accounting efetivo. Cancelamento, falha ou expiração confirmados sem consumo permitem devolução; timeout exige reconciliação antes de devolver saldo ou reenviar. Aceite de release não comprova impressão.
-- Política ao esgotar quota é configurável: bloquear, avisar e permitir, ou exigir aprovação.
+- contratos podem ser por consumo ou franquia mensal;
+- franquia contratual e distribuição interna de cotas são conceitos distintos;
+- transferências de cotas devem ser autorizadas e auditadas;
+- exceções de acesso devem possuir justificativa, validade e auditoria.
 
-## 10. Contratos
+## 13. SavaPage e CUPS
 
-O HECATE suporta dois modelos principais:
+- HECATE usa interfaces suportadas do SavaPage;
+- detalhes internos do SavaPage não fazem parte do contrato do HECATE;
+- o método exato de liberação de job retido permanece sujeito a POC/homologação;
+- CUPS é responsável pelo transporte final ao equipamento.
 
-1. **Por consumo:** cobrança por página P&B e colorida.
-2. **Franquia mensal:** quantidade incluída P&B/colorida e preços unitários de excedente.
+## 14. Impressoras e telemetria
 
-A franquia contratual da OM e a alocação interna por divisão são conceitos distintos.
+Ordem preferencial:
 
-## 11. Transferências e exceções
+```text
+IPP/IPPS -> SNMPv3 -> SNMPv2c somente leitura -> EWS/API -> parser específico -> manual
+```
 
-- Transferências de quota entre divisões são aprovadas e auditadas.
-- P&B e colorida não são automaticamente intercambiáveis.
-- Exceções de acesso a impressoras podem ser temporárias ou permanentes, sempre com validade e auditoria.
-- Não modificar grupos do AD para representar exceções operacionais.
+A ausência de telemetria não deve bloquear impressão. Dados detectados devem registrar fonte e momento da coleta.
 
-## 12. Retenção de conteúdo
+## 15. hecate-agent
 
-- Não manter arquivo permanente dos documentos impressos.
-- Conteúdo só permanece temporariamente enquanto necessário para spool/retenção/liberação.
-- Após imprimir, cancelar ou expirar, o conteúdo deve ser eliminado.
-- Preservar apenas metadados operacionais e de auditoria.
+O agente é um componente separado da aplicação web e concentra operações locais que exigem privilégio adicional. A interface deve oferecer apenas operações fechadas, controladas e auditáveis.
 
-## 13. Integração com SavaPage
+## 16. Implantação
 
-- Nunca escrever diretamente no banco do SavaPage.
-- Nunca manipular diretamente spool interno do SavaPage.
-- Priorizar CLI e interfaces oficialmente documentadas.
-- REST só deve ser usado onde homologado e estável.
-- O método exato de liberação de job retido deve permanecer encapsulado e sujeito a POC/homologação.
+- padrão inicial: uma VM dedicada por OM;
+- CUPS, SavaPage, PostgreSQL e `hecate-agent` nativos no host;
+- HECATE Web e Keycloak em Podman;
+- uma instância PostgreSQL pode atender a OM, com databases e owners separados;
+- distribuição institucional via Nexus;
+- objetivo operacional: `dnf install hecate` seguido de `hecate-setup`.
 
-## 14. Impressoras e monitoramento
+## 17. Homologações pendentes
 
-Sequência preferencial de descoberta:
+Permanecem sujeitos a POC ou validação técnica:
 
-1. conectividade básica;
-2. IPP/IPPS;
-3. SNMPv3;
-4. SNMPv2c somente leitura, quando necessário;
-5. portas/protocolos de impressão relevantes;
-6. EWS/API HTTP/HTTPS;
-7. parser específico por fabricante/modelo;
-8. preenchimento manual.
+- liberação de job retido no SavaPage por interface suportada;
+- regras dinâmicas de acesso no SavaPage;
+- contabilização P&B/colorida em diferentes drivers e fabricantes;
+- atribuição confiável de usuário nos clientes;
+- telemetria multi-fabricante;
+- fallback para Catálogo MB indisponível ou desatualizado.
 
-- Nunca usar SNMP SET.
-- Monitoramento não pode impedir impressão.
-- Normalizar suprimentos e registrar fonte e timestamp do dado.
+## 18. Regra documental
 
-## 15. Servidor e empacotamento
+Não criar novo arquivo Markdown quando o conteúdo puder ser incorporado claramente a um documento canônico existente.
 
-- Um servidor/VM dedicado por OM é o padrão inicial.
-- Oracle Linux conforme matriz de versões homologadas; não fixar o produto em uma única release.
-- CUPS, SavaPage, PostgreSQL e `hecate-agent` nativos no host.
-- HECATE Web e Keycloak em Podman.
-- Um único PostgreSQL por OM é aceitável, com databases e owners separados para HECATE, SavaPage e Keycloak.
-- Distribuição institucional via Nexus.
-- UX de instalação pretendida: `dnf install hecate` seguido de `hecate-setup`.
+Documentos canônicos em `docs/`:
 
-## 16. Segurança operacional
-
-- O PHP não recebe privilégio administrativo genérico.
-- Operações privilegiadas passam pelo `hecate-agent`.
-- Preferir comunicação local por Unix socket.
-- O agente oferece apenas um conjunto fechado de operações permitidas.
-- Toda ação administrativa sensível deve ser auditada.
-
-## 17. Frontend e framework
-
-- Aplicação web baseada no template oficial Yii3 `yiisoft/app`.
-- Yii3 é ferramenta da aplicação, não o modelo arquitetural do HECATE.
-- Rotas usam `yiisoft/router`; handlers web retornam respostas PSR-7 e recebem dependências pelo container PSR-11.
-- Middleware e serviços devem ser configurados pelo mecanismo de DI/configuração do Yii3, evitando service locator global e estruturas paralelas.
-- PostgreSQL usa os componentes `yiisoft/db` e `yiisoft/db-pgsql`; ActiveRecord pode ser usado pontualmente na infraestrutura, mas não como modelo compartilhado da aplicação.
-- Bootstrap 5 permanece como referência visual onde aplicável.
-
-## 18. Pontos ainda sujeitos a POC
-
-- release de job já retido no SavaPage por interface suportada;
-- ACLs dinâmicas e exceções temporárias no SavaPage;
-- accounting P&B/colorida em diferentes drivers e fabricantes;
-- atribuição confiável de usuário em Windows e Ubuntu;
-- descoberta e telemetria multi-fabricante;
-- estratégia de fallback para Catálogo MB desatualizado.
-
-## 19. Complexidade arquitetural
-
-> **A complexidade deve ser justificada pelo domínio.**
-
-- Adotar DDD de forma pragmática, sem impor estrutura acadêmica ao projeto.
-- Não introduzir antecipadamente camadas, interfaces, repositories, eventos, Value Objects ou indireções sem problema concreto a resolver.
-- Preferir o desenho mais simples que preserve boundaries claros e testabilidade.
-- DTOs, read models, repositories, entidades e Value Objects são ferramentas condicionais; devem existir quando representarem uma necessidade real do domínio, de integração, de persistência ou de isolamento entre boundaries.
-- Duplicação localizada entre boundaries pode ser preferível a um modelo compartilhado que aumente o acoplamento conceitual.
-- Evitar `GenericRepository`, `BaseRepository`, `BaseService`, DTO universal e ActiveRecord compartilhado entre módulos.
-- SQL explícito e parametrizado via Yii DB é aceitável e preferível quando tornar a intenção mais clara.
-
-## 20. Racional e acompanhamento
-
-Os [ADRs](adr/README.md) registram o racional das decisões arquiteturais consolidadas. Seu status de aceitação não comprova implementação ou homologação. A [EAP](EAP.md) permanece a fonte única de escopo, POCs, critérios e acompanhamento; o [resumo executivo](RESUMO-EXECUTIVO.md) sintetiza a direção e o estágio atual.
-
-Usar `docs/ARQUITETURA.md` e `docs/SEGURANCA.md` como documentos canônicos, sem duplicá-los em `ARCHITECTURE.md` ou `SECURITY.md` na raiz.
+- `EAP.md` — escopo, POCs, aceite e acompanhamento;
+- `ARQUITETURA.md` — arquitetura, boundaries, fluxos e integrações;
+- `DECISOES.md` — decisões e respectivos motivos;
+- `DESENVOLVIMENTO.md` — ambiente, qualidade e documentação de código;
+- `SEGURANCA.md` — controles de segurança e auditoria;
+- `IMPLANTACAO.md` — instalação, operação e replicação;
+- `IDENTIDADE-VISUAL.md` — identidade e UI institucional.
