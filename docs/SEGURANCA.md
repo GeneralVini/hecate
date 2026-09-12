@@ -169,8 +169,12 @@ Segredos incluem:
 - credenciais PostgreSQL;
 - communities SNMP;
 - credenciais SNMPv3;
-- tokens do Catálogo MB;
+- credencial/token do Catálogo MB mantido no HECATE Master;
+- eventual credencial do phpIPAM mantida no HECATE Master;
+- credenciais M2M de cada instalação;
 - chaves internas do agente.
+
+Credenciais de integrações corporativas do Master não devem ser distribuídas às instalações locais.
 
 Nunca armazenar esses valores em código-fonte ou documentação versionada.
 
@@ -180,7 +184,7 @@ Necessidades atuais:
 
 - **Administrador geral do HECATE:** dashboards, CRUDs, configurações e gestão global da instância local, com concessão explícita; não implica privilégio de sistema operacional ou de outras OMs.
 - **Gestor de contrato de impressão:** leitura predominante de contratos, consumo, franquias, custos, impressoras vinculadas e indicadores, limitada aos contratos autorizados. Escritas eventuais exigem permissão própria; leitura não concede administração.
-- **HECATE Master:** consumidor federado de agregados, não usuário administrativo local; ver seção 17.
+- **HECATE Master:** consumidor federado de agregados e intermediador das integrações institucionais previstas, não usuário administrativo local; ver seção 17.
 
 Os perfis funcionais abaixo continuam como referência de responsabilidades e segregação. Não são substituídos pelos três cenários acima nem devem virar roles obrigatórias sem necessidade:
 
@@ -194,10 +198,10 @@ Os perfis funcionais abaixo continuam como referência de responsabilidades e se
 
 ### Administrador Funcional
 
-- divisões;
 - políticas;
 - quotas;
-- contratos.
+- contratos;
+- configurações de negócio próprias do HECATE.
 
 ### Aprovador
 
@@ -225,13 +229,53 @@ Como HA não é requisito inicial, segurança operacional inclui capacidade de r
 - imagens/pacotes homologados no Nexus;
 - restauração testada periodicamente.
 
-## 17. Segurança da federação
+## 17. Segurança da federação e bootstrap
 
-O pacote genérico não deve conter `OM_ID`, `MASTER_TOKEN` permanente, client secret global ou credencial compartilhada. A identidade federada é estabelecida após a instalação. Código/token de enrollment tem validade e uso limitados, com proteção contra reutilização; a associação à OM precisa ser autorizada pelo Master. Cada instância recebe credencial própria, revogável e substituível.
+### 17.1. Princípios
 
-Avaliar M2M compatível com Keycloak, preferencialmente OAuth2 Client Credentials ou equivalente. Provedor/realm, provisionamento de clientes, escopos e ciclo de credenciais ainda precisam de homologação. Em caso de OAuth2, validar emissor, destinatário, validade e permissões; o Master deve vincular a identidade autenticada à instância/OM registrada. Não reutilizar sessão de administrador local. mTLS permanece opção futura condicionada à necessidade operacional.
+O pacote genérico não deve conter `OM_ID`, credencial permanente do Master, client secret global, token do Catálogo MB ou credencial compartilhada entre OM. A identidade federada é estabelecida após a instalação.
 
-Usar TLS com validação de certificado. Restringir a configuração de destino a administradores autorizados e validar URL/destinos permitidos, inclusive redirecionamentos, para evitar SSRF e envio a destinatário indevido. Segredos ficam em armazenamento operacional protegido, fora de pacote, Git e logs; enrollment, rotação, revogação e sincronizações devem ser auditáveis sem expor tokens.
+A conexão parte da OM para o Master. O Master vincula cada `installation_uuid` à OM confirmada no bootstrap e deve manter identidade/credencial própria por instalação para a operação federada posterior. O mecanismo M2M definitivo permanece sujeito a homologação, preferencialmente OAuth2 Client Credentials ou equivalente compatível com Keycloak. mTLS permanece opção futura condicionada à necessidade operacional.
+
+Usar TLS com validação de certificado. Restringir a configuração de destino a administradores autorizados e validar URL/destinos permitidos, inclusive redirecionamentos, para evitar SSRF e envio a destinatário indevido. Segredos ficam em armazenamento operacional protegido, fora de pacote, Git e logs; registro, rotação, revogação e sincronizações devem ser auditáveis sem expor credenciais.
+
+### 17.2. Identificação da OM no bootstrap
+
+Durante a instalação inicial, o HECATE Local informa e valida o domínio Samba AD da OM. O domínio serve como referência inicial de descoberta e não deve ser tratado como identidade oficial por si só.
+
+O HECATE Master consulta o Catálogo MB, que permanece como fonte autoritativa dos dados institucionais, para obter e confirmar código, indicativo, nome e demais informações necessárias. O operador confirma a OM identificada antes da associação definitiva da instalação.
+
+CatalogoMB é consumido exclusivamente pelo Master. O HECATE Local não recebe endpoint, token ou credencial da API corporativa.
+
+Divergências entre o domínio informado, os dados retornados pelo Catálogo MB ou outras fontes auxiliares não devem ser corrigidas automaticamente pelo HECATE. Devem impedir vínculo automático ou exigir verificação administrativa.
+
+### 17.3. Premissa de segurança do bootstrap
+
+O bootstrap ocorre em ambiente institucional controlado e considera como premissa a cooperação entre as OM. Na primeira versão, não é requisito proteger o registro contra tentativa deliberada de personificação de outra OM por agente interno.
+
+A combinação entre domínio AD validado, identificação oficial pelo Catálogo MB e confirmação pelo operador é considerada suficiente para o bootstrap inicial. Essa premissa é específica do processo inicial de registro e não elimina a necessidade de autenticação M2M própria para as sincronizações posteriores entre HECATE Local e Master.
+
+### 17.4. phpIPAM opcional
+
+Quando houver integração disponível e autorizada com o phpIPAM, o Master poderá verificar de forma complementar a compatibilidade do endereço de origem da solicitação com as redes associadas à OM.
+
+Essa verificação:
+
+- é opcional;
+- não é requisito para o bootstrap;
+- não constitui autenticação isoladamente;
+- deve utilizar o endereço observado pelo Master ou por infraestrutura intermediária previamente confiável;
+- nunca deve confiar em um IP declarado pelo cliente como prova.
+
+O phpIPAM, caso integrado, também é consumido exclusivamente pelo Master.
+
+### 17.5. Cache institucional
+
+O cache do Catálogo MB no Master é técnico, somente leitura e descartável. Não é fonte autoritativa e não deve possuir mecanismos de edição dos dados recebidos.
+
+Falha de atualização não deve apagar o último snapshot válido. O estado de sincronização deve permitir distinguir dados atuais, desatualizados e falha de refresh. Correções de dados institucionais devem ocorrer no Catálogo MB.
+
+### 17.6. Dados federados de governança
 
 Enviar apenas métricas e dimensões aprovadas no contrato. Conteúdo de documentos, nomes de jobs, identidades individuais, credenciais e cópia das trilhas operacionais não integram o envio de governança. Os metadados da seção 12 são locais, com retenção e acesso controlados; não autorizam exportação ao Master. Definir granularidade que evite identificação indireta em grupos pequenos.
 
