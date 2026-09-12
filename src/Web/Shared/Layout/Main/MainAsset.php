@@ -18,6 +18,7 @@ final class MainAsset extends AssetBundle
         'sidebar.css',
         'forms-compact.css',
         'data-grid.css',
+        'grid-enhancements.css',
         'login.css',
         'hecate-discovery.css',
     ];
