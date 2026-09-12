@@ -70,16 +70,19 @@ final readonly class Action
 
         $query = $request->getQueryParams();
         $filters = $this->filters($query);
+        [$sort, $direction] = $this->sorting($query);
         $total = $this->locations->count($filters);
         $pageCount = max(1, (int) ceil($total / self::PAGE_SIZE));
         $page = min($this->pageNumber($query['page'] ?? null), $pageCount);
         $offset = ($page - 1) * self::PAGE_SIZE;
 
         return $this->viewRenderer->render(__DIR__ . '/template', [
-            'locations' => $this->locations->page($filters, self::PAGE_SIZE, $offset),
+            'locations' => $this->locations->page($filters, self::PAGE_SIZE, $offset, $sort, $direction),
             'errors' => $errors,
             'flash' => $this->flashMessage($query['flash'] ?? null),
             'filters' => $filters,
+            'sort' => $sort,
+            'direction' => $direction,
             'page' => $page,
             'pageCount' => $pageCount,
             'pageSize' => self::PAGE_SIZE,
@@ -102,9 +105,9 @@ final readonly class Action
         }
 
         return match ($value) {
-            'created' => ['type' => 'success', 'message' => 'Local cadastrado com sucesso.'],
-            'updated' => ['type' => 'success', 'message' => 'Local atualizado com sucesso.'],
-            'deleted' => ['type' => 'success', 'message' => 'Local removido com sucesso.'],
+            'created' => ['type' => 'success', 'message' => 'Local cadastrado.'],
+            'updated' => ['type' => 'success', 'message' => 'Local atualizado.'],
+            'deleted' => ['type' => 'success', 'message' => 'Local removido.'],
             default => null,
         };
     }
@@ -123,6 +126,26 @@ final readonly class Action
             'description' => $this->queryString($query, 'description'),
             'active' => in_array($active, ['0', '1'], true) ? $active : '',
         ];
+    }
+
+    /**
+     * @param array<array-key,mixed> $query
+     * @return array{0: string, 1: string}
+     */
+    private function sorting(array $query): array
+    {
+        $sort = $this->queryString($query, 'sort');
+        $direction = strtolower($this->queryString($query, 'direction'));
+
+        if (!in_array($sort, ['code', 'name', 'description', 'active'], true)) {
+            $sort = 'name';
+        }
+
+        if (!in_array($direction, ['asc', 'desc'], true)) {
+            $direction = 'asc';
+        }
+
+        return [$sort, $direction];
     }
 
     /** @param array<array-key,mixed> $query */
