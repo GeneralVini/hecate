@@ -18,9 +18,11 @@
         "psalm:taint": "psalm --config=psalm.xml --taint-analysis --no-progress",
         "test": "phpunit --configuration=phpunit.xml",
         "security:dependencies": "@composer audit --locked --no-interaction",
+        "security:semgrep": "bash scripts/semgrep-scan.sh",
         "security": [
             "@security:dependencies",
-            "@psalm:taint"
+            "@psalm:taint",
+            "@security:semgrep"
         ],
         "fix": [
             "@rector:fix",
