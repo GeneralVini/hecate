@@ -35,8 +35,29 @@ $this->beginPage();
 </head>
 <body class="login-page">
 <?php $this->beginBody() ?>
-<main class="login-shell">
+<main class="login-shell" data-hecate-discovery="idle">
     <div class="login-art" aria-hidden="true"></div>
+
+    <div class="hecate-discovery" aria-label="Descobertas HECATE">
+        <button class="hecate-spark hecate-spark--identity" type="button" data-hecate-hotspot="identity" aria-label="Descobrir a origem do nome HECATE">✦</button>
+        <button class="hecate-spark hecate-spark--purpose" type="button" data-hecate-hotspot="purpose" aria-label="Descobrir a função da plataforma">✦</button>
+    </div>
+
+    <section id="hecate-discovery-panel" class="hecate-discovery-panel" data-hecate-panel aria-live="polite">
+        <button class="hecate-discovery-panel__close" type="button" data-hecate-close aria-label="Fechar">×</button>
+        <div class="hecate-discovery-panel__content" data-hecate-content="identity">
+            <p class="hecate-discovery-panel__eyebrow">A guardiã dos limiares</p>
+            <h2>Quem é HECATE?</h2>
+            <p>Hécate representa limiar, decisão, vigilância e passagem controlada. O nome foi escolhido por traduzir a ideia de governar quem acessa, quem autoriza e o que precisa permanecer rastreável.</p>
+        </div>
+        <div class="hecate-discovery-panel__content" data-hecate-content="purpose">
+            <p class="hecate-discovery-panel__eyebrow">Identidade · Controle · Dados</p>
+            <h2>Qual a função da plataforma?</h2>
+            <p>Centralizar e governar o fluxo de impressão das OM, com autenticação, controle, cotas, auditoria e rastreabilidade, integrando identidade, controle e dados.</p>
+            <div class="hecate-discovery-panel__flow" aria-hidden="true"><span>Identidade</span><b>→</b><span>Controle</span><b>→</b><span>Dados</span></div>
+        </div>
+    </section>
+
     <div class="login-form-area">
         <?= $content ?>
     </div>
