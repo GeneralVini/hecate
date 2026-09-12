@@ -6,6 +6,7 @@ cd "$PROJECT_ROOT"
 
 TARGET="${HECATE_ZAP_TARGET:-}"
 ZAP_BIN="${HECATE_ZAP_BIN:-$PROJECT_ROOT/.tools/zap/zap.sh}"
+REPORT="${HECATE_ZAP_REPORT:-$PROJECT_ROOT/runtime/security/zap-report.html}"
 
 if [[ -z "$TARGET" ]]; then
     printf '[ERRO] Defina HECATE_ZAP_TARGET para uma URL local de desenvolvimento.\n' >&2
@@ -14,7 +15,7 @@ if [[ -z "$TARGET" ]]; then
 fi
 
 if [[ ! "$TARGET" =~ ^https?://(127\.0\.0\.1|localhost)(:[0-9]+)?(/|$) ]]; then
-    printf '[ERRO] O comando automatizado do projeto aceita somente localhost.\n' >&2
+    printf '[ERRO] O DAST automatizado do projeto aceita somente localhost.\n' >&2
     exit 1
 fi
 
@@ -27,5 +28,7 @@ if [[ ! -x "$ZAP_BIN" ]]; then
     fi
 fi
 
-printf '[SECURITY] OWASP ZAP reconnaissance scan: %s\n' "$TARGET"
-exec "$ZAP_BIN" -cmd -zapit "$TARGET"
+mkdir -p "$(dirname "$REPORT")"
+printf '[SECURITY] OWASP ZAP active scan local: %s\n' "$TARGET"
+printf '[SECURITY] Relatório: %s\n' "$REPORT"
+exec "$ZAP_BIN" -cmd -quickurl "$TARGET" -quickout "$REPORT" -quickprogress
