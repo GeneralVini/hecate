@@ -9,9 +9,23 @@ use Yiisoft\Html\Html;
 /** @var list<LocationListItem> $locations */
 /** @var array<string,string> $errors */
 /** @var array{type: string, message: string}|null $flash */
+/** @var array{code: string, name: string, description: string, active: string} $filters */
+/** @var int $page */
+/** @var int $pageCount */
+/** @var int $pageSize */
+/** @var int $total */
 /** @var string|null $csrf */
 
 $this->setTitle('Locais — HECATE');
+
+$pageUrl = static function (int $targetPage) use ($filters): string {
+    $query = array_filter(
+        [...$filters, 'page' => $targetPage],
+        static fn (string|int $value): bool => $value !== '',
+    );
+
+    return '?' . http_build_query($query);
+};
 ?>
 <section class="page-header">
     <p class="eyebrow">Organização</p>
@@ -20,7 +34,7 @@ $this->setTitle('Locais — HECATE');
 </section>
 
 <?php if ($flash !== null) : ?>
-    <div class="flash-message flash-message-<?= Html::encode($flash['type']) ?>" role="status">
+    <div class="flash-message flash-message-<?= Html::encode($flash['type']) ?>" role="status" data-flash-message>
         <svg viewBox="0 0 16 16" aria-hidden="true">
             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M7 11.5a.5.5 0 0 0 1 0V7a.5.5 0 0 0-1 0zm.5-6.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5"/>
         </svg>
@@ -29,7 +43,7 @@ $this->setTitle('Locais — HECATE');
 <?php endif; ?>
 
 <?php if (isset($errors['form'])) : ?>
-    <div class="flash-message flash-message-danger" role="alert">
+    <div class="flash-message flash-message-danger" role="alert" data-flash-message>
         <svg viewBox="0 0 16 16" aria-hidden="true">
             <path d="M8.982 1.566a1.13 1.13 0 0 0-1.964 0L.165 13.233c-.457.778.091 1.767.982 1.767h13.706c.89 0 1.438-.99.982-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
         </svg>
@@ -45,6 +59,39 @@ $this->setTitle('Locais — HECATE');
 </div>
 
 <section class="table-card" aria-label="Locais cadastrados">
+    <form class="data-grid-filters" method="get">
+        <div class="data-grid-filter-field">
+            <label for="filter-code">Código</label>
+            <input id="filter-code" name="code" value="<?= Html::encode($filters['code']) ?>" placeholder="Buscar código">
+        </div>
+        <div class="data-grid-filter-field">
+            <label for="filter-name">Nome</label>
+            <input id="filter-name" name="name" value="<?= Html::encode($filters['name']) ?>" placeholder="Buscar nome">
+        </div>
+        <div class="data-grid-filter-field">
+            <label for="filter-description">Descrição</label>
+            <input id="filter-description" name="description" value="<?= Html::encode($filters['description']) ?>" placeholder="Buscar descrição">
+        </div>
+        <div class="data-grid-filter-field data-grid-filter-field--status">
+            <label for="filter-active">Ativo</label>
+            <select id="filter-active" name="active">
+                <option value="">Todos</option>
+                <option value="1"<?= $filters['active'] === '1' ? ' selected' : '' ?>>Ativos</option>
+                <option value="0"<?= $filters['active'] === '0' ? ' selected' : '' ?>>Inativos</option>
+            </select>
+        </div>
+        <div class="data-grid-filter-actions">
+            <button class="button button-with-icon button-bs-primary" type="submit" title="Filtrar">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .4.8L10 7.667V13.5a.5.5 0 0 1-.757.429l-3-1.8A.5.5 0 0 1 6 11.7V7.667L1.6 1.8a.5.5 0 0 1-.1-.3"/></svg>
+                Filtrar
+            </button>
+            <a class="button button-with-icon button-bs-secondary" href="?" title="Limpar filtros">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5a.5.5 0 0 1 .707 0L8 7.293 12.793 2.5a.5.5 0 1 1 .707.707L8.707 8l4.793 4.793a.5.5 0 0 1-.707.707L8 8.707 3.207 13.5a.5.5 0 0 1-.707-.707L7.293 8 2.5 3.207a.5.5 0 0 1 0-.707"/></svg>
+                Limpar
+            </a>
+        </div>
+    </form>
+
     <table class="data-grid">
         <thead>
         <tr>
@@ -96,10 +143,36 @@ $this->setTitle('Locais — HECATE');
             </tr>
         <?php endforeach; ?>
         <?php if ($locations === []) : ?>
-            <tr><td colspan="5">Nenhum local cadastrado.</td></tr>
+            <tr><td colspan="5">Nenhum local encontrado para os filtros informados.</td></tr>
         <?php endif; ?>
         </tbody>
     </table>
+
+    <footer class="data-grid-footer">
+        <div class="data-grid-result-count">
+            <?php if ($total === 0) : ?>
+                Nenhum resultado
+            <?php else : ?>
+                <?php $first = (($page - 1) * $pageSize) + 1; ?>
+                <?php $last = min($page * $pageSize, $total); ?>
+                Exibindo <?= $first ?>–<?= $last ?> de <strong><?= $total ?></strong> resultado<?= $total === 1 ? '' : 's' ?>
+            <?php endif; ?>
+        </div>
+
+        <?php if ($pageCount > 1) : ?>
+            <nav class="data-grid-pagination" aria-label="Paginação de locais">
+                <a class="data-grid-page<?= $page === 1 ? ' is-disabled' : '' ?>" href="<?= $page === 1 ? '#' : Html::encode($pageUrl($page - 1)) ?>" aria-label="Página anterior">‹</a>
+                <?php for ($number = 1; $number <= $pageCount; $number++) : ?>
+                    <a
+                        class="data-grid-page<?= $number === $page ? ' is-current' : '' ?>"
+                        href="<?= Html::encode($pageUrl($number)) ?>"
+                        <?= $number === $page ? 'aria-current="page"' : '' ?>
+                    ><?= $number ?></a>
+                <?php endfor; ?>
+                <a class="data-grid-page<?= $page === $pageCount ? ' is-disabled' : '' ?>" href="<?= $page === $pageCount ? '#' : Html::encode($pageUrl($page + 1)) ?>" aria-label="Próxima página">›</a>
+            </nav>
+        <?php endif; ?>
+    </footer>
 </section>
 
 <div class="modal-backdrop" data-location-modal aria-hidden="true">
