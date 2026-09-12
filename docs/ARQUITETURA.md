@@ -8,6 +8,8 @@ HECATE é a **Plataforma Institucional de Governança e Controle de Impressão**
 
 O domínio real define os boundaries. Estruturas e abstrações só devem surgir quando houver necessidade concreta.
 
+Yii3 é a base atual do backend. A tecnologia do frontend permanece aberta: views nativas podem ser usadas quando forem suficientes, mas um frontend separado consumindo APIs do HECATE também é compatível com a arquitetura. Regras de domínio e integrações não devem depender da tecnologia de apresentação.
+
 ## 2. Arquitetura de referência
 
 ```text
