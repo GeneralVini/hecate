@@ -33,6 +33,23 @@ require_command() {
     ok "$label encontrado"
 }
 
+require_lefthook() {
+    if command -v lefthook >/dev/null 2>&1; then
+        ok 'Lefthook encontrado'
+        return
+    fi
+
+    error 'Lefthook não encontrado.'
+    printf '\nO Lefthook é obrigatório para os hooks Git locais.\n' >&2
+    printf 'Ubuntu/Kubuntu/Debian:\n\n' >&2
+    printf "  curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | sudo -E bash\n" >&2
+    printf '  sudo apt install lefthook\n\n' >&2
+    printf 'Depois confirme e repita o setup:\n\n' >&2
+    printf '  lefthook version\n' >&2
+    printf '  make setup\n' >&2
+    exit 1
+}
+
 run_qa_step() {
     local label="$1"
     local composer_script="$2"
@@ -55,7 +72,7 @@ printf '\n'
 require_command php PHP
 require_command composer Composer
 require_command git Git
-require_command lefthook Lefthook
+require_lefthook
 
 if [[ ! -f composer.json ]]; then
     error 'composer.json não encontrado na raiz do projeto.'
@@ -90,7 +107,8 @@ ok 'Ferramentas de qualidade instaladas em vendor/bin'
 printf '\n'
 info 'Instalando hooks Git do Lefthook...'
 lefthook install
-ok 'Hooks Git instalados'
+lefthook validate
+ok 'Hooks Git instalados e configuração validada'
 
 printf '\n'
 info 'Executando verificações de qualidade...'
@@ -113,5 +131,6 @@ printf '  composer psalm\n'
 printf '  composer test\n'
 printf '  composer qa\n'
 printf '  composer serve\n'
+printf '  lefthook validate\n'
 printf '  lefthook run pre-commit\n'
 printf '  lefthook run pre-push\n'
