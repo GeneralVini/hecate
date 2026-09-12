@@ -11,7 +11,7 @@ $this->setTitle('HECATE — Controle e Governança de Impressão');
 ?>
 <section class="page-header">
     <div>
-        <p class="eyebrow">HECATE</p>
+        <p class="eyebrow">Dashboard</p>
         <h1>Controle e Governança de Impressão</h1>
         <p>Visão operacional do ambiente de impressão institucional.</p>
     </div>
