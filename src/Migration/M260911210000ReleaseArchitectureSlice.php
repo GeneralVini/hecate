@@ -9,7 +9,9 @@ use Yiisoft\Db\Migration\MigrationBuilder;
 use Yiisoft\Db\Migration\RevertibleMigrationInterface;
 use Yiisoft\Db\Migration\TransactionalMigrationInterface;
 
-final class M260911210000ReleaseArchitectureSlice implements RevertibleMigrationInterface, TransactionalMigrationInterface
+final class M260911210000ReleaseArchitectureSlice implements
+    RevertibleMigrationInterface,
+    TransactionalMigrationInterface
 {
     #[Override]
     public function up(MigrationBuilder $b): void
