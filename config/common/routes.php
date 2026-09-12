@@ -14,6 +14,9 @@ return [
         Route::get('/')
             ->action(Action::class)
             ->name('login'),
+        Route::get('/demo/select')
+            ->action(Web\Demo\SelectScenario\Action::class)
+            ->name('demo/select'),
         Route::get('/dashboard')
             ->action(Web\HomePage\Action::class)
             ->name('home'),
