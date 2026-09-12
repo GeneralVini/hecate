@@ -205,6 +205,32 @@ Reutilizar layouts, componentes, templates, alerts, grids, badges, cards, filtro
 
 Se o frontend permanecer em Yii3, evitar por padrão CSS e JavaScript específicos por página. Se houver frontend separado, aplicar os mesmos princípios de reutilização e separação de responsabilidades na stack escolhida.
 
+### 9.1. Padrão institucional para telas CRUD
+
+Telas administrativas de CRUD devem, por padrão, seguir o mesmo comportamento já adotado em **Locais** e **Impressoras**. Exceções precisam ter motivo funcional claro.
+
+O padrão é:
+
+- breadcrumb dinâmico com `HECATE / seção / recurso`, sem repetir título grande dentro da área de conteúdo;
+- grid zebrado e compacto;
+- paginação server-side de 10 registros por página;
+- total e faixa de registros exibidos no rodapé;
+- filtros acima do cabeçalho, com busca textual automática a partir de 3 caracteres e debounce;
+- filtros booleanos/select aplicados imediatamente;
+- ordenação server-side por clique no cabeçalho, alternando `ASC` e `DESC` e preservando filtros;
+- estados booleanos apresentados com badge visual, não como texto cru `Sim/Não`;
+- ações representadas por ícones coerentes com Bootstrap (`primary`, `secondary`, `warning`, `danger`);
+- cadastro aberto em modal;
+- edição utilizando o mesmo modal, populado com os dados do registro;
+- exclusão lógica quando o domínio exigir preservação histórica;
+- mensagens pós-operação em toast flutuante discreto, temporário e sem deslocar o layout;
+- operações bem-sucedidas usando POST/Redirect/GET para evitar reenvio acidental;
+- CSS e JavaScript compartilhados em assets reutilizáveis; não criar um arquivo por página quando o comportamento puder ser comum.
+
+Queries de grid devem executar filtros, ordenação, contagem e paginação no banco. Valores de filtro continuam parametrizados; nomes de coluna/direção de ordenação só podem entrar no SQL após validação por allowlist.
+
+Novas telas de CRUD devem partir desse padrão antes de criar variações próprias.
+
 ## 10. PHPDoc, JSDoc e comentários
 
 Tipos e nomes devem explicar o óbvio. PHPDoc e JSDoc devem acrescentar informação que a assinatura não expressa, como array shapes, generics, efeitos colaterais, exceções relevantes, contratos de integrações, transações, concorrência e formatos de dados externos.
