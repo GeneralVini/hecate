@@ -5,18 +5,50 @@ DB_HOST="${HECATE_DB_HOST:-127.0.0.1}"
 DB_PORT="${HECATE_DB_PORT:-5432}"
 DB_USER="${HECATE_DB_USER:-hecate}"
 DB_PASSWORD="${HECATE_DB_PASSWORD:-}"
+DB_ADMIN_USER="${HECATE_DB_ADMIN_USER:-postgres}"
+DB_ADMIN_PASSWORD="${HECATE_DB_ADMIN_PASSWORD:-}"
 DCTIM_DB="${HECATE_DEMO_DCTIM_DB_NAME:-hecate_demo_dctim}"
 CTIM_DB="${HECATE_DEMO_CTIM_DB_NAME:-hecate_demo_ctim}"
 
-export PGPASSWORD="$DB_PASSWORD"
+run_admin_dropdb() {
+    local database="$1"
+
+    if [[ "$DB_ADMIN_USER" == "postgres" && ("$DB_HOST" == "127.0.0.1" || "$DB_HOST" == "localhost") ]] && command -v sudo >/dev/null 2>&1; then
+        sudo -u postgres dropdb --if-exists --port="$DB_PORT" "$database"
+        return
+    fi
+
+    PGPASSWORD="$DB_ADMIN_PASSWORD" dropdb \
+        --if-exists \
+        --host="$DB_HOST" \
+        --port="$DB_PORT" \
+        --username="$DB_ADMIN_USER" \
+        "$database"
+}
+
+run_admin_createdb() {
+    local database="$1"
+
+    if [[ "$DB_ADMIN_USER" == "postgres" && ("$DB_HOST" == "127.0.0.1" || "$DB_HOST" == "localhost") ]] && command -v sudo >/dev/null 2>&1; then
+        sudo -u postgres createdb --port="$DB_PORT" --owner="$DB_USER" "$database"
+        return
+    fi
+
+    PGPASSWORD="$DB_ADMIN_PASSWORD" createdb \
+        --host="$DB_HOST" \
+        --port="$DB_PORT" \
+        --username="$DB_ADMIN_USER" \
+        --owner="$DB_USER" \
+        "$database"
+}
 
 reset_database() {
     local scenario="$1"
     local database="$2"
     local seed_file="$3"
 
-    dropdb --if-exists --host="$DB_HOST" --port="$DB_PORT" --username="$DB_USER" "$database"
-    createdb --host="$DB_HOST" --port="$DB_PORT" --username="$DB_USER" "$database"
+    run_admin_dropdb "$database"
+    run_admin_createdb "$database"
 
     HECATE_EDITION=demo \
     HECATE_DEMO_SCENARIO="$scenario" \
@@ -28,7 +60,7 @@ reset_database() {
     HECATE_DB_PASSWORD="$DB_PASSWORD" \
     php ./yii migrate:up
 
-    psql \
+    PGPASSWORD="$DB_PASSWORD" psql \
         --host="$DB_HOST" \
         --port="$DB_PORT" \
         --username="$DB_USER" \
