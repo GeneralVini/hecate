@@ -25,7 +25,10 @@ final readonly class QuotaReservation
 SELECT id, bw_allocated - bw_used - bw_reserved AS bw_available,
        color_allocated - color_used - color_reserved AS color_available
 FROM quota WHERE division_id = :division AND period = :period FOR UPDATE
-SQL)->bindValues([':division' => $divisionId, ':period' => $period])->queryOne();
+SQL)
+            ->bindValue(':division', $divisionId)
+            ->bindValue(':period', $period)
+            ->queryOne();
         if ($row === null) {
             throw new DomainException('Cota da competência não configurada.');
         }
@@ -38,7 +41,11 @@ SQL)->bindValues([':division' => $divisionId, ':period' => $period])->queryOne()
         $id = (int) $row['id'];
         $this->db->createCommand(<<<'SQL'
 UPDATE quota SET bw_reserved = bw_reserved + :bw, color_reserved = color_reserved + :color WHERE id = :id
-SQL)->bindValues([':bw' => $bwPages, ':color' => $colorPages, ':id' => $id])->execute();
+SQL)
+            ->bindValue(':bw', $bwPages)
+            ->bindValue(':color', $colorPages)
+            ->bindValue(':id', $id)
+            ->execute();
         return $id;
     }
 }
