@@ -87,11 +87,30 @@ A organização modular está em evolução e deve acompanhar o domínio real, s
 
 ## Primeira execução
 
+O ambiente local usa **Lefthook** para instalar os hooks Git do projeto. Em Ubuntu/Kubuntu/Debian, instale-o uma vez no sistema antes do primeiro `make setup`:
+
+```bash
+curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | sudo -E bash
+sudo apt install lefthook
+lefthook version
+```
+
+Depois prepare o projeto:
+
 ```bash
 git clone https://github.com/GeneralVini/hecate.git
 cd hecate
 git switch yii3
 make setup
+```
+
+O `make setup` executa `composer install`, valida o Composer, confirma as ferramentas de QA, instala e valida os hooks do Lefthook e executa o baseline de qualidade. O bootstrap não instala pacotes do sistema silenciosamente; se o Lefthook não estiver disponível, ele informa os comandos necessários e encerra.
+
+Para reinstalar ou validar os hooks manualmente:
+
+```bash
+lefthook install
+lefthook validate
 ```
 
 Após configurar o PostgreSQL:
@@ -108,15 +127,15 @@ APP_ENV=dev APP_DEBUG=1 composer serve
 
 ## Qualidade
 
-O baseline de qualidade é composto por:
+A decisão de baseline de desenvolvimento é:
 
 ```text
-Lefthook
-Rector
-ECS / PSR-12
-PHPStan
-Psalm
-PHPUnit
+Lefthook     hooks Git e orquestração local
+Rector       refatoração automática homologada
+ECS          coding standard e autofix
+PHPStan      análise estática principal
+Psalm        análise estática complementar
+PHPUnit      testes
 ```
 
 Validação integral:
@@ -131,9 +150,16 @@ Autocorreções determinísticas de código e estilo:
 composer fix
 ```
 
-O Lefthook aplica autofix em PHP no `pre-commit` e executa as verificações completas no `pre-push`. PHPStan, Psalm e PHPUnit permanecem validadores: problemas sem correção determinística exigem alteração consciente de código.
+Execução manual dos hooks:
 
-Detalhes de ambiente, instalação do Lefthook, qualidade e documentação de código estão em [DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md).
+```bash
+lefthook run pre-commit
+lefthook run pre-push
+```
+
+O Lefthook aplica Rector e ECS no `pre-commit` e executa a validação completa no `pre-push`. PHPStan, Psalm e PHPUnit permanecem validadores: problemas sem correção determinística exigem alteração consciente de código. O CI repete `composer qa`; hooks locais não substituem validação no servidor.
+
+Detalhes de ambiente, qualidade e documentação de código estão em [DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md).
 
 ## Fluxo previsto de impressão
 
