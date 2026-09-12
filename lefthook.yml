@@ -27,3 +27,12 @@ pre-push:
 
     - name: phpunit
       run: composer test
+
+    - name: composer-audit
+      run: composer security:dependencies
+
+    - name: psalm-taint
+      run: composer psalm:taint
+
+    - name: semgrep
+      run: composer security:semgrep
