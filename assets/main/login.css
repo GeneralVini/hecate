@@ -28,9 +28,9 @@
 .login-form-area {
     position: absolute;
     left: 50%;
-    top: clamp(350px, 58vh, 455px);
+    top: clamp(355px, 60vh, 455px);
     z-index: 2;
-    width: min(330px, calc(100vw - 40px));
+    width: min(320px, calc(100vw - 40px));
     min-width: 0;
     display: flex;
     justify-content: center;
@@ -43,70 +43,61 @@
 
 .login-panel {
     width: 100%;
-    padding: 18px 20px 20px;
+    padding: 16px 18px 18px;
     color: #fff;
-    border: 1px solid rgba(210, 173, 82, .16);
-    border-radius: 14px;
-    background: linear-gradient(180deg, rgba(7, 24, 45, .72), rgba(3, 15, 30, .70));
-    box-shadow: 0 16px 38px rgba(0, 0, 0, .22);
-    backdrop-filter: blur(12px);
+    border: 1px solid rgba(210, 173, 82, .14);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(7, 24, 45, .66), rgba(3, 15, 30, .64));
+    box-shadow: 0 14px 34px rgba(0, 0, 0, .2);
+    backdrop-filter: blur(10px);
 }
 
 .login-logo {
-    display: block;
-    width: min(210px, 78%);
-    max-width: 100%;
-    margin: 0 auto 18px;
-    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .22));
+    display: none;
 }
 
 .login-fields {
     display: grid;
-    gap: 6px;
+    gap: 5px;
 }
 
 .login-fields label {
-    margin-top: 6px;
-    font-size: .76rem;
+    margin-top: 5px;
+    font-size: .74rem;
 }
 
 .login-fields input {
-    min-height: 42px;
+    min-height: 40px;
     padding-inline: 12px;
 }
 
 .login-submit {
-    margin-top: 16px;
+    margin-top: 14px;
 }
 
 @media (max-height: 760px) and (min-width: 821px) {
     .login-form-area {
-        top: clamp(315px, 55vh, 405px);
+        top: clamp(330px, 58vh, 400px);
     }
 
     .login-panel {
-        padding: 16px 18px 18px;
-    }
-
-    .login-logo {
-        width: min(190px, 74%);
-        margin-bottom: 14px;
+        padding: 14px 16px 16px;
     }
 
     .login-fields input {
-        min-height: 40px;
+        min-height: 38px;
     }
 
     .login-submit {
-        margin-top: 14px;
+        margin-top: 12px;
     }
 }
 
 @media (max-width: 1100px) and (min-width: 821px) {
     .login-form-area {
         left: 50%;
-        top: clamp(330px, 56vh, 420px);
-        width: min(310px, calc(100vw - 32px));
+        top: clamp(335px, 58vh, 410px);
+        width: min(300px, calc(100vw - 32px));
     }
 }
 
@@ -156,6 +147,6 @@
     }
 
     .login-panel {
-        padding: 22px 18px 24px;
+        padding: 20px 18px 22px;
     }
 }
