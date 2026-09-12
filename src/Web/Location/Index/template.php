@@ -36,7 +36,7 @@ $pageUrl = static function (int $targetPage) use ($filters): string {
 <?php if ($flash !== null) : ?>
     <div class="flash-message flash-message-<?= Html::encode($flash['type']) ?>" role="status" data-flash-message>
         <svg viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M7 11.5a.5.5 0 0 0 1 0V7a.5.5 0 0 0-1 0zm.5-6.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5"/>
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M7 11.5a.5.5 0 0 0 1 0V7a.5.5 5.5 0 0 0-1 0zm.5-6.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5"/>
         </svg>
         <span><?= Html::encode($flash['message']) ?></span>
     </div>
@@ -108,7 +108,11 @@ $pageUrl = static function (int $targetPage) use ($filters): string {
                 <td><?= Html::encode($location->code) ?></td>
                 <td><?= Html::encode($location->name) ?></td>
                 <td><?= Html::encode($location->description ?? '—') ?></td>
-                <td><?= $location->active ? 'Sim' : 'Não' ?></td>
+                <td>
+                    <span class="status-badge <?= $location->active ? 'status-badge--active' : 'status-badge--inactive' ?>">
+                        <?= $location->active ? 'Ativo' : 'Inativo' ?>
+                    </span>
+                </td>
                 <td class="grid-actions">
                     <div class="grid-action-group">
                         <button
