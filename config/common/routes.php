@@ -26,5 +26,8 @@ return [
         Route::post('/printers/detect')
             ->action(Web\Printer\Detect\Action::class)
             ->name('printer/detect'),
+        Route::methods(['GET', 'POST'], '/locations')
+            ->action(Web\Location\Index\Action::class)
+            ->name('location/index'),
     ),
 ];
