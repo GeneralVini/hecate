@@ -8,7 +8,15 @@ Este documento consolida o ambiente de desenvolvimento, o baseline de qualidade 
 
 A aplicação web segue o template oficial `yiisoft/app`, com PHP compatível com a matriz homologada do projeto, Composer, PostgreSQL e ferramentas de QA versionadas no repositório.
 
-Primeira execução:
+O Lefthook é um executável externo ao Composer e deve estar disponível no `PATH` antes do primeiro `make setup`. Em Ubuntu/Kubuntu/Debian:
+
+```bash
+curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | sudo -E bash
+sudo apt install lefthook
+lefthook version
+```
+
+Primeira execução do projeto:
 
 ```bash
 git clone https://github.com/GeneralVini/hecate.git
@@ -19,7 +27,7 @@ make setup
 
 O `composer.lock` é obrigatório. O bootstrap usa `composer install` e não deve executar `composer update`, `composer require` ou instalar pacotes do sistema de forma implícita.
 
-O Lefthook é um executável externo ao Composer e deve estar disponível no `PATH` antes de `make setup`. A instalação deve usar um método oficial adequado ao sistema operacional. O bootstrap apenas valida sua presença e executa `lefthook install`.
+O `make setup` valida PHP, Composer, Git e Lefthook; instala as dependências a partir do lockfile; valida o Composer; confirma ECS, Rector, PHPStan, Psalm e PHPUnit; executa `lefthook install` e `lefthook validate`; e roda o baseline de QA. Se o Lefthook estiver ausente, o bootstrap mostra os comandos de instalação para Ubuntu/Kubuntu/Debian e encerra sem alterar o sistema.
 
 Variáveis locais de referência para PostgreSQL:
 
@@ -118,6 +126,7 @@ Instalação ou reinstalação dos hooks:
 
 ```bash
 lefthook install
+lefthook validate
 ```
 
 Execução manual:
@@ -126,6 +135,8 @@ Execução manual:
 lefthook run pre-commit
 lefthook run pre-push
 ```
+
+Se já existir um hook Git no repositório local, o Lefthook pode preservá-lo com sufixo `.old` antes de instalar o hook gerenciado. Isso é esperado e deve ser revisado apenas se houver lógica local que precise ser incorporada ao fluxo versionado.
 
 Hooks locais aumentam feedback rápido, mas não substituem CI. A validação do servidor deve repetir `composer qa`.
 
@@ -221,7 +232,7 @@ Antes de considerar uma alteração tecnicamente apta:
 
 - `composer.json` e `composer.lock` devem estar sincronizados;
 - `composer qa` deve estar aprovado;
-- hooks Lefthook devem estar instaláveis a partir da configuração versionada;
+- hooks Lefthook devem estar instaláveis e validáveis a partir da configuração versionada;
 - não devem existir suppressions adicionadas apenas para contornar erros reais;
 - migrations e integrações alteradas devem ser testadas quando aplicável;
 - controles de segurança pertinentes devem ter sido considerados;
