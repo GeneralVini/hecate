@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Organization\Query;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Constant\DataType;
+use Yiisoft\Db\Expression\Value\Param;
 
 final readonly class LocationListQuery
 {
@@ -85,7 +87,7 @@ SQL)->queryAll();
 
     /**
      * @param array{code?: string, name?: string, description?: string, active?: string} $filters
-     * @return array{0: string, 1: array<string, string|bool>}
+     * @return array{0: string, 1: array<string, Param>}
      */
     private function buildWhere(array $filters): array
     {
@@ -100,7 +102,7 @@ SQL)->queryAll();
 
             $parameter = ':' . $field;
             $clauses[] = sprintf('LOWER(COALESCE(%s, \'\')) LIKE %s', $field, $parameter);
-            $params[$parameter] = '%' . mb_strtolower($value) . '%';
+            $params[$parameter] = new Param('%' . mb_strtolower($value) . '%', DataType::STRING);
         }
 
         $active = $filters['active'] ?? '';
