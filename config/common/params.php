@@ -11,11 +11,23 @@ use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\UrlGeneratorInterface;
 use Yiisoft\Yii\View\Renderer\CsrfViewInjection;
 
+$edition = strtolower((string) ($_ENV['HECATE_EDITION'] ?? $_SERVER['HECATE_EDITION'] ?? 'local'));
+$demoMode = $edition === 'demo';
+$requestedDemoScenario = strtolower((string) ($_COOKIE['hecate_demo_scenario'] ?? 'dctim'));
+$demoScenario = in_array($requestedDemoScenario, ['dctim', 'ctim'], true) ? $requestedDemoScenario : 'dctim';
+
 $dbHost = $_ENV['HECATE_DB_HOST'] ?? $_SERVER['HECATE_DB_HOST'] ?? '127.0.0.1';
-$dbName = $_ENV['HECATE_DB_NAME'] ?? $_SERVER['HECATE_DB_NAME'] ?? 'hecate';
 $dbPort = $_ENV['HECATE_DB_PORT'] ?? $_SERVER['HECATE_DB_PORT'] ?? '5432';
 $dbUser = $_ENV['HECATE_DB_USER'] ?? $_SERVER['HECATE_DB_USER'] ?? 'hecate';
 $dbPassword = $_ENV['HECATE_DB_PASSWORD'] ?? $_SERVER['HECATE_DB_PASSWORD'] ?? '';
+
+if ($demoMode) {
+    $dbName = $demoScenario === 'ctim'
+        ? ($_ENV['HECATE_DEMO_CTIM_DB_NAME'] ?? $_SERVER['HECATE_DEMO_CTIM_DB_NAME'] ?? 'hecate_demo_ctim')
+        : ($_ENV['HECATE_DEMO_DCTIM_DB_NAME'] ?? $_SERVER['HECATE_DEMO_DCTIM_DB_NAME'] ?? 'hecate_demo_dctim');
+} else {
+    $dbName = $_ENV['HECATE_DB_NAME'] ?? $_SERVER['HECATE_DB_NAME'] ?? 'hecate';
+}
 
 return [
     'application' => require __DIR__ . '/application.php',
@@ -43,6 +55,8 @@ return [
             'aliases' => Reference::to(Aliases::class),
             'urlGenerator' => Reference::to(UrlGeneratorInterface::class),
             'currentRoute' => Reference::to(CurrentRoute::class),
+            'demoMode' => $demoMode,
+            'demoScenario' => $demoScenario,
         ],
     ],
 
