@@ -21,7 +21,11 @@ INSERT INTO printer (name, host, location)
 VALUES (:name, :host, :location)
 ON CONFLICT (name) DO NOTHING
 RETURNING id
-SQL)->bindValues([':name' => $input->name, ':host' => $input->host, ':location' => $input->location])->queryScalar();
+SQL)
+            ->bindValue(':name', $input->name)
+            ->bindValue(':host', $input->host)
+            ->bindValue(':location', $input->location)
+            ->queryScalar();
         if ($id === null || $id === false) {
             throw new DomainException('Já existe uma impressora com esse nome.');
         }
