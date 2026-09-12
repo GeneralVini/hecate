@@ -17,16 +17,6 @@ $this->setTitle('HECATE — Controle e Governança de Impressão');
     </div>
 </section>
 
-<section class="governance-strip" aria-label="Camada de governança">
-    <strong>Governança</strong>
-    <span class="governance-pill">Políticas</span>
-    <span class="governance-pill">Papéis</span>
-    <span class="governance-pill">Cotas</span>
-    <span class="governance-pill">Aprovações</span>
-    <span class="governance-pill">Auditoria</span>
-    <span class="governance-pill">Indicadores</span>
-</section>
-
 <section class="metric-grid" aria-label="Indicadores">
     <article class="metric-card">
         <span>Impressoras</span>
