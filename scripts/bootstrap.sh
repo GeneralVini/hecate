@@ -54,7 +54,7 @@ run_qa_step() {
     local label="$1"
     local composer_script="$2"
 
-    printf '\n[QA] %s\n' "$label"
+    printf '\n[CHECK] %s\n' "$label"
     if composer "$composer_script"; then
         ok "$label"
     else
@@ -102,7 +102,12 @@ for executable in ecs rector phpstan psalm phpunit; do
         exit 1
     fi
 done
-ok 'Ferramentas de qualidade instaladas em vendor/bin'
+ok 'Ferramentas PHP de qualidade instaladas em vendor/bin'
+
+printf '\n'
+info 'Configurando ferramentas nativas de segurança em .tools/...'
+bash scripts/install-security-tools.sh
+ok 'Semgrep CE e OWASP ZAP configurados sem Docker'
 
 printf '\n'
 info 'Instalando hooks Git do Lefthook...'
@@ -111,12 +116,13 @@ lefthook validate
 ok 'Hooks Git instalados e configuração validada'
 
 printf '\n'
-info 'Executando verificações de qualidade...'
+info 'Executando verificações de qualidade e segurança...'
 run_qa_step 'ECS / PSR-12' lint
 run_qa_step 'Rector dry-run' rector
 run_qa_step 'PHPStan' stan
 run_qa_step 'Psalm' psalm
 run_qa_step 'PHPUnit' test
+run_qa_step 'SCA + Psalm Taint + Semgrep CE' security
 
 printf '\n'
 line
@@ -124,13 +130,13 @@ printf ' Ambiente HECATE Yii3 pronto para desenvolvimento.\n'
 line
 printf '\nComandos disponíveis:\n\n'
 printf '  composer fix\n'
-printf '  composer lint\n'
-printf '  composer rector\n'
-printf '  composer stan\n'
-printf '  composer psalm\n'
-printf '  composer test\n'
 printf '  composer qa\n'
+printf '  composer security\n'
+printf '  composer check\n'
+printf '  composer psalm:taint\n'
+printf '  composer security:dependencies\n'
+printf '  composer security:semgrep\n'
+printf '  HECATE_ZAP_TARGET=http://127.0.0.1:8080 bash scripts/zap-scan.sh\n'
 printf '  composer serve\n'
-printf '  lefthook validate\n'
 printf '  lefthook run pre-commit\n'
 printf '  lefthook run pre-push\n'
