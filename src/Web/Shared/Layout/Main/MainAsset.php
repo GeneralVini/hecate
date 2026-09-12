@@ -13,7 +13,7 @@ final class MainAsset extends AssetBundle
     public ?string $sourcePath = '@assetsSource/main';
 
     /** @var list<string> */
-    public array $css = ['site.css', 'sidebar.css', 'login.css', 'hecate-discovery.css'];
+    public array $css = ['site.css', 'sidebar.css', 'forms-compact.css', 'login.css', 'hecate-discovery.css'];
 
     /** @var list<string> */
     public array $js = ['site.js'];
