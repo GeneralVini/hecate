@@ -18,3 +18,5 @@
 *.log
 .env
 .env.local
+
+/public/assets/
