@@ -227,16 +227,26 @@ Prefira testar fronteiras reais quando isso aumentar confiança. Evitar mocks ex
 
 ## 12. Fluxo de trabalho
 
+Comando operacional padrão para aplicar as autocorreções determinísticas, adicionar novamente ao stage os arquivos eventualmente alterados, criar o commit e enviar a branch:
+
+```bash
+composer fix && git add . && git commit -m "feat: descrição da alteração" && git push
+```
+
+O segundo `git add .` é intencional: `composer fix` pode modificar arquivos com Rector e ECS. Assim, as correções automáticas entram no mesmo commit e não permanecem pendentes no VS Code após a operação.
+
+Fluxo correspondente:
+
 ```text
 editar código
     ↓
-git add
+composer fix
     ↓
-pre-commit: Rector + ECS
-    ↓
-revisar alterações automáticas
+git add .
     ↓
 commit
+    ↓
+pre-commit: Rector + ECS
     ↓
 pre-push: QA completo
     ↓
