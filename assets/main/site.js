@@ -101,6 +101,119 @@
 })();
 
 (() => {
+    const header = document.querySelector('.page-header');
+    const breadcrumb = document.querySelector('.workspace-navbar > div');
+
+    if (!(header instanceof HTMLElement) || !(breadcrumb instanceof HTMLElement)) {
+        return;
+    }
+
+    const section = header.querySelector('.eyebrow');
+    const title = header.querySelector('h1');
+
+    if (!(section instanceof HTMLElement) || !(title instanceof HTMLElement)) {
+        return;
+    }
+
+    const root = document.createElement('span');
+    root.className = 'breadcrumb-root';
+    root.textContent = 'HECATE';
+
+    const separator = () => {
+        const element = document.createElement('span');
+        element.className = 'breadcrumb-separator';
+        element.textContent = '/';
+        return element;
+    };
+
+    const sectionItem = document.createElement('span');
+    sectionItem.textContent = section.textContent?.trim() ?? '';
+
+    const titleItem = document.createElement('span');
+    titleItem.textContent = title.textContent?.trim() ?? '';
+
+    breadcrumb.replaceChildren(root, separator(), sectionItem, separator(), titleItem);
+    header.hidden = true;
+})();
+
+(() => {
+    const form = document.querySelector('.data-grid-filters');
+
+    if (!(form instanceof HTMLFormElement)) {
+        return;
+    }
+
+    const textInputs = Array.from(form.querySelectorAll('input[type="text"], input:not([type])'))
+        .filter((input) => input instanceof HTMLInputElement);
+    const selects = Array.from(form.querySelectorAll('select'))
+        .filter((select) => select instanceof HTMLSelectElement);
+    const submitButton = form.querySelector('button[type="submit"]');
+    let debounceId = 0;
+
+    if (submitButton instanceof HTMLButtonElement) {
+        submitButton.hidden = true;
+    }
+
+    const applyFilters = () => {
+        const params = new URLSearchParams();
+
+        for (const input of textInputs) {
+            if (!(input instanceof HTMLInputElement) || input.name === '') {
+                continue;
+            }
+
+            const value = input.value.trim();
+            if (value.length >= 3) {
+                params.set(input.name, value);
+            }
+        }
+
+        for (const select of selects) {
+            if (!(select instanceof HTMLSelectElement) || select.name === '') {
+                continue;
+            }
+
+            if (select.value !== '') {
+                params.set(select.name, select.value);
+            }
+        }
+
+        const query = params.toString();
+        window.location.assign(query === '' ? window.location.pathname : `${window.location.pathname}?${query}`);
+    };
+
+    const scheduleFilter = (input) => {
+        const value = input.value.trim();
+        const currentParams = new URLSearchParams(window.location.search);
+        const mustClearExistingFilter = currentParams.has(input.name) && value.length < 3;
+
+        if (value.length > 0 && value.length < 3 && !mustClearExistingFilter) {
+            return;
+        }
+
+        window.clearTimeout(debounceId);
+        debounceId = window.setTimeout(applyFilters, 380);
+    };
+
+    for (const input of textInputs) {
+        if (input instanceof HTMLInputElement) {
+            input.setAttribute('autocomplete', 'off');
+            input.addEventListener('input', () => scheduleFilter(input));
+        }
+    }
+
+    for (const select of selects) {
+        if (select instanceof HTMLSelectElement) {
+            select.addEventListener('change', applyFilters);
+        }
+    }
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+    });
+})();
+
+(() => {
     const modal = document.querySelector('[data-location-modal]');
     const form = document.querySelector('[data-location-form]');
 
