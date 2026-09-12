@@ -1,6 +1,6 @@
 # HECATE
 
-**Plataforma Institucional de Governança e Controle de Impressão**
+Plataforma Institucional de Governança e Controle de Impressão
 
 ![HECATE — Governança e Controle de Impressão](public/branding/hecate-hero.jpg)
 
@@ -27,7 +27,7 @@ A [EAP](docs/EAP.md) é a fonte única de acompanhamento da entrega, incluindo e
 
 ## Direção arquitetural
 
-**Yii3 + monólito modular + DDD pragmático.**
+A direção adotada é **Yii3 + monólito modular + DDD pragmático**.
 
 > **A complexidade deve ser justificada pelo domínio.**
 
