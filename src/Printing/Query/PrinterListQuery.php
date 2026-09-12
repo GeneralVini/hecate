@@ -15,7 +15,9 @@ final readonly class PrinterListQuery
 
     public function exists(int $id): bool
     {
-        return $this->db->createCommand('SELECT count(*) FROM printer WHERE id = :id')
+        return $this->db->createCommand(
+            'SELECT count(*) FROM printer WHERE id = :id AND deleted_at IS NULL',
+        )
             ->bindValue(':id', $id)
             ->queryScalar() > 0;
     }
@@ -23,9 +25,13 @@ final readonly class PrinterListQuery
     /** @return list<PrinterListItem> */
     public function all(): array
     {
-        return $this->map($this->db->createCommand(
-            'SELECT id, name, host, location, last_seen_at FROM printer ORDER BY lower(name), id',
-        )->queryAll());
+        return $this->map($this->db->createCommand(<<<'SQL'
+SELECT p.id, p.name, p.host, l.name AS location, p.last_seen_at
+FROM printer p
+LEFT JOIN location l ON l.id = p.location_id
+WHERE p.deleted_at IS NULL
+ORDER BY lower(p.name), p.id
+SQL)->queryAll());
     }
 
     /** @return list<PrinterListItem> */
@@ -36,10 +42,13 @@ final readonly class PrinterListQuery
         }
 
         return $this->map($this->db->createCommand(<<<'SQL'
-SELECT p.id, p.name, p.host, p.location, p.last_seen_at
+SELECT p.id, p.name, p.host, l.name AS location, p.last_seen_at
 FROM printer p
+LEFT JOIN location l ON l.id = p.location_id
 JOIN division_printer_access a ON a.printer_id = p.id
-WHERE a.division_id = :division AND p.enabled = TRUE
+WHERE a.division_id = :division
+  AND p.active = TRUE
+  AND p.deleted_at IS NULL
 ORDER BY lower(p.name), p.id
 SQL)
             ->bindValue(':division', $actor->divisionId)
