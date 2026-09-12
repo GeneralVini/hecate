@@ -19,7 +19,25 @@ CREATE TABLE division (
     id SERIAL PRIMARY KEY,
     code VARCHAR(32) NOT NULL UNIQUE,
     name VARCHAR(120) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+    CONSTRAINT ck_division_deleted_inactive CHECK (deleted_at IS NULL OR active = FALSE)
+)
+SQL);
+
+        $b->execute(<<<'SQL'
+CREATE TABLE location (
+    id SERIAL PRIMARY KEY,
+    code VARCHAR(32) NOT NULL UNIQUE,
+    name VARCHAR(160) NOT NULL,
+    description VARCHAR(255),
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+    CONSTRAINT ck_location_deleted_inactive CHECK (deleted_at IS NULL OR active = FALSE)
 )
 SQL);
 
@@ -30,20 +48,23 @@ CREATE TABLE printer (
     host VARCHAR(160) NOT NULL,
     vendor VARCHAR(160),
     model VARCHAR(160),
-    location VARCHAR(160),
+    location_id INTEGER REFERENCES location(id) ON DELETE RESTRICT,
     is_color BOOLEAN NOT NULL DEFAULT FALSE,
     is_duplex BOOLEAN NOT NULL DEFAULT FALSE,
     monitor_source VARCHAR(40),
     last_seen_at TIMESTAMP,
-    enabled BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+    CONSTRAINT ck_printer_deleted_inactive CHECK (deleted_at IS NULL OR active = FALSE)
 )
 SQL);
 
         $b->execute(<<<'SQL'
 CREATE TABLE quota (
     id SERIAL PRIMARY KEY,
-    division_id INTEGER NOT NULL REFERENCES division(id) ON DELETE CASCADE,
+    division_id INTEGER NOT NULL REFERENCES division(id) ON DELETE RESTRICT,
     period VARCHAR(7) NOT NULL,
     bw_allocated INTEGER NOT NULL DEFAULT 0,
     bw_used INTEGER NOT NULL DEFAULT 0,
@@ -51,6 +72,7 @@ CREATE TABLE quota (
     color_allocated INTEGER NOT NULL DEFAULT 0,
     color_used INTEGER NOT NULL DEFAULT 0,
     color_reserved INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uq_quota_division_period UNIQUE (division_id, period)
 )
 SQL);
@@ -66,7 +88,11 @@ CREATE TABLE contract (
     color_unit_price NUMERIC(12, 4),
     bw_overage_price NUMERIC(12, 4),
     color_overage_price NUMERIC(12, 4),
-    active BOOLEAN NOT NULL DEFAULT TRUE
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+    CONSTRAINT ck_contract_deleted_inactive CHECK (deleted_at IS NULL OR active = FALSE)
 )
 SQL);
 
@@ -78,7 +104,7 @@ CREATE TABLE audit_log (
     entity VARCHAR(80),
     entity_id VARCHAR(80),
     details TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 )
 SQL);
     }
@@ -90,6 +116,7 @@ SQL);
         $b->dropTable('contract');
         $b->dropTable('quota');
         $b->dropTable('printer');
+        $b->dropTable('location');
         $b->dropTable('division');
     }
 }
