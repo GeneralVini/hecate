@@ -6,28 +6,25 @@ Este arquivo orienta agentes de código e assistentes que alterem o HECATE.
 
 > **A complexidade deve ser justificada pelo domínio.**
 
-Não introduza antecipadamente padrões DDD, abstrações, camadas, interfaces, repositories, eventos, Value Objects ou indireções.
-
-Prefira o desenho mais simples que preserve boundaries claros e testabilidade. Adicione complexidade arquitetural somente quando uma regra de domínio, integração ou problema concreto de acoplamento a justificar.
+Não introduzir antecipadamente camadas, interfaces, repositories, eventos, Value Objects ou outras indireções sem problema concreto a resolver.
 
 ## Contexto obrigatório
 
-Antes de alterar arquitetura ou código relevante, consulte:
+Antes de alterar arquitetura ou código relevante, consultar:
 
-1. `docs/ddd.md` — diretrizes arquiteturais e de boundaries;
-2. `docs/ARQUITETURA.md` — arquitetura do produto e responsabilidades;
-3. `docs/DECISOES.md` — decisões técnicas já consolidadas;
-4. `docs/SEGURANCA.md` — controles de segurança;
-5. `docs/QUALIDADE-CODIGO.md` — baseline de qualidade;
-6. `docs/EAP.md` — escopo, POCs e critérios de aceite.
+1. `docs/ARQUITETURA.md` — arquitetura, boundaries, fluxos e integrações;
+2. `docs/DECISOES.md` — decisões técnicas e respectivos motivos;
+3. `docs/SEGURANCA.md` — controles de segurança e auditoria;
+4. `docs/DESENVOLVIMENTO.md` — ambiente, qualidade e documentação de código;
+5. `docs/EAP.md` — escopo, POCs e critérios de aceite.
 
-Não rediscuta decisão consolidada sem evidência de problema técnico concreto.
+A EAP é a fonte única para dizer se algo está concluído, validado ou ainda pendente.
 
-## Critério de decisão arquitetural
+## Critério de decisão
 
-Ao escolher entre duas soluções, priorize nesta ordem:
+Ao escolher entre soluções, priorizar:
 
-1. representar corretamente a regra ou fluxo real do domínio;
+1. representar corretamente o domínio real;
 2. preservar boundaries entre responsabilidades;
 3. reduzir acoplamento conceitual;
 4. manter a solução simples;
@@ -35,67 +32,45 @@ Ao escolher entre duas soluções, priorize nesta ordem:
 6. aproveitar recursos nativos e produtivos do Yii3;
 7. introduzir abstração somente quando houver justificativa concreta.
 
-Duplicação localizada entre boundaries pode ser preferível a compartilhamento que introduza acoplamento indevido.
+Duplicação localizada entre boundaries pode ser preferível a compartilhamento que aumente acoplamento.
 
 ## Yii3 e organização
 
 - Yii3 é framework de aplicação, não o modelo do domínio.
-- Usar DI e configuração do Yii3; evitar service locator e estado global.
+- Usar DI e configuração do Yii3.
 - Handlers HTTP devem permanecer finos.
-- Organizar código por responsabilidade/módulo quando isso melhorar coesão; não criar árvores DDD vazias apenas por convenção.
-- Não criar `Domain/`, `Application/`, `Infrastructure/`, repositories ou interfaces sem consumidores e responsabilidades reais.
+- Organizar código por responsabilidade/módulo quando isso melhorar coesão.
+- Não criar árvores DDD vazias por convenção.
 
 ## Persistência
 
-- PostgreSQL é a persistência principal do HECATE.
-- Preferir SQL explícito com `yiisoft/db` para queries e operações cuja intenção fique mais clara dessa forma.
-- Sempre usar parâmetros/bindings; nunca concatenar input em SQL.
-- ActiveRecord pode ser usado pontualmente na infraestrutura, mas não deve se tornar modelo compartilhado da aplicação ou do domínio.
-- Não criar `GenericRepository`, `BaseRepository`, `BaseService`, Data Mapper genérico ou camadas equivalentes sem necessidade demonstrável.
+- PostgreSQL é a persistência principal.
+- Preferir SQL explícito e parametrizado via `yiisoft/db` quando isso tornar a intenção mais clara.
+- ActiveRecord pode ser usado pontualmente na infraestrutura, mas não como modelo compartilhado da aplicação.
+- Não criar abstrações genéricas de persistência sem necessidade demonstrável.
 
-## DTOs, modelos e domínio
+## DTOs e domínio
 
-- DTOs são adequados para input/output, forms, queries, grids, relatórios e integrações quando houver uma fronteira de dados real.
-- Não criar DTO apenas para transferir os mesmos campos entre duas funções próximas sem ganho de boundary ou clareza.
-- Entidades e Value Objects devem existir quando encapsularem invariantes, comportamento ou semântica de domínio relevante.
-- Não criar Value Object para cada coluna ou identificador por padrão.
+- DTOs são adequados para input/output, forms, queries, grids, relatórios e integrações quando houver fronteira real.
+- Não criar DTO apenas para mover os mesmos campos entre funções próximas.
+- Entidades e Value Objects devem existir quando encapsularem semântica ou invariantes relevantes.
 - Read models específicos são aceitáveis quando uma tela, relatório ou integração tiver necessidades próprias.
 
 ## Integrações
 
 Manter fronteiras claras para SavaPage, CUPS, Keycloak, LDAP/AD, Catálogo MB, APIs externas e `hecate-agent`.
 
-- Não acessar banco ou spool interno do SavaPage.
-- Não executar comandos privilegiados arbitrários a partir do PHP.
-- O `hecate-agent` deve expor somente operações fechadas e auditáveis.
-- Criar adapter/interface somente quando houver uma integração real ou necessidade concreta de substituição/teste; não antecipar ports vazias.
-
-## Segurança
-
-Toda alteração deve considerar, conforme aplicável:
-
-- autenticação e autorização no servidor;
-- RBAC + políticas contextuais;
-- CSRF;
-- XSS;
-- SQL injection;
-- SSRF;
-- command injection;
-- privilege escalation;
-- path traversal;
-- secrets fora do código;
-- least privilege;
-- logs e auditoria sem segredos ou conteúdo dos documentos.
+O HECATE deve depender apenas de interfaces e capacidades homologadas desses componentes. O `hecate-agent` deve oferecer operações fechadas e auditáveis.
 
 ## Frontend
 
-- Reutilizar componentes, layouts, widgets, grids, alerts e assets compartilhados.
-- Não criar CSS ou JavaScript específico por página salvo quando houver justificativa funcional clara.
+- Reutilizar componentes, layouts, grids, alerts e assets compartilhados.
+- Não criar CSS ou JavaScript específico por página salvo justificativa funcional clara.
 - Evitar duplicação visual e lógica de apresentação.
 
-## Qualidade antes de concluir
+## Qualidade
 
-Executar a suíte pertinente à alteração. Para validação integral:
+Para validação integral:
 
 ```bash
 composer qa
@@ -108,15 +83,33 @@ Baseline:
 - Psalm;
 - PHPUnit.
 
-Ao alterar schema ou contratos de dados, localizar consumidores antes da mudança e atualizar testes relevantes.
+Ao alterar schema ou contratos de dados, localizar consumidores antes da mudança e atualizar os testes pertinentes.
 
-## Regra prática para novas abstrações
+## Novas abstrações
 
-Antes de criar uma camada, interface, repository, evento, entidade ou Value Object, responda:
+Antes de criar uma camada, interface, repository, evento, entidade ou Value Object, responder:
 
-1. qual problema concreto ela resolve agora?
+1. qual problema concreto resolve agora?
 2. qual boundary ou regra protege?
 3. qual acoplamento real reduz?
 4. qual teste, integração ou variação exige essa abstração?
 
-Se as respostas forem apenas “boa prática”, “DDD”, “SOLID”, “pode ser útil no futuro” ou “para padronizar”, não introduza a abstração.
+Se as respostas forem apenas “boa prática”, “DDD”, “SOLID” ou “pode ser útil no futuro”, não introduzir a abstração.
+
+## Documentação
+
+Não criar novo arquivo Markdown quando o conteúdo puder ser incorporado claramente a um documento canônico existente.
+
+Documentos canônicos em `docs/`:
+
+```text
+EAP.md
+ARQUITETURA.md
+DECISOES.md
+DESENVOLVIMENTO.md
+SEGURANCA.md
+IMPLANTACAO.md
+IDENTIDADE-VISUAL.md
+```
+
+Novo `.md` exige responsabilidade própria, público ou ciclo de manutenção distinto.
