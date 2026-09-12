@@ -22,20 +22,23 @@ $this->setTitle('Locais — HECATE');
     <p class="field-error" role="alert"><?= Html::encode($errors['form']) ?></p>
 <?php endif; ?>
 
-<form class="form-card" method="post">
+<form class="form-card form-card-compact" method="post">
     <input type="hidden" name="_csrf" value="<?= Html::encode($csrf ?? '') ?>">
     <input type="hidden" name="operation" value="create">
 
-    <label for="location-code">Código</label>
-    <input id="location-code" name="code" maxlength="32" required>
+    <div class="form-grid form-grid-2">
+        <div class="form-field">
+            <label for="location-name">Nome</label>
+            <input id="location-name" name="name" maxlength="160" required>
+        </div>
 
-    <label for="location-name">Nome</label>
-    <input id="location-name" name="name" maxlength="160" required>
+        <div class="form-field">
+            <label for="location-description">Descrição</label>
+            <input id="location-description" name="description" maxlength="255">
+        </div>
+    </div>
 
-    <label for="location-description">Descrição</label>
-    <input id="location-description" name="description" maxlength="255">
-
-    <div class="form-actions">
+    <div class="form-actions form-actions-compact">
         <button class="button" type="submit">Adicionar local</button>
     </div>
 </form>
@@ -54,20 +57,20 @@ $this->setTitle('Locais — HECATE');
         <tbody>
         <?php foreach ($locations as $location) : ?>
             <tr>
-                <td colspan="5">
+                <td><?= Html::encode($location->code) ?></td>
+                <td colspan="4">
                     <form method="post" class="location-inline-form">
                         <input type="hidden" name="_csrf" value="<?= Html::encode($csrf ?? '') ?>">
                         <input type="hidden" name="operation" value="update">
                         <input type="hidden" name="id" value="<?= $location->id ?>">
-                        <div class="location-inline-grid">
-                            <input name="code" maxlength="32" required value="<?= Html::encode($location->code) ?>" aria-label="Código">
+                        <div class="location-inline-grid location-inline-grid-compact">
                             <input name="name" maxlength="160" required value="<?= Html::encode($location->name) ?>" aria-label="Nome">
                             <input name="description" maxlength="255" value="<?= Html::encode($location->description ?? '') ?>" aria-label="Descrição">
-                            <label>
+                            <label class="inline-checkbox">
                                 <input type="checkbox" name="active" value="1"<?= $location->active ? ' checked' : '' ?>>
                                 Ativo
                             </label>
-                            <div class="form-actions">
+                            <div class="form-actions form-actions-compact">
                                 <button class="button button-secondary" type="submit">Salvar</button>
                                 <button
                                     class="button button-secondary"
