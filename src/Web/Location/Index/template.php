@@ -23,7 +23,7 @@ $this->setTitle('Locais — HECATE');
 <?php endif; ?>
 
 <div class="page-toolbar">
-    <button class="button button-with-icon" type="button" data-location-modal-create>
+    <button class="button button-with-icon button-bs-warning" type="button" data-location-modal-create>
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg>
         Cadastrar
     </button>
@@ -50,7 +50,7 @@ $this->setTitle('Locais — HECATE');
                 <td class="grid-actions">
                     <div class="grid-action-group">
                         <button
-                            class="icon-button"
+                            class="icon-button icon-button-primary"
                             type="button"
                             title="Editar"
                             aria-label="Editar local <?= Html::encode($location->name) ?>"
@@ -91,7 +91,7 @@ $this->setTitle('Locais — HECATE');
     <section class="app-modal" role="dialog" aria-modal="true" aria-labelledby="location-modal-title">
         <header class="app-modal__header">
             <h2 id="location-modal-title" data-location-modal-title>Cadastrar local</h2>
-            <button class="icon-button" type="button" data-location-modal-close title="Fechar" aria-label="Fechar">
+            <button class="icon-button icon-button-secondary" type="button" data-location-modal-close title="Fechar" aria-label="Fechar">
                 <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg>
             </button>
         </header>
@@ -112,16 +112,16 @@ $this->setTitle('Locais — HECATE');
                         <label for="location-modal-description">Descrição</label>
                         <input id="location-modal-description" name="description" maxlength="255" data-location-description>
                     </div>
+
+                    <label class="modal-form-check" data-location-active-field hidden>
+                        <input type="checkbox" name="active" value="1" data-location-active>
+                        <span>Ativo</span>
+                    </label>
                 </div>
 
-                <label class="inline-checkbox" data-location-active-field hidden>
-                    <input type="checkbox" name="active" value="1" data-location-active>
-                    Ativo
-                </label>
-
                 <div class="app-modal__footer">
-                    <button class="button button-secondary" type="button" data-location-modal-close>Cancelar</button>
-                    <button class="button button-with-icon" type="submit">
+                    <button class="button button-bs-secondary" type="button" data-location-modal-close>Cancelar</button>
+                    <button class="button button-with-icon button-bs-warning" type="submit">
                         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093z"/></svg>
                         Salvar
                     </button>
