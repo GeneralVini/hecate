@@ -18,17 +18,23 @@ final readonly class LocationListQuery
      * @param array{code?: string, name?: string, description?: string, active?: string} $filters
      * @return list<LocationListItem>
      */
-    public function page(array $filters, int $limit, int $offset): array
-    {
+    public function page(
+        array $filters,
+        int $limit,
+        int $offset,
+        string $sort = 'name',
+        string $direction = 'asc',
+    ): array {
         [$where, $params] = $this->buildWhere($filters);
         $limit = max(1, $limit);
         $offset = max(0, $offset);
+        $orderBy = $this->orderBy($sort, $direction);
 
         $sql = <<<SQL
 SELECT id, code, name, description, active
 FROM location
 WHERE {$where}
-ORDER BY lower(name), id
+ORDER BY {$orderBy}
 LIMIT {$limit} OFFSET {$offset}
 SQL;
 
@@ -83,6 +89,20 @@ SQL)->queryAll();
         }
 
         return $options;
+    }
+
+    private function orderBy(string $sort, string $direction): string
+    {
+        $column = match ($sort) {
+            'code' => 'lower(code)',
+            'description' => "lower(coalesce(description, ''))",
+            'active' => 'active',
+            default => 'lower(name)',
+        };
+
+        $sqlDirection = strtolower($direction) === 'desc' ? 'DESC' : 'ASC';
+
+        return sprintf('%s %s, id %s', $column, $sqlDirection, $sqlDirection);
     }
 
     /**
