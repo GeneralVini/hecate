@@ -10,6 +10,7 @@
             "@php ./yii serve"
         ],
         "lint": "phpcs",
+        "lint:fix": "phpcbf",
         "stan": "phpstan analyse --configuration=phpstan.neon --no-progress",
         "psalm": "psalm --config=psalm.xml --no-progress",
         "test": "phpunit --configuration=phpunit.xml",
@@ -18,6 +19,11 @@
             "@stan",
             "@psalm",
             "@test"
+        ],
+        "qa:all": "bash ./scripts/qa-all.sh",
+        "qa:fix": [
+            "@lint:fix",
+            "@qa:all"
         ]
     },
     "require": {
