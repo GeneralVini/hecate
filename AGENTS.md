@@ -64,24 +64,37 @@ O HECATE deve depender apenas de interfaces e capacidades homologadas desses com
 
 ## Frontend
 
-- Reutilizar componentes, layouts, grids, alerts e assets compartilhados.
+- A tecnologia do frontend permanece aberta: views Yii3 podem ser usadas, mas frontend separado por API também é opção válida.
+- Regras de domínio não devem depender da camada de apresentação.
+- Reutilizar componentes, layouts, grids, alerts e assets compartilhados na stack adotada.
 - Não criar CSS ou JavaScript específico por página salvo justificativa funcional clara.
-- Evitar duplicação visual e lógica de apresentação.
 
 ## Qualidade
 
-Para validação integral:
+Baseline oficial:
+
+```text
+Lefthook
+Rector
+ECS / PSR-12
+PHPStan
+Psalm
+PHPUnit
+```
+
+Autocorreções determinísticas:
+
+```bash
+composer fix
+```
+
+Validação integral:
 
 ```bash
 composer qa
 ```
 
-Baseline:
-
-- PHPCS / PSR-12;
-- PHPStan nível 8;
-- Psalm;
-- PHPUnit.
+O Lefthook executa Rector e ECS no `pre-commit` e o conjunto de validações no `pre-push`. Não tentar transformar erros semânticos de PHPStan, Psalm ou PHPUnit em autofix genérico.
 
 Ao alterar schema ou contratos de dados, localizar consumidores antes da mudança e atualizar os testes pertinentes.
 
