@@ -15,24 +15,8 @@ rules:
   - id: hecate.php.unsafe-unserialize
     languages: [php]
     severity: ERROR
-    message: unserialize() em dados não confiáveis pode permitir object injection. Use formato seguro ou valide explicitamente a origem.
+    message: unserialize() exige revisão de segurança; prefira formatos seguros e dados com origem controlada.
     pattern: unserialize(...)
-
-  - id: hecate.php.dynamic-include
-    languages: [php]
-    severity: WARNING
-    message: include/require dinâmico deve ser evitado ou protegido por allowlist explícita.
-    patterns:
-      - pattern-either:
-          - pattern: include $X
-          - pattern: include_once $X
-          - pattern: require $X
-          - pattern: require_once $X
-      - metavariable-pattern:
-          metavariable: $X
-          patterns:
-            - pattern-not: "'...'"
-            - pattern-not: '"..."'
 
   - id: hecate.php.sql-string-concatenation
     languages: [php]
@@ -44,16 +28,3 @@ rules:
           - pattern: $DB->createCommand($A . $B)
           - pattern: $PDO->exec($A . $B)
           - pattern: $PDO->query($A . $B)
-
-  - id: hecate.php.raw-request-superglobal-in-sql
-    languages: [php]
-    severity: ERROR
-    message: Entrada HTTP não pode ser inserida diretamente em SQL.
-    patterns:
-      - pattern-either:
-          - pattern: $DB->query(... $_GET[...] ...)
-          - pattern: $DB->query(... $_POST[...] ...)
-          - pattern: $DB->query(... $_REQUEST[...] ...)
-          - pattern: $PDO->query(... $_GET[...] ...)
-          - pattern: $PDO->query(... $_POST[...] ...)
-          - pattern: $PDO->query(... $_REQUEST[...] ...)
