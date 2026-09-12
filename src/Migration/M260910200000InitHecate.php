@@ -30,7 +30,7 @@ SQL);
         $b->execute(<<<'SQL'
 CREATE TABLE location (
     id SERIAL PRIMARY KEY,
-    code VARCHAR(32) NOT NULL UNIQUE,
+    code VARCHAR(32) GENERATED ALWAYS AS ('LOC-' || LPAD(id::TEXT, 6, '0')) STORED UNIQUE,
     name VARCHAR(160) NOT NULL,
     description VARCHAR(255),
     active BOOLEAN NOT NULL DEFAULT TRUE,
