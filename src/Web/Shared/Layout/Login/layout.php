@@ -40,6 +40,7 @@ $this->beginPage();
     <div class="login-form-area">
         <?= $content ?>
     </div>
+    <?php require dirname(__DIR__, 2) . '/Partial/institutional-footer.php'; ?>
 </main>
 <?php $this->endBody() ?>
 </body>
