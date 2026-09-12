@@ -19,6 +19,7 @@
         "test": "phpunit --configuration=phpunit.xml",
         "security:dependencies": "@composer audit --locked --no-interaction",
         "security:semgrep": "bash scripts/semgrep-scan.sh",
+        "security:dast": "bash scripts/zap-scan.sh",
         "security": [
             "@security:dependencies",
             "@psalm:taint",
