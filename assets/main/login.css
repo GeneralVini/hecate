@@ -32,19 +32,19 @@
 }
 
 .login-form-area {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: auto;
-    bottom: clamp(82px, 12vh, 118px);
+    position: fixed !important;
+    left: 50% !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: clamp(64px, 10vh, 92px) !important;
     z-index: 2;
     width: min(340px, calc(100vw - 40px));
     min-width: 0;
     display: flex;
     justify-content: center;
     padding: 0;
-    margin-inline: auto;
-    transform: none;
+    margin: 0 !important;
+    transform: translateX(-50%) !important;
     background: transparent;
     border-left: 0;
     overflow: visible;
@@ -86,7 +86,7 @@
 
 @media (max-height: 760px) and (min-width: 821px) {
     .login-form-area {
-        bottom: clamp(70px, 11vh, 96px);
+        bottom: clamp(58px, 9vh, 76px) !important;
     }
 
     .login-panel {
@@ -99,16 +99,6 @@
 
     .login-submit {
         margin-top: 12px;
-    }
-}
-
-@media (max-width: 1100px) and (min-width: 821px) {
-    .login-form-area {
-        left: 0;
-        right: 0;
-        bottom: clamp(74px, 11vh, 100px);
-        width: min(320px, calc(100vw - 32px));
-        margin-inline: auto;
     }
 }
 
@@ -133,16 +123,11 @@
     }
 
     .login-form-area {
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: auto;
-        bottom: clamp(64px, 10vh, 88px);
+        left: 50% !important;
+        right: auto !important;
+        bottom: clamp(54px, 8vh, 72px) !important;
         width: min(320px, calc(100vw - 32px));
-        padding: 0;
-        margin-inline: auto;
-        transform: none;
-        background: transparent;
+        transform: translateX(-50%) !important;
     }
 
     .login-panel {
@@ -153,7 +138,7 @@
 
 @media (max-width: 520px) {
     .login-form-area {
-        bottom: clamp(56px, 9vh, 76px);
+        bottom: clamp(48px, 7vh, 64px) !important;
         width: min(300px, calc(100vw - 24px));
     }
 
