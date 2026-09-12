@@ -10,6 +10,8 @@ use Yiisoft\Html\Html;
 /** @var array<string,string> $errors */
 /** @var array{type: string, message: string}|null $flash */
 /** @var array{code: string, name: string, description: string, active: string} $filters */
+/** @var string $sort */
+/** @var string $direction */
 /** @var int $page */
 /** @var int $pageCount */
 /** @var int $pageSize */
@@ -18,14 +20,28 @@ use Yiisoft\Html\Html;
 
 $this->setTitle('Locais — HECATE');
 
-$pageUrl = static function (int $targetPage) use ($filters): string {
+$pageUrl = static function (int $targetPage) use ($filters, $sort, $direction): string {
     $query = array_filter(
-        [...$filters, 'page' => $targetPage],
+        [...$filters, 'sort' => $sort, 'direction' => $direction, 'page' => $targetPage],
         static fn (string|int $value): bool => $value !== '',
     );
 
     return '?' . http_build_query($query);
 };
+
+$sortUrl = static function (string $column) use ($filters, $sort, $direction): string {
+    $nextDirection = $sort === $column && $direction === 'asc' ? 'desc' : 'asc';
+    $query = array_filter(
+        [...$filters, 'sort' => $column, 'direction' => $nextDirection],
+        static fn (string $value): bool => $value !== '',
+    );
+
+    return '?' . http_build_query($query);
+};
+
+$sortIndicator = static fn (string $column): string => $sort === $column
+    ? ($direction === 'asc' ? '↑' : '↓')
+    : '↕';
 ?>
 <section class="page-header">
     <p class="eyebrow">Organização</p>
@@ -60,6 +76,9 @@ $pageUrl = static function (int $targetPage) use ($filters): string {
 
 <section class="table-card" aria-label="Locais cadastrados">
     <form class="data-grid-filters" method="get">
+        <input type="hidden" name="sort" value="<?= Html::encode($sort) ?>">
+        <input type="hidden" name="direction" value="<?= Html::encode($direction) ?>">
+
         <div class="data-grid-filter-field">
             <label for="filter-code">Código</label>
             <input id="filter-code" name="code" value="<?= Html::encode($filters['code']) ?>" placeholder="Buscar código">
@@ -81,7 +100,7 @@ $pageUrl = static function (int $targetPage) use ($filters): string {
             </select>
         </div>
         <div class="data-grid-filter-actions">
-            <button class="button button-with-icon button-bs-primary" type="submit" title="Filtrar">
+            <button class="button button-with-icon button-bs-primary" type="submit" title="Filtrar" hidden>
                 <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .4.8L10 7.667V13.5a.5.5 0 0 1-.757.429l-3-1.8A.5.5 0 0 1 6 11.7V7.667L1.6 1.8a.5.5 0 0 1-.1-.3"/></svg>
                 Filtrar
             </button>
@@ -95,10 +114,14 @@ $pageUrl = static function (int $targetPage) use ($filters): string {
     <table class="data-grid">
         <thead>
         <tr>
-            <th>Código</th>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th>Ativo</th>
+            <?php foreach (['code' => 'Código', 'name' => 'Nome', 'description' => 'Descrição', 'active' => 'Ativo'] as $column => $label) : ?>
+                <th aria-sort="<?= $sort === $column ? ($direction === 'asc' ? 'ascending' : 'descending') : 'none' ?>">
+                    <a class="data-grid-sort" href="<?= Html::encode($sortUrl($column)) ?>">
+                        <span><?= Html::encode($label) ?></span>
+                        <span class="data-grid-sort__indicator" aria-hidden="true"><?= $sortIndicator($column) ?></span>
+                    </a>
+                </th>
+            <?php endforeach; ?>
             <th class="grid-actions">Ações</th>
         </tr>
         </thead>
