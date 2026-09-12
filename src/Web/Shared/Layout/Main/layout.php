@@ -8,6 +8,8 @@ use Yiisoft\Html\Html;
 /**
  * @var App\Shared\ApplicationParams $applicationParams
  * @var Yiisoft\Assets\AssetManager $assetManager
+ * @var bool $demoMode
+ * @var string $demoScenario
  * @var string $content
  * @var Yiisoft\View\WebView $this
  * @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator
@@ -42,6 +44,8 @@ $routeUrl = static function (string $route) use ($urlGenerator, $basePath): stri
 };
 
 $brandingUrl = static fn (string $file): string => $basePath . '/branding/' . ltrim($file, '/');
+$logoutUrl = $basePath === '' ? '/' : $basePath . '/';
+$demoScenarioUrl = static fn (string $scenario): string => $basePath . '/demo/select?scenario=' . $scenario;
 
 $this->beginPage();
 ?>
@@ -66,6 +70,38 @@ $this->beginPage();
             display: inline-flex;
             align-items: center;
             justify-content: center;
+        }
+        .workspace-demo-switcher {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto;
+            margin-right: 12px;
+        }
+        .workspace-demo-switcher__label {
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            opacity: .72;
+        }
+        .workspace-demo-switcher__link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 28px;
+            padding: 4px 9px;
+            border: 1px solid rgba(210, 173, 82, .28);
+            border-radius: 6px;
+            color: inherit;
+            text-decoration: none;
+            font-size: .76rem;
+            font-weight: 700;
+        }
+        .workspace-demo-switcher__link[aria-current="true"] {
+            border-color: rgba(240, 208, 123, .72);
+            color: var(--hecate-gold-strong);
+            background: rgba(210, 173, 82, .08);
         }
     </style>
 </head>
@@ -126,7 +162,22 @@ $this->beginPage();
                 <span class="breadcrumb-separator">/</span>
                 <span><?= Html::encode($this->getTitle()) ?></span>
             </div>
-            <a class="workspace-login-link" href="<?= Html::encode($routeUrl('login')) ?>">Sair</a>
+            <?php if ($demoMode) : ?>
+                <div class="workspace-demo-switcher" aria-label="Cenário de demonstração">
+                    <span class="workspace-demo-switcher__label">Demo</span>
+                    <a
+                        class="workspace-demo-switcher__link"
+                        href="<?= Html::encode($demoScenarioUrl('dctim')) ?>"
+                        aria-current="<?= $demoScenario === 'dctim' ? 'true' : 'false' ?>"
+                    >DCTIM</a>
+                    <a
+                        class="workspace-demo-switcher__link"
+                        href="<?= Html::encode($demoScenarioUrl('ctim')) ?>"
+                        aria-current="<?= $demoScenario === 'ctim' ? 'true' : 'false' ?>"
+                    >CTIM</a>
+                </div>
+            <?php endif; ?>
+            <a class="workspace-login-link" href="<?= Html::encode($logoutUrl) ?>">Sair</a>
         </div>
 
         <main class="app-content">
