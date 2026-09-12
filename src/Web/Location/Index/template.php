@@ -8,6 +8,7 @@ use Yiisoft\Html\Html;
 /** @var Yiisoft\View\WebView $this */
 /** @var list<LocationListItem> $locations */
 /** @var array<string,string> $errors */
+/** @var array{type: string, message: string}|null $flash */
 /** @var string|null $csrf */
 
 $this->setTitle('Locais — HECATE');
@@ -18,8 +19,22 @@ $this->setTitle('Locais — HECATE');
     <p>Cadastre os locais físicos utilizados para vincular impressoras sem depender de texto livre.</p>
 </section>
 
+<?php if ($flash !== null) : ?>
+    <div class="flash-message flash-message-<?= Html::encode($flash['type']) ?>" role="status">
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M7 11.5a.5.5 0 0 0 1 0V7a.5.5 0 0 0-1 0zm.5-6.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5"/>
+        </svg>
+        <span><?= Html::encode($flash['message']) ?></span>
+    </div>
+<?php endif; ?>
+
 <?php if (isset($errors['form'])) : ?>
-    <p class="field-error" role="alert"><?= Html::encode($errors['form']) ?></p>
+    <div class="flash-message flash-message-danger" role="alert">
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.964 0L.165 13.233c-.457.778.091 1.767.982 1.767h13.706c.89 0 1.438-.99.982-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+        </svg>
+        <span><?= Html::encode($errors['form']) ?></span>
+    </div>
 <?php endif; ?>
 
 <div class="page-toolbar">
@@ -91,7 +106,7 @@ $this->setTitle('Locais — HECATE');
     <section class="app-modal" role="dialog" aria-modal="true" aria-labelledby="location-modal-title">
         <header class="app-modal__header">
             <h2 id="location-modal-title" data-location-modal-title>Cadastrar local</h2>
-            <button class="icon-button icon-button-secondary" type="button" data-location-modal-close title="Fechar" aria-label="Fechar">
+            <button class="icon-button icon-button-danger" type="button" data-location-modal-close title="Fechar" aria-label="Fechar">
                 <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg>
             </button>
         </header>
@@ -113,8 +128,9 @@ $this->setTitle('Locais — HECATE');
                         <input id="location-modal-description" name="description" maxlength="255" data-location-description>
                     </div>
 
-                    <label class="modal-form-check" data-location-active-field hidden>
+                    <label class="form-switch" data-location-active-field hidden>
                         <input type="checkbox" name="active" value="1" data-location-active>
+                        <span class="form-switch__control" aria-hidden="true"></span>
                         <span>Ativo</span>
                     </label>
                 </div>
