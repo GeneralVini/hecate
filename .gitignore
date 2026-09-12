@@ -12,6 +12,8 @@
 /.psalm-cache/
 /coverage/
 
+/lefthook-local.yml
+
 /.idea/
 *.log
 .env
