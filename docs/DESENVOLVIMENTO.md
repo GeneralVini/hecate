@@ -29,6 +29,21 @@ O `composer.lock` é obrigatório. O bootstrap usa `composer install` e não dev
 
 O `make setup` valida PHP, Composer, Git e Lefthook; instala as dependências a partir do lockfile; valida o Composer; confirma ECS, Rector, PHPStan, Psalm e PHPUnit; executa `lefthook install` e `lefthook validate`; e roda o baseline de QA. Se o Lefthook estiver ausente, o bootstrap mostra os comandos de instalação para Ubuntu/Kubuntu/Debian e encerra sem alterar o sistema.
 
+### 2.1. Alteração de dependências de desenvolvimento
+
+`composer update` é operação de manutenção do conjunto de dependências e não faz parte da instalação normal de uma máquina nova. Quando `composer.json` for alterado intencionalmente, o responsável pela mudança deve atualizar e versionar o lockfile antes de considerar a alteração concluída.
+
+Na transição atual para Rector/ECS, executar uma vez:
+
+```bash
+composer update rector/rector symplify/easy-coding-standard phpstan/phpstan --with-all-dependencies
+composer validate --no-interaction
+composer fix
+composer qa
+```
+
+Revisar as alterações e versionar `composer.lock`. Depois disso, instalações novas e CI devem continuar usando somente `composer install`.
+
 Variáveis locais de referência para PostgreSQL:
 
 ```bash
