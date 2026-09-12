@@ -34,14 +34,12 @@ final readonly class Action
                 $operation = $this->stringValue($data, 'operation');
                 if ($operation === 'create') {
                     $this->store->create(
-                        $this->requiredText($data, 'code', 32, 'Código'),
                         $this->requiredText($data, 'name', 160, 'Nome'),
                         $this->optionalText($data, 'description', 255, 'Descrição'),
                     );
                 } elseif ($operation === 'update') {
                     $this->store->update(
                         $this->positiveInt($data, 'id'),
-                        $this->requiredText($data, 'code', 32, 'Código'),
                         $this->requiredText($data, 'name', 160, 'Nome'),
                         $this->optionalText($data, 'description', 255, 'Descrição'),
                         ($data['active'] ?? null) === '1',
