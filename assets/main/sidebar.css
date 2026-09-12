@@ -1,0 +1,24 @@
+.sidebar-nav p {
+    margin: 18px 18px 5px;
+    padding-top: 14px;
+    font-size: .74rem;
+    line-height: 1.2;
+    letter-spacing: .12em;
+}
+
+.sidebar-nav a {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+
+.sidebar-nav a + a {
+    margin-top: 0;
+}
+
+.menu-icon {
+    width: 18px;
+    height: 18px;
+    flex-basis: 18px;
+}
