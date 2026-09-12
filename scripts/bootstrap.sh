@@ -55,6 +55,7 @@ printf '\n'
 require_command php PHP
 require_command composer Composer
 require_command git Git
+require_command lefthook Lefthook
 
 if [[ ! -f composer.json ]]; then
     error 'composer.json não encontrado na raiz do projeto.'
@@ -78,7 +79,7 @@ info 'Validando composer.json...'
 composer validate --no-interaction
 ok 'Composer válido'
 
-for executable in phpcs phpstan psalm phpunit; do
+for executable in ecs rector phpstan psalm phpunit; do
     if [[ ! -x "vendor/bin/$executable" ]]; then
         error "Executável esperado não encontrado: vendor/bin/$executable"
         exit 1
@@ -87,8 +88,14 @@ done
 ok 'Ferramentas de qualidade instaladas em vendor/bin'
 
 printf '\n'
+info 'Instalando hooks Git do Lefthook...'
+lefthook install
+ok 'Hooks Git instalados'
+
+printf '\n'
 info 'Executando verificações de qualidade...'
-run_qa_step 'PHPCS / PSR-12' lint
+run_qa_step 'ECS / PSR-12' lint
+run_qa_step 'Rector dry-run' rector
 run_qa_step 'PHPStan' stan
 run_qa_step 'Psalm' psalm
 run_qa_step 'PHPUnit' test
@@ -98,9 +105,13 @@ line
 printf ' Ambiente HECATE Yii3 pronto para desenvolvimento.\n'
 line
 printf '\nComandos disponíveis:\n\n'
+printf '  composer fix\n'
 printf '  composer lint\n'
+printf '  composer rector\n'
 printf '  composer stan\n'
 printf '  composer psalm\n'
 printf '  composer test\n'
 printf '  composer qa\n'
 printf '  composer serve\n'
+printf '  lefthook run pre-commit\n'
+printf '  lefthook run pre-push\n'
