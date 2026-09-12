@@ -36,9 +36,9 @@
     left: 50% !important;
     right: auto !important;
     top: auto !important;
-    bottom: clamp(64px, 10vh, 92px) !important;
+    bottom: clamp(72px, 12vh, 92px) !important;
     z-index: 2;
-    width: min(340px, calc(100vw - 40px));
+    width: min(320px, calc(100vw - 40px));
     min-width: 0;
     display: flex;
     justify-content: center;
@@ -52,12 +52,15 @@
 
 .login-panel {
     width: 100%;
-    padding: 16px 18px 18px;
+    padding: 10px 14px 12px;
     color: #fff;
-    border: 1px solid rgba(210, 173, 82, .14);
+    border: 1.5px solid rgba(240, 208, 123, .88);
     border-radius: 12px;
-    background: linear-gradient(180deg, rgba(7, 24, 45, .66), rgba(3, 15, 30, .64));
-    box-shadow: 0 14px 34px rgba(0, 0, 0, .2);
+    background: linear-gradient(180deg, rgba(7, 24, 45, .72), rgba(3, 15, 30, .70));
+    box-shadow:
+        0 0 0 1px rgba(210, 173, 82, .12),
+        0 0 20px rgba(210, 173, 82, .16),
+        0 14px 34px rgba(0, 0, 0, .22);
     backdrop-filter: blur(10px);
 }
 
@@ -67,38 +70,43 @@
 
 .login-fields {
     display: grid;
-    gap: 5px;
+    gap: 3px;
 }
 
 .login-fields label {
-    margin-top: 5px;
-    font-size: .74rem;
+    margin-top: 2px;
+    font-size: .72rem;
+    line-height: 1.1;
 }
 
 .login-fields input {
-    min-height: 40px;
-    padding-inline: 12px;
+    min-height: 36px;
+    padding-inline: 11px;
 }
 
 .login-submit {
-    margin-top: 14px;
+    min-height: 38px;
+    margin-top: 9px;
+    padding-block: 8px;
 }
 
 @media (max-height: 760px) and (min-width: 821px) {
     .login-form-area {
-        bottom: clamp(58px, 9vh, 76px) !important;
+        bottom: clamp(64px, 10vh, 78px) !important;
     }
 
     .login-panel {
-        padding: 14px 16px 16px;
+        padding: 9px 13px 10px;
     }
 
     .login-fields input {
-        min-height: 38px;
+        min-height: 34px;
     }
 
     .login-submit {
-        margin-top: 12px;
+        min-height: 36px;
+        margin-top: 7px;
+        padding-block: 7px;
     }
 }
 
@@ -126,7 +134,7 @@
         left: 50% !important;
         right: auto !important;
         bottom: clamp(54px, 8vh, 72px) !important;
-        width: min(320px, calc(100vw - 32px));
+        width: min(310px, calc(100vw - 32px));
         transform: translateX(-50%) !important;
     }
 
@@ -139,10 +147,10 @@
 @media (max-width: 520px) {
     .login-form-area {
         bottom: clamp(48px, 7vh, 64px) !important;
-        width: min(300px, calc(100vw - 24px));
+        width: min(290px, calc(100vw - 24px));
     }
 
     .login-panel {
-        padding: 14px 16px 16px;
+        padding: 9px 12px 10px;
     }
 }
