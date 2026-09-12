@@ -13,7 +13,7 @@
 .hecate-spark {
     --spark-intensity: .52;
     position: absolute;
-    z-index: 2;
+    z-index: 3;
     width: 52px;
     height: 52px;
     display: grid;
@@ -33,11 +33,13 @@
     animation: hecate-spark-breathe 4.8s ease-in-out infinite;
 }
 
+/* The identity easter egg is anchored to the HECATE logo above the portals. */
 .hecate-spark--identity {
-    left: 23.5%;
-    top: 16.5%;
+    left: 48.5%;
+    top: 11.5%;
 }
 
+/* The purpose easter egg remains anchored to the three technical portals. */
 .hecate-spark--purpose {
     left: 48.5%;
     top: 29.5%;
@@ -71,6 +73,64 @@
 .hecate-spark.is-near::after {
     opacity: .82;
     transform: scale(1);
+}
+
+/* CSS flame overlay aligned with the torch in the login artwork. */
+.hecate-torch-flame {
+    position: absolute;
+    left: 23.45%;
+    top: 10.9%;
+    z-index: 2;
+    width: 34px;
+    height: 68px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    filter: drop-shadow(0 0 8px rgba(255, 148, 24, .42));
+    opacity: .88;
+}
+
+.hecate-torch-flame span,
+.hecate-torch-flame i,
+.hecate-torch-flame b {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    display: block;
+    border-radius: 58% 42% 62% 38% / 72% 58% 42% 28%;
+    transform-origin: 50% 100%;
+}
+
+.hecate-torch-flame span {
+    width: 30px;
+    height: 64px;
+    margin-left: -15px;
+    background: radial-gradient(ellipse at 50% 72%, rgba(255, 214, 84, .12) 0 18%, rgba(255, 145, 12, .88) 48%, rgba(255, 70, 0, .58) 72%, transparent 100%);
+    animation: hecate-flame-outer .95s ease-in-out infinite alternate;
+}
+
+.hecate-torch-flame i {
+    width: 20px;
+    height: 48px;
+    margin-left: -10px;
+    background: radial-gradient(ellipse at 50% 75%, #fff4b6 0 18%, #ffd65a 34%, #ff9c1a 62%, rgba(255, 92, 0, .2) 86%, transparent 100%);
+    animation: hecate-flame-inner .72s ease-in-out infinite alternate-reverse;
+}
+
+.hecate-torch-flame b {
+    width: 9px;
+    height: 31px;
+    margin-left: -4.5px;
+    background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,239,160,.96) 36%, rgba(255,184,56,.72) 74%, transparent 100%);
+    filter: blur(.4px);
+    animation: hecate-flame-core .56s ease-in-out infinite alternate;
+}
+
+.hecate-discovery:has(.hecate-spark--identity:hover) .hecate-torch-flame,
+.hecate-discovery:has(.hecate-spark--identity:focus-visible) .hecate-torch-flame,
+.hecate-discovery:has(.hecate-spark--identity.is-near) .hecate-torch-flame,
+.login-shell[data-hecate-discovery="identity"] .hecate-torch-flame {
+    opacity: 1;
+    filter: drop-shadow(0 0 13px rgba(255, 163, 32, .74)) drop-shadow(0 0 24px rgba(255, 118, 0, .28));
 }
 
 .hecate-discovery-panel {
@@ -196,6 +256,22 @@
     86% { opacity: .68; transform: translate(-50%, -50%) scale(.94); }
 }
 
+@keyframes hecate-flame-outer {
+    0% { transform: translateX(-2px) scale(.92, 1.02) rotate(-3deg); opacity: .72; }
+    45% { transform: translateX(1px) scale(1.05, .95) rotate(2deg); opacity: .96; }
+    100% { transform: translateX(-1px) scale(.97, 1.08) rotate(-1deg); opacity: .82; }
+}
+
+@keyframes hecate-flame-inner {
+    0% { transform: translateY(2px) scale(.92, .98) rotate(2deg); opacity: .76; }
+    100% { transform: translateY(-2px) scale(1.08, 1.06) rotate(-2deg); opacity: 1; }
+}
+
+@keyframes hecate-flame-core {
+    0% { transform: translateY(2px) scale(.86, .95); opacity: .78; }
+    100% { transform: translateY(-3px) scale(1.12, 1.08); opacity: 1; }
+}
+
 @keyframes hecate-reveal {
     from { opacity: 0; transform: translateY(7px); filter: blur(3px); }
     to { opacity: 1; transform: translateY(0); filter: blur(0); }
@@ -208,13 +284,19 @@
     }
 
     .hecate-spark--identity {
-        left: 23.5%;
-        top: 16.5%;
+        left: 48.5%;
+        top: 11.5%;
     }
 
     .hecate-spark--purpose {
         left: 48.5%;
         top: 29.5%;
+    }
+
+    .hecate-torch-flame {
+        left: 23.45%;
+        top: 10.9%;
+        transform: translate(-50%, -50%) scale(.84);
     }
 
     .hecate-discovery-panel {
@@ -232,6 +314,9 @@
 
 @media (prefers-reduced-motion: reduce) {
     .hecate-spark,
+    .hecate-torch-flame span,
+    .hecate-torch-flame i,
+    .hecate-torch-flame b,
     .hecate-discovery-panel,
     .login-shell[data-hecate-discovery] .login-art,
     .hecate-discovery-panel__content {
