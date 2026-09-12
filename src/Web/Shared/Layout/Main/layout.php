@@ -20,7 +20,7 @@ $this->addJsFiles($assetManager->getJsFiles());
 $this->addJsStrings($assetManager->getJsStrings());
 $this->addJsVars($assetManager->getJsVars());
 
-$scriptName = (string) ($_SERVER['SCRIPT_NAME'] ?? '');
+$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
 $basePath = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
 if ($basePath === '.' || $basePath === '/') {
     $basePath = '';
