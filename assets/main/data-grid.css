@@ -126,6 +126,37 @@
     filter: none;
 }
 
+.flash-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: .88rem;
+    font-weight: 700;
+}
+
+.flash-message svg {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    fill: currentColor;
+}
+
+.flash-message-success {
+    border-color: #198754;
+    background: rgba(25, 135, 84, .16);
+    color: #75d9a6;
+}
+
+.flash-message-danger {
+    border-color: #dc3545;
+    background: rgba(220, 53, 69, .16);
+    color: #ff9aa5;
+}
+
 .data-grid tbody tr:nth-child(even) {
     background: rgba(255, 255, 255, .025);
 }
@@ -245,22 +276,60 @@
     box-shadow: 0 0 0 3px rgba(13, 110, 253, .18);
 }
 
-.app-modal .modal-form-check {
+.form-switch {
     grid-column: 1 / -1;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    min-height: 30px;
+    gap: 10px;
+    width: fit-content;
+    min-height: 32px;
     margin: 0;
     color: #e5edf6;
+    font-weight: 700;
+    cursor: pointer;
 }
 
-.app-modal .modal-form-check input {
-    width: 1rem;
-    height: 1rem;
-    min-height: 0;
-    margin: 0;
-    accent-color: #0d6efd;
+.form-switch input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.form-switch__control {
+    position: relative;
+    width: 42px;
+    height: 22px;
+    flex: 0 0 auto;
+    border: 1px solid #6c757d;
+    border-radius: 999px;
+    background: #6c757d;
+    transition: border-color .16s ease, background .16s ease;
+}
+
+.form-switch__control::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .35);
+    transition: transform .16s ease;
+}
+
+.form-switch input:checked + .form-switch__control {
+    border-color: #198754;
+    background: #198754;
+}
+
+.form-switch input:checked + .form-switch__control::after {
+    transform: translateX(20px);
+}
+
+.form-switch input:focus-visible + .form-switch__control {
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, .22);
 }
 
 .app-modal__footer {
@@ -290,7 +359,7 @@ body.has-open-modal {
         grid-template-columns: 1fr;
     }
 
-    .app-modal .modal-form-check {
+    .form-switch {
         grid-column: 1;
     }
 }
