@@ -1,0 +1,65 @@
+.form-card-compact {
+    max-width: 920px;
+    padding: 16px 18px;
+}
+
+.form-grid {
+    display: grid;
+    gap: 12px 16px;
+}
+
+.form-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-field label {
+    margin: 0 0 5px;
+    font-size: .78rem;
+}
+
+.form-card-compact input,
+.form-card-compact select,
+.location-inline-form input,
+.location-inline-form select {
+    min-height: 38px;
+    padding: 0 11px;
+}
+
+.form-actions-compact {
+    margin-top: 14px;
+}
+
+.form-actions-compact .button {
+    padding: 8px 12px;
+}
+
+.location-inline-grid-compact {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(220px, 1.4fr) auto auto;
+    align-items: center;
+    gap: 8px;
+}
+
+.inline-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.inline-checkbox input {
+    width: auto;
+    min-height: auto;
+}
+
+.location-inline-grid-compact .form-actions {
+    margin-top: 0;
+}
+
+@media (max-width: 900px) {
+    .form-grid-2,
+    .location-inline-grid-compact {
+        grid-template-columns: 1fr;
+    }
+}
