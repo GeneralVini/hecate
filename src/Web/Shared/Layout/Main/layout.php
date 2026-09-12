@@ -79,11 +79,6 @@ $this->beginPage();
         <div class="topbar-context" aria-label="Contexto operacional">
             <span><strong>OM</strong> não selecionada</span>
             <span><strong>Jobs</strong> 0</span>
-            <span><strong>Governança</strong> POC</span>
-        </div>
-        <div class="topbar-user">
-            <span class="status-dot" aria-hidden="true"></span>
-            <span>Desenvolvimento</span>
         </div>
     </header>
 
