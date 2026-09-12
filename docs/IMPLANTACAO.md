@@ -380,3 +380,64 @@ A operação deve mostrar, conforme o fluxo aplicável:
 Manter reenvio controlado após falhas e estado persistente suficiente para retomada. Confirmar recebimento antes de considerar o envio federado concluído e tratar correções conforme o contrato de [ARQUITETURA.md](ARQUITETURA.md#132-contrato-de-sincronização).
 
 Backup/restore deve considerar identidade da instalação, credenciais protegidas e estado de sincronização. Homologar recuperação da mesma instância, rotação/revogação da credencial M2M e prevenção de envios concorrentes por cópias restauradas. Atualizações precisam preservar compatibilidade do contrato federado além dos schemas locais.
+
+## 19. HECATE Demo
+
+O **HECATE Demo** é uma variante instalável permanente para demonstração e treinamento, não um modo temporário a ser removido após o desenvolvimento.
+
+A edição é habilitada por configuração:
+
+```env
+HECATE_EDITION=demo
+HECATE_DEMO_DCTIM_DB_NAME=hecate_demo_dctim
+HECATE_DEMO_CTIM_DB_NAME=hecate_demo_ctim
+```
+
+A edição normal usa `HECATE_EDITION=local` ou a ausência da variável e continua conectada ao database `HECATE_DB_NAME` da OM.
+
+### 19.1. Isolamento dos cenários
+
+Os cenários demonstrativos representam duas instalações locais independentes:
+
+```text
+hecate_demo_dctim -> DCTIM -> contrato por franquia
+hecate_demo_ctim  -> CTIM  -> contrato por consumo
+```
+
+Não existe multi-OM no HECATE Local. A seleção DCTIM/CTIM é exclusiva da edição demo e deve ser apresentada ao usuário como **Cenário de demonstração**, não como troca normal de OM.
+
+### 19.2. Cenários iniciais
+
+DCTIM:
+
+- franquia mensal de 5.000 páginas P&B;
+- franquia mensal de 1.000 páginas coloridas;
+- cobrança adicional quando a franquia for ultrapassada;
+- seed determinística em `demo/seed-dctim.sql`.
+
+CTIM:
+
+- contrato por consumo;
+- preço fixo por página P&B;
+- preço fixo por página colorida;
+- seed determinística em `demo/seed-ctim.sql`.
+
+Os valores financeiros são fictícios e devem ser identificados como dados demonstrativos.
+
+### 19.3. Reset dos bancos demo
+
+Os bancos demonstrativos são descartáveis. Para recriá-los integralmente durante o desenvolvimento:
+
+```bash
+bash tools/reset-hecate-demo.sh
+```
+
+O script atua somente sobre os databases configurados como DCTIM e CTIM da edição demo, reaplica as migrations normais do produto e recarrega os seeds. O database normal `hecate` não deve ser removido nem alterado por esse procedimento.
+
+O usuário PostgreSQL empregado no reset precisa ter permissão para criar/remover os databases demo.
+
+### 19.4. Evolução dos dashboards
+
+Dashboards da edição demo devem consumir as mesmas queries/read models que a instalação real. Não criar tabelas exclusivas de demonstração ou números hardcoded para simular jobs, usuários, militares, telemetria ou custos ainda não modelados no domínio.
+
+Quando o schema funcional correspondente existir, os seeds demo devem ser ampliados para cobrir histórico determinístico de 12 meses e filtros de hoje, 7 dias, 30 dias, 3, 6, 9 e 12 meses.
