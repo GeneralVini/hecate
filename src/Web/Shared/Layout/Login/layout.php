@@ -41,6 +41,7 @@ $this->beginPage();
     <div class="hecate-discovery" aria-label="Descobertas HECATE">
         <button class="hecate-spark hecate-spark--identity" type="button" data-hecate-hotspot="identity" aria-label="Descobrir a origem do nome HECATE">✦</button>
         <button class="hecate-spark hecate-spark--purpose" type="button" data-hecate-hotspot="purpose" aria-label="Descobrir a função da plataforma">✦</button>
+        <div class="hecate-torch-flame" aria-hidden="true"><span></span><i></i><b></b></div>
     </div>
 
     <section id="hecate-discovery-panel" class="hecate-discovery-panel" data-hecate-panel aria-live="polite">
