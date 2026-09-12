@@ -12,15 +12,25 @@ final readonly class LocationListQuery
     {
     }
 
-    /** @return list<LocationListItem> */
-    public function all(): array
+    /**
+     * @param array{code?: string, name?: string, description?: string, active?: string} $filters
+     * @return list<LocationListItem>
+     */
+    public function page(array $filters, int $limit, int $offset): array
     {
-        $rows = $this->db->createCommand(<<<'SQL'
+        [$where, $params] = $this->buildWhere($filters);
+        $limit = max(1, $limit);
+        $offset = max(0, $offset);
+
+        $sql = <<<SQL
 SELECT id, code, name, description, active
 FROM location
-WHERE deleted_at IS NULL
+WHERE {$where}
 ORDER BY lower(name), id
-SQL)->queryAll();
+LIMIT {$limit} OFFSET {$offset}
+SQL;
+
+        $rows = $this->db->createCommand($sql)->bindValues($params)->queryAll();
 
         $items = [];
         foreach ($rows as $row) {
@@ -35,6 +45,24 @@ SQL)->queryAll();
         }
 
         return $items;
+    }
+
+    /** @param array{code?: string, name?: string, description?: string, active?: string} $filters */
+    public function count(array $filters): int
+    {
+        [$where, $params] = $this->buildWhere($filters);
+        $value = $this->db
+            ->createCommand("SELECT COUNT(*) FROM location WHERE {$where}")
+            ->bindValues($params)
+            ->queryScalar();
+
+        return (int) $value;
+    }
+
+    /** @return list<LocationListItem> */
+    public function all(): array
+    {
+        return $this->page([], PHP_INT_MAX, 0);
     }
 
     /** @return array<int,string> */
@@ -53,5 +81,35 @@ SQL)->queryAll();
         }
 
         return $options;
+    }
+
+    /**
+     * @param array{code?: string, name?: string, description?: string, active?: string} $filters
+     * @return array{0: string, 1: array<string, string|bool>}
+     */
+    private function buildWhere(array $filters): array
+    {
+        $clauses = ['deleted_at IS NULL'];
+        $params = [];
+
+        foreach (['code', 'name', 'description'] as $field) {
+            $value = trim($filters[$field] ?? '');
+            if ($value === '') {
+                continue;
+            }
+
+            $parameter = ':' . $field;
+            $clauses[] = sprintf('LOWER(COALESCE(%s, \'\')) LIKE %s', $field, $parameter);
+            $params[$parameter] = '%' . mb_strtolower($value) . '%';
+        }
+
+        $active = $filters['active'] ?? '';
+        if ($active === '1') {
+            $clauses[] = 'active = TRUE';
+        } elseif ($active === '0') {
+            $clauses[] = 'active = FALSE';
+        }
+
+        return [implode(' AND ', $clauses), $params];
     }
 }
