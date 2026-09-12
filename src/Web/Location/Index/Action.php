@@ -14,6 +14,8 @@ use Yiisoft\Yii\View\Renderer\WebViewRenderer;
 
 final readonly class Action
 {
+    private const PAGE_SIZE = 10;
+
     public function __construct(
         private WebViewRenderer $viewRenderer,
         private LocationListQuery $locations,
@@ -66,10 +68,22 @@ final readonly class Action
             }
         }
 
+        $query = $request->getQueryParams();
+        $filters = $this->filters($query);
+        $total = $this->locations->count($filters);
+        $pageCount = max(1, (int) ceil($total / self::PAGE_SIZE));
+        $page = min($this->pageNumber($query['page'] ?? null), $pageCount);
+        $offset = ($page - 1) * self::PAGE_SIZE;
+
         return $this->viewRenderer->render(__DIR__ . '/template', [
-            'locations' => $this->locations->all(),
+            'locations' => $this->locations->page($filters, self::PAGE_SIZE, $offset),
             'errors' => $errors,
-            'flash' => $this->flashMessage($request->getQueryParams()['flash'] ?? null),
+            'flash' => $this->flashMessage($query['flash'] ?? null),
+            'filters' => $filters,
+            'page' => $page,
+            'pageCount' => $pageCount,
+            'pageSize' => self::PAGE_SIZE,
+            'total' => $total,
         ]);
     }
 
@@ -93,6 +107,35 @@ final readonly class Action
             'deleted' => ['type' => 'success', 'message' => 'Local removido com sucesso.'],
             default => null,
         };
+    }
+
+    /**
+     * @param array<array-key,mixed> $query
+     * @return array{code: string, name: string, description: string, active: string}
+     */
+    private function filters(array $query): array
+    {
+        $active = $this->queryString($query, 'active');
+
+        return [
+            'code' => $this->queryString($query, 'code'),
+            'name' => $this->queryString($query, 'name'),
+            'description' => $this->queryString($query, 'description'),
+            'active' => in_array($active, ['0', '1'], true) ? $active : '',
+        ];
+    }
+
+    /** @param array<array-key,mixed> $query */
+    private function queryString(array $query, string $field): string
+    {
+        $value = $query[$field] ?? '';
+        return is_string($value) ? trim($value) : '';
+    }
+
+    private function pageNumber(mixed $value): int
+    {
+        $page = filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        return $page === false ? 1 : $page;
     }
 
     /** @param array<array-key,mixed> $data */
