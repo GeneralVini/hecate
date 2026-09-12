@@ -120,21 +120,21 @@ O setup deve ser executado após instalação e perguntar apenas informações e
 
 ### Perguntar apenas quando necessário
 
-- nome/identificador da OM;
-- servidor LDAP/LDAPS;
-- base DN;
+- domínio Samba AD da OM;
+- servidor LDAP/LDAPS, quando a descoberta automática não for suficiente;
+- base DN, quando não puder ser descoberta;
 - conta de serviço;
 - CA/certificados necessários;
-- endpoint do Catálogo MB;
-- credencial/token da API;
 - parâmetros de TLS local;
 - parâmetros de banco quando não automatizáveis.
+
+O setup **não deve solicitar** endpoint ou credencial do Catálogo MB na OM. Essa integração pertence exclusivamente ao HECATE Master. No fluxo normal, também não deve exigir que o técnico informe código institucional da OM: o domínio AD é usado como referência de descoberta e a identidade oficial é confirmada via Master/Catálogo MB.
 
 Configurações de negócio não pertencem ao `hecate-setup`.
 
 Devem ser feitas no frontend:
 
-- divisões;
+- locais físicos de impressão;
 - impressoras;
 - políticas;
 - contratos;
@@ -142,27 +142,31 @@ Devem ser feitas no frontend:
 - transferências;
 - aprovações.
 
+Dados institucionais sincronizados do Catálogo MB, como identificação da OM e estrutura organizacional, são somente leitura no HECATE e devem ser corrigidos na fonte oficial.
+
 ## 10. Sequência de implantação
 
 1. Provisionar VM Oracle Linux homologada.
 2. Configurar acesso aos repositórios institucionais/Nexus.
 3. Instalar pacote `hecate`.
 4. Executar `hecate-setup`.
-5. Validar PostgreSQL.
-6. Validar Keycloak.
-7. Validar LDAP/LDAPS.
-8. Validar Catálogo MB.
-9. Validar SavaPage.
-10. Validar CUPS.
-11. Validar `hecate-agent`.
-12. Cadastrar primeira impressora.
-13. Executar descoberta automática.
-14. Associar divisão/política.
-15. Testar job retido.
-16. Testar release.
-17. Testar accounting P&B/colorido.
-18. Validar logs e auditoria.
-19. Executar checklist de aceite.
+5. Informar e validar o domínio Samba AD da OM.
+6. Validar PostgreSQL.
+7. Validar Keycloak.
+8. Validar LDAP/LDAPS.
+9. Registrar a instalação no HECATE Master e confirmar a OM identificada via Catálogo MB.
+10. Receber o snapshot institucional inicial da OM.
+11. Validar SavaPage.
+12. Validar CUPS.
+13. Validar `hecate-agent`.
+14. Cadastrar primeira impressora.
+15. Executar descoberta automática.
+16. Associar local/política conforme necessário.
+17. Testar job retido.
+18. Testar release.
+19. Testar accounting P&B/colorido.
+20. Validar logs e auditoria.
+21. Executar checklist de aceite.
 
 ## 11. Cadastro de impressora
 
@@ -254,27 +258,57 @@ O produto deve minimizar diferenças locais.
 
 Variáveis locais esperadas:
 
-- OM;
-- domínio/LDAP;
-- Catálogo MB;
+- domínio/LDAP da OM;
 - impressoras;
-- divisões;
+- locais físicos;
 - políticas;
 - contratos;
 - quotas.
+
+A identidade institucional da OM e sua estrutura organizacional devem ser obtidas por sincronização com o Master, não recadastradas em cada instalação.
 
 Código, pacotes e arquitetura permanecem padronizados.
 
 ## 18. Enrollment e operação federada
 
-Nexus distribui/versiona o software genérico; não registra a identidade federada. O Master é responsável pelo registro e associação da instância à OM, conforme [DECISOES.md](DECISOES.md#21-federação-por-agregados-e-identidade-por-instância).
+Nexus distribui/versiona o software genérico; não registra a identidade federada. O Master é responsável pelo registro e associação da instância à OM, conforme [DECISOES.md](DECISOES.md#21-federação-por-agregados-e-identidade-por-instância) e [DECISOES.md](DECISOES.md#22-bootstrap-institucional-e-catálogo-mb).
+
+### 18.1. Bootstrap inicial
 
 Fluxo previsto após a instalação:
 
 ```text
-configurar Master -> apresentar código/token limitado -> registrar instância
--> autorizar associação à OM -> obter credencial própria -> sincronizar automaticamente
+HECATE Local
+    |
+    | informa domínio AD
+    v
+valida DNS/AD localmente
+    |
+    v
+HECATE Master
+    |
+    | usa o domínio como referência de descoberta
+    v
+Catálogo MB
+    |
+    | retorna identidade oficial e estrutura necessária
+    v
+Master apresenta a OM encontrada
+    |
+    | operador confirma
+    v
+Master registra installation_uuid <-> OM
+    |
+    v
+Master entrega snapshot institucional inicial
+    |
+    v
+HECATE Local conclui o bootstrap
 ```
+
+O domínio AD é referência inicial, não identidade oficial. O vínculo definitivo usa os dados institucionais retornados pelo Catálogo MB e confirmação do operador.
+
+O pacote/instalador deve gerar um `installation_uuid` local e estável para a instalação. Clonar uma VM para outra OM exige novo bootstrap e nova identidade de instalação.
 
 Configuração conceitual; estas variáveis ainda não são consumidas pela aplicação:
 
@@ -283,10 +317,66 @@ HECATE_MASTER_URL=https://hecate-master.exemplo.mil.br
 HECATE_FEDERATION_ENABLED=true
 ```
 
-O setup deve permitir configurar o destino e realizar enrollment quando a federação for habilitada. Um identificador de OM informado localmente não substitui a associação autorizada no Master. Os controles de credenciais e destino estão em [SEGURANCA.md](SEGURANCA.md#17-segurança-da-federação).
+A URL do Master deve vir da configuração institucional/pacote sempre que possível, evitando digitação desnecessária durante a instalação.
 
-A conexão parte da OM para o Master. Homologar DNS, TLS, proxy/saída de rede e sincronismo de relógio conforme o ambiente; não exigir abertura de conexão de entrada do Master na OM. Falha ou desativação da federação não deve bloquear impressão e administração locais.
+### 18.2. Catálogo MB e cache do Master
 
-A operação deve mostrar última sincronização confirmada, período enviado, atraso acumulado e erro acionável sem secrets. Manter reenvio controlado após falhas e estado persistente suficiente para retomada, com limites de armazenamento e política de retenção a definir. Isso não exige broker. Confirmar recebimento antes de considerar o envio concluído e tratar correções conforme o contrato de [ARQUITETURA.md](ARQUITETURA.md#132-contrato-de-sincronização).
+Somente o HECATE Master consome a API do Catálogo MB. As instalações locais não conhecem endpoint, token ou detalhes da API da DAdM.
 
-Backup/restore deve considerar identidade, credenciais protegidas e estado de sincronização. Clonar uma VM para outra OM exige novo enrollment; não reutilizar a identidade federada da origem. Homologar recuperação da mesma instância, rotação/revogação e prevenção de envios concorrentes por cópias restauradas. Atualizações precisam preservar compatibilidade do contrato federado além dos schemas locais.
+Quando uma OM é solicitada pela primeira vez:
+
+1. o Master procura snapshot da OM em seu cache técnico;
+2. se não houver snapshot válido, consulta o Catálogo MB;
+3. armazena a resposta como cache somente leitura e descartável;
+4. registra a OM como federada quando o bootstrap é confirmado;
+5. retorna ao HECATE Local os dados institucionais necessários.
+
+O cache pode ser persistido em PostgreSQL, preferencialmente como snapshot JSONB quando não houver necessidade de normalizar o domínio do Catálogo MB. Ele não é uma segunda fonte de verdade e não deve oferecer CRUD dos dados recebidos.
+
+Apenas OM com HECATE registrado entram no refresh periódico. Não há necessidade de sincronizar preventivamente todas as OM existentes no Catálogo MB.
+
+Falha de atualização não deve apagar o último snapshot válido. O Master deve preservar `last_success_at`, estado do refresh e informação suficiente para indicar que os dados estão desatualizados.
+
+### 18.3. Sincronização posterior
+
+O Master verifica periodicamente os dados institucionais das OM federadas e atualiza seus snapshots quando necessário. O HECATE Local consulta exclusivamente o Master.
+
+O mesmo caso de uso deve atender:
+
+- sincronização automática diária;
+- ação administrativa **Sincronizar agora**.
+
+Quando houver versionamento/hash do snapshot, o Local deve primeiro comparar sua versão com a do Master e baixar o conteúdo apenas quando houver alteração.
+
+O `hecate-agent` pode executar heartbeat e sincronização periódica Local -> Master. Falha ou desativação da federação não deve bloquear impressão e administração locais.
+
+### 18.4. phpIPAM opcional
+
+Caso exista acesso autorizado ao phpIPAM, o Master poderá verificar de forma complementar se o IP de origem da solicitação é compatível com as redes associadas à OM.
+
+Essa integração:
+
+- é opcional;
+- não é requisito para concluir o bootstrap;
+- não constitui autenticação isoladamente;
+- deve usar o IP observado pelo Master ou por infraestrutura intermediária previamente confiável, nunca um IP declarado pelo cliente como prova.
+
+O HECATE Local não deve receber credencial ou integração direta com o phpIPAM.
+
+### 18.5. Operação federada
+
+A conexão parte da OM para o Master. Homologar DNS, TLS, proxy/saída de rede e sincronismo de relógio conforme o ambiente; não exigir abertura de conexão de entrada do Master na OM.
+
+A operação deve mostrar, conforme o fluxo aplicável:
+
+- OM vinculada;
+- domínio AD;
+- última sincronização institucional;
+- versão/hash do snapshot;
+- última sincronização federada de métricas;
+- atraso acumulado;
+- erro acionável sem secrets.
+
+Manter reenvio controlado após falhas e estado persistente suficiente para retomada. Confirmar recebimento antes de considerar o envio federado concluído e tratar correções conforme o contrato de [ARQUITETURA.md](ARQUITETURA.md#132-contrato-de-sincronização).
+
+Backup/restore deve considerar identidade da instalação, credenciais protegidas e estado de sincronização. Homologar recuperação da mesma instância, rotação/revogação da credencial M2M e prevenção de envios concorrentes por cópias restauradas. Atualizações precisam preservar compatibilidade do contrato federado além dos schemas locais.
