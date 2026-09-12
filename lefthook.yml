@@ -1,0 +1,29 @@
+pre-commit:
+  jobs:
+    - name: rector
+      glob: "*.php"
+      run: vendor/bin/rector process --no-progress-bar {staged_files}
+      stage_fixed: true
+
+    - name: ecs
+      glob: "*.php"
+      run: vendor/bin/ecs check --fix {staged_files}
+      stage_fixed: true
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: ecs
+      run: composer lint
+
+    - name: rector
+      run: composer rector
+
+    - name: phpstan
+      run: composer stan
+
+    - name: psalm
+      run: composer psalm
+
+    - name: phpunit
+      run: composer test
