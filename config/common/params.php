@@ -11,6 +11,12 @@ use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\UrlGeneratorInterface;
 use Yiisoft\Yii\View\Renderer\CsrfViewInjection;
 
+$dbHost = $_ENV['HECATE_DB_HOST'] ?? $_SERVER['HECATE_DB_HOST'] ?? '127.0.0.1';
+$dbName = $_ENV['HECATE_DB_NAME'] ?? $_SERVER['HECATE_DB_NAME'] ?? 'hecate';
+$dbPort = $_ENV['HECATE_DB_PORT'] ?? $_SERVER['HECATE_DB_PORT'] ?? '5432';
+$dbUser = $_ENV['HECATE_DB_USER'] ?? $_SERVER['HECATE_DB_USER'] ?? 'hecate';
+$dbPassword = $_ENV['HECATE_DB_PASSWORD'] ?? $_SERVER['HECATE_DB_PASSWORD'] ?? '';
+
 return [
     'application' => require __DIR__ . '/application.php',
 
@@ -21,12 +27,12 @@ return [
     'yiisoft/db-pgsql' => [
         'dsn' => new Dsn(
             'pgsql',
-            getenv('HECATE_DB_HOST') ?: '127.0.0.1',
-            getenv('HECATE_DB_NAME') ?: 'hecate',
-            getenv('HECATE_DB_PORT') ?: '5432',
+            $dbHost,
+            $dbName,
+            $dbPort,
         ),
-        'username' => getenv('HECATE_DB_USER') ?: 'hecate',
-        'password' => getenv('HECATE_DB_PASSWORD') ?: '',
+        'username' => $dbUser,
+        'password' => $dbPassword,
     ],
 
     'yiisoft/view' => [
