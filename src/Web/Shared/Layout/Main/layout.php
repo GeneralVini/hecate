@@ -20,8 +20,13 @@ $this->addJsFiles($assetManager->getJsFiles());
 $this->addJsStrings($assetManager->getJsStrings());
 $this->addJsVars($assetManager->getJsVars());
 
+$configuredBaseUrl = $_ENV['HECATE_BASE_URL'] ?? $_SERVER['HECATE_BASE_URL'] ?? null;
 $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-$basePath = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+$detectedBasePath = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+$basePath = is_string($configuredBaseUrl) && $configuredBaseUrl !== ''
+    ? '/' . trim($configuredBaseUrl, '/')
+    : $detectedBasePath;
+
 if ($basePath === '.' || $basePath === '/') {
     $basePath = '';
 }
