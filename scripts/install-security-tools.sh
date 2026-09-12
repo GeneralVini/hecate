@@ -11,15 +11,21 @@ ZAP_URL="https://github.com/zaproxy/zaproxy/releases/download/v${ZAP_VERSION}/${
 
 mkdir -p "$TOOLS"
 
+command -v python3 >/dev/null || { echo '[ERRO] Python 3.10+ é necessário para Semgrep.' >&2; exit 1; }
+PYTHON_OK="$(python3 -c 'import sys; print(1 if sys.version_info >= (3, 10) else 0)')"
+[[ "$PYTHON_OK" == "1" ]] || { echo '[ERRO] Python 3.10+ é necessário para Semgrep.' >&2; exit 1; }
+
 if [[ ! -x "$TOOLS/semgrep/bin/semgrep" ]]; then
-    command -v python3 >/dev/null || { echo '[ERRO] Python 3 é necessário para Semgrep.' >&2; exit 1; }
     python3 -m venv "$TOOLS/semgrep" || { echo '[ERRO] Instale python3-venv e repita make setup.' >&2; exit 1; }
     "$TOOLS/semgrep/bin/python" -m pip install --disable-pip-version-check "semgrep==${SEMGREP_VERSION}"
 fi
 "$TOOLS/semgrep/bin/semgrep" --version
 
+command -v java >/dev/null || { echo '[ERRO] Java 17+ é necessário para OWASP ZAP.' >&2; exit 1; }
+JAVA_VERSION="$(java -version 2>&1 | head -n 1 | sed -E 's/.*version "([0-9]+).*/\1/')"
+[[ "$JAVA_VERSION" =~ ^[0-9]+$ ]] && (( JAVA_VERSION >= 17 )) || { echo '[ERRO] Java 17+ é necessário para OWASP ZAP.' >&2; exit 1; }
+
 if [[ ! -x "$TOOLS/zap/zap.sh" ]]; then
-    command -v java >/dev/null || { echo '[ERRO] Java 17+ é necessário para OWASP ZAP.' >&2; exit 1; }
     command -v curl >/dev/null || { echo '[ERRO] curl é necessário para instalar OWASP ZAP.' >&2; exit 1; }
     command -v sha256sum >/dev/null || { echo '[ERRO] sha256sum é necessário para validar OWASP ZAP.' >&2; exit 1; }
     tmp="$(mktemp -d)"
