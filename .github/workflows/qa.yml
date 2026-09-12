@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   php-quality:
-    name: PHP quality
+    name: PHP quality and security
     runs-on: ubuntu-latest
 
     steps:
@@ -32,8 +32,13 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
 
+      - name: Install Semgrep CE
+        run: python3 -m pip install --disable-pip-version-check semgrep==1.177.0
+
       - name: Validate Composer metadata
         run: composer validate --no-interaction
 
-      - name: Run project QA
-        run: composer qa
+      - name: Run project quality and security checks
+        env:
+          HECATE_SEMGREP_BIN: semgrep
+        run: composer check
