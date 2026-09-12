@@ -24,12 +24,13 @@ SQL)->queryAll();
 
         $items = [];
         foreach ($rows as $row) {
+            $active = $row['active'];
             $items[] = new LocationListItem(
                 (int) $row['id'],
                 (string) $row['code'],
                 (string) $row['name'],
                 $row['description'] === null ? null : (string) $row['description'],
-                (bool) $row['active'],
+                $active === true || $active === 1 || $active === '1' || $active === 't',
             );
         }
 
