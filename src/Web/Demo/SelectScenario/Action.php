@@ -19,12 +19,12 @@ final readonly class Action
 
     public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
-        $edition = strtolower((string) ($_ENV['HECATE_EDITION'] ?? $_SERVER['HECATE_EDITION'] ?? 'local'));
+        $edition = strtolower($_ENV['HECATE_EDITION'] ?? $_SERVER['HECATE_EDITION'] ?? 'local');
         if ($edition !== 'demo') {
             return $this->redirectToHome();
         }
 
-        $scenario = strtolower((string) ($request->getQueryParams()['scenario'] ?? ''));
+        $scenario = strtolower($request->getQueryParams()['scenario'] ?? '');
         if (!in_array($scenario, ['dctim', 'ctim'], true)) {
             return $this->redirectToHome();
         }
@@ -41,7 +41,7 @@ final readonly class Action
         $location = $this->urlGenerator->generate('home');
         $baseUrl = $_ENV['HECATE_BASE_URL'] ?? $_SERVER['HECATE_BASE_URL'] ?? '';
         if ($baseUrl !== '' && str_starts_with($location, '/')) {
-            $basePath = '/' . trim((string) $baseUrl, '/');
+            $basePath = '/' . trim($baseUrl, '/');
             if (!str_starts_with($location, $basePath . '/')) {
                 $location = $basePath . $location;
             }
