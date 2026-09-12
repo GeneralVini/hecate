@@ -16,7 +16,8 @@ final readonly class PrinterListQuery
     public function exists(int $id): bool
     {
         return $this->db->createCommand('SELECT count(*) FROM printer WHERE id = :id')
-            ->bindValues([':id' => $id])->queryScalar() > 0;
+            ->bindValue(':id', $id)
+            ->queryScalar() > 0;
     }
 
     /** @return list<PrinterListItem> */
@@ -40,7 +41,9 @@ FROM printer p
 JOIN division_printer_access a ON a.printer_id = p.id
 WHERE a.division_id = :division AND p.enabled = TRUE
 ORDER BY lower(p.name), p.id
-SQL)->bindValues([':division' => $actor->divisionId])->queryAll());
+SQL)
+            ->bindValue(':division', $actor->divisionId)
+            ->queryAll());
     }
 
     /**
