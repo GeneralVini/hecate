@@ -30,6 +30,43 @@
     outline: none;
 }
 
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 76px;
+    padding: 4px 9px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: .76rem;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.status-badge::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 0 3px currentColor;
+    opacity: .92;
+}
+
+.status-badge--active {
+    border-color: rgba(25, 135, 84, .72);
+    background: rgba(25, 135, 84, .16);
+    color: #75d9a6;
+}
+
+.status-badge--inactive {
+    border-color: rgba(108, 117, 125, .68);
+    background: rgba(108, 117, 125, .14);
+    color: #b8c0c8;
+}
+
 .flash-message {
     position: fixed;
     top: 76px;
