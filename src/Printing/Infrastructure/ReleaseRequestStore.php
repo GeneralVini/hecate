@@ -56,7 +56,7 @@ SQL)
                 ->bindValue(':request', $input->requestId)
                 ->queryScalar();
             $existing = $this->find($actor, $input);
-            if ($existing !== null) {
+            if ($existing instanceof ReleaseReceipt) {
                 return $existing;
             }
             $allowed = $this->db->createCommand(<<<'SQL'

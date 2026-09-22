@@ -8,6 +8,7 @@ use App\Quota\Domain\QuotaAvailability;
 use DomainException;
 use LogicException;
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Transaction\TransactionInterface;
 
 final readonly class QuotaReservation
 {
@@ -18,7 +19,7 @@ final readonly class QuotaReservation
     /** Caller owns the transaction, shared with request and audit persistence. */
     public function reserve(int $divisionId, string $period, int $bwPages, int $colorPages): int
     {
-        if ($this->db->getTransaction() === null) {
+        if (!$this->db->getTransaction() instanceof TransactionInterface) {
             throw new LogicException('Reserva exige transação ativa.');
         }
         $row = $this->db->createCommand(<<<'SQL'

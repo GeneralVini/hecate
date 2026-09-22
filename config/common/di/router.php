@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Yiisoft\Router\RouteCollectorInterface;
 use Yiisoft\Config\Config;
 use Yiisoft\Definitions\DynamicReference;
 use Yiisoft\Router\RouteCollection;
@@ -15,7 +16,7 @@ return [
         'class' => RouteCollection::class,
         '__construct()' => [
             'collector' => DynamicReference::to(
-                static fn () => (new RouteCollector())->addRoute(...$config->get('routes')),
+                static fn (): RouteCollectorInterface => (new RouteCollector())->addRoute(...$config->get('routes')),
             ),
         ],
     ],

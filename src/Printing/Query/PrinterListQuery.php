@@ -150,7 +150,7 @@ SQL)
                 (string) $row['host'],
                 $row['location_id'] === null ? null : (int) $row['location_id'],
                 $row['location'] === null ? null : (string) $row['location'],
-                $active === true || $active === 1 || $active === '1' || $active === 't',
+                in_array($active, [true, 1, '1', 't'], true),
                 $row['last_seen_at'] === null ? null : (string) $row['last_seen_at'],
             );
         }

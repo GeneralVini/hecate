@@ -25,7 +25,7 @@ final readonly class ReleaseHeldJob
             throw new DomainException('Permissão de liberação ausente.');
         }
         $receipt = $this->requests->find($actor, $input);
-        if ($receipt === null) {
+        if (!$receipt instanceof ReleaseReceipt) {
             $job = $this->gateway->getHeldJob($input->jobReference);
             if ($job->reference !== $input->jobReference || $job->ownerSubject !== $actor->subject) {
                 throw new DomainException('Job não pertence ao solicitante.');

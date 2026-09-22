@@ -48,7 +48,7 @@ SQL;
                 (string) $row['code'],
                 (string) $row['name'],
                 $row['description'] === null ? null : (string) $row['description'],
-                $active === true || $active === 1 || $active === '1' || $active === 't',
+                in_array($active, [true, 1, '1', 't'], true),
             );
         }
 
