@@ -41,12 +41,16 @@ $this->beginPage();
 <body class="login-page" style="<?= Html::encode($loginBrandingStyle) ?>">
 <?php $this->beginBody() ?>
 <main class="login-shell">
-    <div class="login-art" aria-hidden="true"></div>
+    <section class="login-stage" aria-label="Identidade visual HECATE">
+        <div class="login-art" aria-hidden="true"></div>
+    </section>
 
-    <div class="login-form-area">
-        <?= $content ?>
+    <div class="login-access-bar">
+        <?php require dirname(__DIR__, 2) . '/Partial/institutional-footer.php'; ?>
+        <div class="login-form-area">
+            <?= $content ?>
+        </div>
     </div>
-    <?php require dirname(__DIR__, 2) . '/Partial/institutional-footer.php'; ?>
 </main>
 <?php $this->endBody() ?>
 </body>
