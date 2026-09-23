@@ -233,3 +233,20 @@ Decisões aceitas em chat devem ser incorporadas à fonte canônica corresponden
 - o HECATE Demo deve reutilizar as mesmas queries, regras e componentes do produto real sempre que o domínio correspondente existir;
 - é proibido criar números hardcoded em dashboard ou tabelas exclusivas apenas para simular funcionalidades ainda não modeladas; novos indicadores devem esperar o schema funcional correspondente;
 - dados demonstrativos devem ser determinísticos, explicitamente fictícios e recriáveis sem afetar a instalação normal.
+
+## 24. BrandingAsset e URLs de identidade visual
+
+**Decisão:** centralizar os assets institucionais em `BrandingAsset` e resolver suas URLs exclusivamente pelo `AssetManager` do Yii.
+
+**Motivo:** o HECATE precisa funcionar na raiz do host, em subdiretório, multisite, reverse proxy e diferentes sistemas operacionais sem depender de caminhos absolutos ou de detalhes do servidor web.
+
+**Consequências:**
+
+- `BrandingAsset` usa `@public/branding` como `basePath` e `@baseUrl/branding` como `baseUrl`;
+- `MainAsset` depende de `BrandingAsset`, preservando a separação entre identidade visual e CSS/JavaScript da aplicação;
+- PHP usa `AssetManager::getUrl(BrandingAsset::class, $arquivo)` para logos, símbolos, favicons, backgrounds e demais assets institucionais;
+- CSS recebe URLs resolvidas pelo Yii por custom properties e não contém `/branding/...` hardcoded;
+- JavaScript não concatena host, porta, subdiretório ou caminho de branding;
+- não criar variável específica por arquivo nem helper paralelo quando o `AssetManager` já atende ao caso;
+- novos assets de branding devem aderir ao mesmo contrato;
+- PHPDoc, JSDoc e CSSDoc devem documentar contratos, invariantes e integração entre camadas quando houver informação não expressa pela assinatura ou pelo próprio código, evitando comentários redundantes.
