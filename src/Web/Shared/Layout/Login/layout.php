@@ -22,7 +22,7 @@ $this->addJsVars($assetManager->getJsVars());
 
 /** @var Closure(string): string $brandingUrl */
 $brandingUrl = static fn (string $file): string => $assetManager->getUrl(BrandingAsset::class, $file);
-$loginBrandingStyle = '--hecate-login-background: url("' . $brandingUrl('login-background.jpg') . '");';
+$loginBrandingStyle = "--hecate-login-background: url('" . $brandingUrl('login-background.jpg') . "');";
 
 $this->beginPage();
 ?>
