@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Yiisoft\Router\RouteCollectorInterface;
 use Yiisoft\Config\Config;
 use Yiisoft\Definitions\DynamicReference;
 use Yiisoft\Router\RouteCollection;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteCollector;
+use Yiisoft\Router\RouteCollectorInterface;
 
 /** @var Config $config */
 

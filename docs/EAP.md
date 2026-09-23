@@ -147,7 +147,7 @@ Um pacote somente deve ser marcado como concluído quando todos os itens aplicá
 - [ ] Integrar API REST.
 - [ ] Consultar dados funcionais e divisão.
 - [ ] Implementar cache e timestamp de sincronização.
-- [ ] Permitir override local controlado e auditado.
+- [ ] Permitir exceção operacional local controlada e auditada para decisões do HECATE, sem editar o snapshot institucional.
 
 **Critério de conclusão:** lotação funcional determinada de forma auditável.
 
@@ -431,14 +431,14 @@ Em falha, cancelamento ou expiração confirmados sem consumo, a reserva deve se
 - MFA obrigatório na primeira POC;
 - automação de alterações no Samba AD.
 
-# 5. Incremento de leitura e federação
+# 5. Incremento de leitura e integrações institucionais
 
-As decisões das seções 20–21 de [DECISOES.md](DECISOES.md) estão aceitas arquiteturalmente. Não comprovam implementação ou homologação. A inclusão da federação no MVP/release e a sequência de entrega permanecem abertas; este incremento não altera silenciosamente o recorte da seção 4.
+As decisões das seções 20–22 de [DECISOES.md](DECISOES.md) estão aceitas arquiteturalmente. Não comprovam implementação ou homologação. Este incremento não altera silenciosamente o recorte do MVP da seção 4.
 
 ## 5.1. Leitura e escrita
 
 - [ ] Integrar identidade confiável, RBAC e resolução obrigatória de escopo nas leituras de inventário e indicadores.
-- [ ] Distinguir administrador global local, gestor com contratos autorizados e consumidor federado, preservando segregação funcional.
+- [ ] Distinguir administrador geral da OM e gestor com contratos autorizados, preservando segregação funcional.
 - [ ] Testar acesso negado, escopo vazio, troca indevida de contrato/divisão e ausência de vazamento em totais, filtros, paginação e exportações.
 - [ ] Integrar autorização e auditoria no cadastro de impressoras.
 
@@ -448,17 +448,15 @@ Na revisão documental, `src/Web/Printer/Index/Action.php` chama `PrinterListQue
 
 A ação `src/Web/Printer/Detect/Action.php` apenas verifica existência e redireciona; não chama o agente nem coleta telemetria. Ao implementar a integração, autorizar a operação e o alvo antes da chamada e auditar seu resultado. A presença do botão e do CSRF não comprova descoberta funcional.
 
-## 5.2. Federação
+## 5.2. Catálogo MB e Samba AD
 
-Não há implementação de enrollment, sincronização, APIs federadas ou configuração Master em `src/` e `config/` na revisão deste incremento.
+Não há integração funcional com o Catálogo MB nem sincronização institucional implementada em `src/` e `config/` na revisão deste incremento.
 
-- [ ] Definir recorte de entrega e responsabilidades operacionais do Master.
-- [ ] Homologar autenticação M2M, enrollment, associação à OM, rotação e revogação.
-- [ ] Fechar métricas, dimensões, granularidade, períodos/fuso, precisão, retenção e acesso central.
-- [ ] Fechar envelope, versionamento, confirmação, duplicatas, correções tardias e comportamento após restore.
-- [ ] Implementar agregação local e push automático com retomada e limites operacionais.
-- [ ] Validar pacote genérico e novo enrollment ao replicar para outra OM.
-- [ ] Testar isolamento entre OMs, credencial revogada, replay, falha de rede, envio duplicado, atualização e restore.
-- [ ] Demonstrar que indisponibilidade do Master não bloqueia a operação local.
+- [ ] Homologar endpoint, autenticação, TLS e credencial própria da OM para consulta ao Catálogo MB.
+- [ ] Confirmar identificação da OM com o operador e tratar divergências com o domínio AD.
+- [ ] Implementar cache local somente leitura, atualização diária e ação **Sincronizar agora**.
+- [ ] Preservar último snapshot válido e mostrar `last_success_at`, versão/hash e falha de refresh.
+- [ ] Correlacionar estrutura institucional com usuários e grupos consultados em leitura no Samba AD, sem alterar o domínio.
+- [ ] Testar indisponibilidade, credencial revogada, dados divergentes, atualização e restore.
 
-**Critério de conclusão:** agregados autorizados chegam ao Master sem duplicação ou exportação de detalhes operacionais, com recuperação e rastreabilidade demonstradas.
+**Critério de conclusão:** identidade e estrutura institucional da OM são obtidas da fonte oficial, correlacionadas com o AD e atualizadas de forma rastreável, sem bloquear a impressão durante falha temporária da integração.

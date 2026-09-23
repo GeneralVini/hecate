@@ -33,7 +33,7 @@ A direção adotada é **Yii3 + monólito modular + DDD pragmático**.
 
 Organizar por responsabilidade, preferir SQL explícito e parametrizado via Yii DB quando apropriado e usar DTOs/read models específicos nas fronteiras que os justifiquem. ActiveRecord não deve funcionar como modelo compartilhado da aplicação.
 
-A direção API-first preserva as views atuais. Leitura com escopo autorizado, escrita protegida e federação por agregados Local → Master estão detalhadas na arquitetura; seu acompanhamento está na [EAP](docs/EAP.md#5-incremento-de-leitura-e-federação).
+A direção API-first preserva as views atuais. Leitura com escopo autorizado e escrita protegida estão detalhadas na arquitetura; seu acompanhamento está na [EAP](docs/EAP.md#5-incremento-de-leitura-e-integrações-institucionais). Cada OM opera sua própria instalação HECATE.
 
 As decisões e seus motivos estão em [DECISOES.md](docs/DECISOES.md). A arquitetura e as integrações estão em [ARQUITETURA.md](docs/ARQUITETURA.md).
 

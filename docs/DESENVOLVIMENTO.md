@@ -218,7 +218,7 @@ Não introduzir `GenericRepository`, `BaseRepository`, `BaseService`, service lo
 
 Para novas leituras e escritas, seguir os [fluxos de arquitetura](ARQUITETURA.md#61-caminhos-de-escrita-e-leitura). Queries recebem escopo autorizado obrigatório e retornam projeções específicas; não aceitar um escopo ausente como acesso global. Não usar a permissão de release como substituta genérica da permissão de consulta contratual. Testar limites de acesso também nos agregados e exportações.
 
-Contratos de apresentação e federação evoluem separadamente; DTO de tela não é automaticamente payload do Master. Consultar o [contrato federado](ARQUITETURA.md#132-contrato-de-sincronização) antes de implementar sincronização, sem antecipar buses ou repositories genéricos.
+DTOs de tela não devem ser usados automaticamente como contratos de integração com AD ou Catálogo MB. Consultar as [fronteiras de integração](ARQUITETURA.md#8-integrações) antes de implementar sincronização, sem antecipar buses ou repositories genéricos.
 
 ## 8. Segurança de código
 

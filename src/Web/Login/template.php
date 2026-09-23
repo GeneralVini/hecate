@@ -5,12 +5,19 @@ declare(strict_types=1);
 use Yiisoft\Html\Html;
 
 /** @var Yiisoft\View\WebView $this */
-/** @var Yiisoft\Router\UrlGeneratorInterface $urlGenerator */
+/** @var array<string,string> $errors */
+/** @var string $username */
+/** @var string|null $csrf */
 
 $this->setTitle('Entrar — HECATE');
 ?>
-<section class="login-panel" aria-labelledby="login-title">
+<form class="login-panel" method="post" novalidate aria-labelledby="login-title">
     <h1 id="login-title" class="sr-only">Acesso ao HECATE</h1>
+    <input type="hidden" name="_csrf" value="<?= Html::encode($csrf ?? '') ?>">
+
+    <?php if ($errors !== []) : ?>
+        <p class="login-error-summary" role="alert">Confira os campos obrigatórios para continuar.</p>
+    <?php endif; ?>
 
     <div class="login-fields" aria-label="Credenciais institucionais">
         <div class="login-field">
@@ -28,8 +35,15 @@ $this->setTitle('Entrar — HECATE');
                     autocomplete="username"
                     placeholder="Usuário institucional"
                     aria-label="Usuário"
+                    value="<?= Html::encode($username) ?>"
+                    required
+                    aria-invalid="<?= isset($errors['username']) ? 'true' : 'false' ?>"
+                    <?= isset($errors['username']) ? 'aria-describedby="login-username-error"' : '' ?>
                 >
             </div>
+            <?php if (isset($errors['username'])) : ?>
+                <span id="login-username-error" class="login-error" role="alert"><?= Html::encode($errors['username']) ?></span>
+            <?php endif; ?>
         </div>
 
         <div class="login-field">
@@ -47,15 +61,23 @@ $this->setTitle('Entrar — HECATE');
                     autocomplete="current-password"
                     placeholder="Senha"
                     aria-label="Senha"
+                    required
+                    aria-invalid="<?= isset($errors['password']) ? 'true' : 'false' ?>"
+                    <?= isset($errors['password']) ? 'aria-describedby="login-password-error"' : '' ?>
                 >
             </div>
+            <?php if (isset($errors['password'])) : ?>
+                <span id="login-password-error" class="login-error" role="alert"><?= Html::encode($errors['password']) ?></span>
+            <?php endif; ?>
         </div>
     </div>
 
-    <a
+    <button
         class="button button-primary login-submit"
-        href="<?= Html::encode($urlGenerator->generate('home')) ?>"
+        type="submit"
     >
         Entrar
-    </a>
-</section>
+    </button>
+    <a class="login-manual" href="/manual/index.html" target="_blank" rel="noopener noreferrer" aria-label="Abrir manual do HECATE em nova aba">MANUAL</a>
+    <p class="login-demo-notice">Acesso demonstrativo: não use sua senha institucional real.</p>
+</form>

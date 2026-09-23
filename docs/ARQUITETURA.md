@@ -18,31 +18,25 @@ Este documento descreve a arquitetura alvo. O estado implementado e suas evidên
 Samba AD da OM ----LDAPS----> Keycloak
        |                         |
        |                         v
-       +---------------------> HECATE Local
+       +---------------------> HECATE da OM
                                  |
                                  +------> SavaPage -> CUPS -> Impressora
                                  |
-                                 +------> HECATE Master
-                                              |
-                                              +------> Catálogo MB
-                                              |
-                                              +------> phpIPAM (opcional)
+                                 +------> Catálogo MB
 ```
 
-Somente o HECATE Master consome as integrações corporativas usadas para identificação e sincronização institucional. As instalações locais não conhecem endpoint nem credencial do Catálogo MB ou do phpIPAM.
+Cada instalação HECATE atende uma OM e consulta diretamente as integrações institucionais necessárias.
 
 ## 3. Responsabilidades
 
-- **Samba AD:** identidade institucional em leitura e referência inicial de descoberta da OM durante o bootstrap.
+- **Samba AD:** usuários, grupos e identidade institucional em leitura; o domínio auxilia a identificação inicial da OM.
 - **Catálogo MB:** fonte autoritativa dos dados institucionais e organizacionais utilizados pelo HECATE.
 - **Keycloak:** autenticação do portal via OIDC/SSO.
-- **HECATE Local:** organização operacional da impressão, políticas, cotas, contratos, aprovações, auditoria e indicadores da OM.
-- **HECATE Master:** registro/federação das instalações, recepção de agregados, consumo do Catálogo MB e manutenção do cache institucional das OM federadas.
-- **phpIPAM:** fonte opcional para verificação complementar da compatibilidade de rede durante o bootstrap, quando houver acesso autorizado.
+- **HECATE da OM:** políticas, cotas, contratos, aprovações, auditoria, indicadores e operação local; consulta o Catálogo MB.
 - **SavaPage:** retenção, contabilização e controle do fluxo de impressão.
 - **CUPS:** filas físicas e transporte ao equipamento.
-- **PostgreSQL:** persistência com isolamento lógico por componente; no Master também pode armazenar snapshots institucionais em cache.
-- **hecate-agent:** operações locais, descoberta, monitoramento, diagnóstico, heartbeat e sincronização com o Master.
+- **PostgreSQL:** persistência com isolamento lógico por componente e cache institucional local.
+- **hecate-agent:** operações locais, descoberta, monitoramento e diagnóstico.
 - **Nexus:** distribuição institucional de pacotes, imagens e artefatos homologados.
 
 ## 4. Fluxo de impressão
@@ -121,17 +115,13 @@ Consulta de identidade, grupos e vínculos necessários ao funcionamento do sist
 
 ### Catálogo MB
 
-Integração por API **exclusivamente pelo HECATE Master**. O Catálogo MB é a fonte autoritativa dos dados institucionais utilizados pelo HECATE.
+Integração por API pela instalação HECATE da OM. O Catálogo MB é a fonte autoritativa dos dados institucionais utilizados pelo HECATE.
 
-O Master mantém cache técnico somente leitura das OM federadas. Esse cache é derivado, descartável e não oferece edição dos dados recebidos. Em cache miss ou necessidade de atualização, o Master consulta a API, atualiza o snapshot e entrega os dados ao HECATE Local.
+Cada instalação mantém cache técnico somente leitura dos dados necessários à sua OM. Esse cache é derivado, descartável e não oferece edição dos dados recebidos. Em cache miss ou necessidade de atualização, o HECATE consulta a API e atualiza o snapshot.
 
-Não há necessidade de sincronizar preventivamente todas as OM existentes. Somente OM com HECATE instalado entram no refresh periódico. O mesmo caso de uso deve suportar sincronização diária e execução manual.
+O mesmo caso de uso deve suportar sincronização diária e execução manual. Dados atualizados do Catálogo MB permitem correlacionar a estrutura institucional com usuários e grupos consultados em leitura no Samba AD; divergências exigem verificação, sem alteração automática do AD.
 
-Quando não houver necessidade de consultar internamente cada elemento do domínio do Catálogo MB, preferir snapshot JSONB persistido no PostgreSQL do Master em vez de reconstruir um modelo relacional paralelo.
-
-### phpIPAM
-
-Integração opcional e exclusiva do Master. Quando houver acesso autorizado, pode ser usada para verificar de forma complementar se o IP de origem da solicitação é compatível com redes associadas à OM. Não é requisito de bootstrap nem mecanismo de autenticação isolado.
+Quando não houver necessidade de consultar internamente cada elemento do domínio do Catálogo MB, preferir snapshot JSONB persistido no PostgreSQL da OM em vez de reconstruir um modelo relacional paralelo.
 
 ### SavaPage
 
@@ -169,7 +159,7 @@ Oracle Linux
 
 Alta disponibilidade não é requisito inicial. A prioridade é implantação reproduzível, backup/restore e reconstrução rápida.
 
-O `hecate-setup` solicita o domínio Samba AD da OM, valida o ambiente local e inicia o bootstrap com o Master. Endpoint e credencial do Catálogo MB não são parâmetros da instalação local.
+O `hecate-setup` solicita o domínio Samba AD da OM e valida o ambiente local. A integração com o Catálogo MB deve ser configurada na instalação da OM, com credencial própria protegida e conectividade homologada.
 
 ## 11. Evolução modular
 
@@ -182,67 +172,15 @@ Antes de criar nova camada ou abstração, identificar:
 
 ## 12. Homologações pendentes
 
-POCs, evidências e critérios pendentes são mantidos exclusivamente na [EAP](EAP.md#42-pocs-críticas), incluindo o [incremento federado](EAP.md#5-incremento-de-leitura-e-federação). Decisão arquitetural aceita não significa integração homologada.
+POCs, evidências e critérios pendentes são mantidos exclusivamente na [EAP](EAP.md#42-pocs-críticas). Decisão arquitetural aceita não significa integração homologada.
 
-## 13. Federação e APIs
+## 13. Sincronização institucional e APIs
 
-### 13.1. Fronteira Local → Master
+Na instalação da OM, o domínio AD validado serve de referência inicial; o Catálogo MB confirma a identidade oficial da OM. O operador verifica divergências antes de vincular os dados. O HECATE guarda `organization_code`, indicativo, versão/hash, `last_success_at`, estado de refresh e o último snapshot válido como cache técnico.
 
-```text
-HECATE da OM -> agregação local -> autenticação da instância -> push -> HECATE Master
-```
+A sincronização automática diária e a ação administrativa **Sincronizar agora** usam o mesmo fluxo. Falha temporária não apaga o snapshot anterior; o sistema sinaliza dados desatualizados. A leitura de usuários e grupos do AD é independente e não escreve no domínio.
 
-O Master é consumidor de governança federada, somente leitura em relação à operação local. Receber e persistir agregados no Master não lhe concede comandos administrativos sobre a OM. Ele não acessa o banco operacional completo nem inicia conexões de coleta para dentro das OMs. A sincronização é iniciada localmente e deve funcionar automaticamente após configuração e registro.
-
-Os detalhes operacionais permanecem locais. O Master recebe séries consolidadas: páginas totais/P&B/coloridas, jobs, custos, consumo contratual, quantidade de impressoras e disponibilidade, conforme contrato aprovado. A analogia `history -> trends` descreve agregação, sem introduzir dependência de Zabbix.
-
-Preservar `count`, `sum`, `min`, `max` e `avg` quando úteis. Médias globais devem resultar de numeradores e denominadores compatíveis, não da média simples das médias das OMs. Custo por página usa custo total/páginas; páginas por job usa páginas/jobs. Períodos, unidades, ausência de amostras e denominador zero precisam de semântica explícita. Última coleta de telemetria não equivale a disponibilidade medida.
-
-### 13.2. Contrato de sincronização
-
-A federação deve ser idempotente, versionável, auditável e resiliente à falha de rede. Envelope conceitual, ainda não um schema implementado:
-
-```text
-instance_id | om_id | period | generated_at | schema_version | sequence | metrics
-```
-
-Antes de implementar, fechar granularidade/período e fuso, unidades e precisão monetária, métricas, identidade de cada envio, tratamento de duplicatas, ordenação, correções tardias, confirmação de recebimento e compatibilidade de versões. `sequence` isoladamente não resolve duplicação após reinstalação ou restore. Reenvios não podem duplicar consumo; correções de accounting local devem poder atualizar agregados já enviados.
-
-O vínculo instância/OM é validado pela identidade registrada no Master, não confiado apenas ao payload. Controles de identidade e dados estão em [SEGURANCA.md](SEGURANCA.md#17-segurança-da-federação-e-bootstrap); configuração, bootstrap e recuperação em [IMPLANTACAO.md](IMPLANTACAO.md#18-enrollment-e-operação-federada).
-
-### 13.3. Bootstrap institucional Master ↔ Local
-
-```text
-HECATE Local
-    |
-    | domínio AD validado + installation_uuid
-    v
-HECATE Master
-    |
-    | referência de descoberta
-    v
-Catálogo MB
-    |
-    | identidade oficial + estrutura necessária
-    v
-HECATE Master
-    |
-    | confirmação do operador + registro da instância
-    v
-HECATE Local
-```
-
-O domínio AD não é considerado identidade oficial por si só. O Catálogo MB confirma a OM e o operador confirma o vínculo antes do registro definitivo.
-
-O Master pode manter `organization_code`, indicativo, versão/hash do snapshot, timestamps de refresh e `payload_jsonb` do último snapshot válido. Esses dados são cache e não um cadastro institucional independente.
-
-Após o bootstrap, o Master atualiza periodicamente os snapshots das OM federadas. O Local consulta sua versão no Master e baixa novo snapshot apenas quando houver alteração. A ação administrativa **Sincronizar agora** deve reutilizar o mesmo fluxo.
-
-### 13.4. Apresentação e federação
-
-A Presentation Read API atende dashboards e UIs controlados pelo projeto. A Federation API tem contrato independente e mais estável para sincronização entre instâncias. Compartilhar a origem dos dados não exige compartilhar DTOs, permissões ou endpoints.
-
-As rotas atuais são web com views. `/api/v1/...` e `/federation/v1/...` são possibilidades para quando houver endpoints, não rotas disponíveis ou obrigação de migração agora. O receptor de push pertence ao Master; a OM não precisa expor uma API federada de coleta. Versionamento concreto será definido com o protocolo.
+As rotas atuais são web com views. Uma API de apresentação para dashboards e outros consumidores do próprio produto pode ser criada quando houver necessidade, sempre com autenticação, autorização e escopo de leitura obrigatórios.
 
 ## 14. Documentos relacionados
 

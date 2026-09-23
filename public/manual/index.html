@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HECATE — Governança e Controle de Impressão</title>
+  <style>
+    :root { color-scheme: dark; --navy:#11151a; --gold:#d5af68; --white:#f5f3ee; --muted:#c7c5c0; --line:rgba(213,175,104,.38); }
+    * { box-sizing:border-box } body { margin:0; background:#0a0d10; color:var(--white); font-family:Arial,Helvetica,sans-serif }
+    .deck { width:100%; height:100vh; display:grid; place-items:center }
+    .slide { display:none; position:relative; width:1280px; height:720px; flex:none; overflow:hidden; padding:65px 77px 25px; background:radial-gradient(circle at 83% 8%,#383128 0,transparent 34%),linear-gradient(135deg,#11151a,#202226 65%,#11151a); border:1px solid var(--line); box-shadow:0 20px 65px #0008 }
+    .slide.active { display:flex; flex-direction:column } .slide.hero { background:linear-gradient(90deg,#111315 0%,#171716f0 52%,#171716a8 100%),url('../branding/hecate-hero.jpg') center/cover }
+    .brand { width:235px; max-height:70px; object-fit:contain; object-position:left center; margin-bottom:2.1% }
+    .eyebrow { color:var(--gold); text-transform:uppercase; letter-spacing:.18em; font-size:clamp(14px,1.25vw,18px); font-weight:700 }
+    h1 { font-size:clamp(34px,4.15vw,63px); line-height:1.08; max-width:900px; margin:1.2% 0 2%; letter-spacing:-.035em }
+    h2 { font-size:clamp(32px,3.5vw,52px); line-height:1.13; margin:1% 0 2.2%; letter-spacing:-.025em }
+    p { font-size:clamp(19px,1.75vw,25px); line-height:1.38; color:var(--muted); margin:.4em 0 }
+    strong { color:var(--white) } .lead { max-width:790px; font-size:clamp(20px,2vw,29px) }
+    .gold { color:var(--gold) } .grid { display:grid; gap:1.3%; flex:1; min-height:0 } .cols2 { grid-template-columns:repeat(2,1fr) } .cols3 { grid-template-columns:repeat(3,1fr) }
+    .card { min-width:0; padding:5%; background:#17191cdd; border:1px solid #8b806e66; border-top:3px solid var(--gold); border-radius:8px }
+    .card h3 { font-size:clamp(23px,2.3vw,33px); margin:0 0 .5em; color:var(--gold) } .card p { font-size:clamp(19px,1.78vw,25px) }
+    .card small { display:block; color:var(--muted); font-size:clamp(19px,1.78vw,25px); line-height:1.38; margin-top:.8em }
+    .slide:not(.hero) { background:radial-gradient(circle at 86% 78%,#4a3a25 0,transparent 33%),linear-gradient(135deg,#1b1a19,#28241f 58%,#16191b) }
+    .slide:not(.flow-slide) .card { position:relative; overflow:hidden; background:linear-gradient(150deg,#28251fef,#1d1e20ec); border-color:#a28b6366; box-shadow:inset 0 1px 0 #ffffff12,0 10px 24px #0003 }
+    .slide:not(.flow-slide) .card h3 { display:flex; align-items:center; gap:.48em; min-height:70px }
+    .origin-layout { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr); gap:34px; flex:1; min-height:0 }
+    .origin-copy { min-width:0; display:flex; flex-direction:column; justify-content:center; gap:30px }
+    .origin-block { padding-left:18px; border-left:3px solid var(--gold) }
+    .origin-block h2,.origin-block h3 { margin:9px 0 13px; color:var(--white); line-height:1.12 }
+    .origin-block h2 { font-size:44px }
+    .origin-block h3 { font-size:32px }
+    .origin-block p { margin:0; font-size:22px; line-height:1.38 }
+    .origin-art { position:relative; min-height:0; margin:0; padding:18px; overflow:hidden; border:1px solid var(--line); border-radius:8px; background:#15191e }
+    .origin-art img { display:block; width:100%; height:100%; object-fit:contain; object-position:center }
+    .card-title-icon { flex:none; display:inline-flex; align-items:center; justify-content:center; width:68px; height:68px; border:1px solid var(--line); border-radius:9px; background:#d5af6812; color:var(--gold) }
+    .card-title-icon svg { width:52px; height:52px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round }
+    .card-title-icon img { display:block; max-width:54px; max-height:54px; object-fit:contain }
+    .card-title-icon--sava img { width:54px; height:57px; max-height:none; object-fit:cover; object-position:top; clip-path:inset(0 0 25% 0) }
+    .card-title-icon--dual { gap:2px; width:86px }
+    .card-title-icon--dual img { max-width:36px; max-height:36px }
+    .flow-map { display:grid; grid-template-rows:1fr auto 1fr; gap:2%; flex:1; min-height:0 }
+    .flow-lane { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:2.4% }
+    .flow-card { position:relative; padding:4.2%; background:linear-gradient(150deg,#28251fef,#1d1e20ec); border:1px solid #a28b6366; border-top:3px solid var(--gold); border-radius:7px; box-shadow:inset 0 1px 0 #ffffff12,0 10px 24px #0003 }
+    .flow-card:not(:last-child)::after { content:'→'; position:absolute; right:-8.5%; top:46%; color:var(--gold); font-size:clamp(23px,2.1vw,31px); z-index:1 }
+    .flow-card .number { display:inline-block; min-width:2em; margin-right:.5em; color:var(--gold); font-weight:800 }
+    .flow-card h3 { display:inline-flex; align-items:center; gap:.38em; margin:0; font-size:clamp(18px,1.7vw,24px); vertical-align:middle }
+    .flow-card .card-title-icon { width:54px; height:54px }
+    .flow-card .card-title-icon img { max-width:42px; max-height:42px }
+    .flow-card .card-title-icon svg { width:40px; height:40px }
+    .flow-card .card-title-icon--sava img { width:42px; height:44px; max-height:none }
+    .flow-card p { margin:.5em 0 0; font-size:clamp(17px,1.45vw,20px) }
+    .flow-transition { display:flex; align-items:center; justify-content:center; gap:1em; color:var(--gold); font-size:clamp(16px,1.4vw,20px); font-weight:700; letter-spacing:.02em }
+    .flow-transition::before,.flow-transition::after { content:''; width:13%; height:1px; background:var(--line) }
+    .foot { flex:none; min-height:50px; margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:18px; color:#bbb9b4; font-size:18px; border-top:1px solid var(--line); padding-top:10px }
+    .hero .foot { margin-top:auto }
+    .foot span:nth-child(2) { color:var(--gold); font-size:19px; font-weight:600 } .foot span:last-child { font-weight:700; white-space:nowrap } .footer-home { display:inline-flex; align-items:center; gap:.55em; min-height:34px; padding:5px 11px; color:var(--gold); font-weight:700; text-decoration:none; border:1px solid var(--gold); border-radius:5px; background:#302b20e6; white-space:nowrap } .footer-home::before { content:'←'; font-size:1.25em; line-height:1 } .footer-home:hover,.footer-home:focus-visible { color:#161511; background:var(--gold); outline:2px solid var(--white); outline-offset:2px }
+    .controls { position:fixed; top:14px; right:16px; display:flex; gap:8px; z-index:2 } button { background:#282825; border:1px solid var(--gold); color:var(--white); padding:9px 14px; cursor:pointer; border-radius:4px; font:inherit } button:hover { background:#403a2d }
+    @media(max-width:800px) and (orientation:portrait) { body { overflow:auto } .deck { height:auto; min-height:100vh } .slide { width:100vw; height:auto; min-height:100vh; padding:32px 25px 70px; overflow:visible } .grid { display:block } .card { margin-bottom:10px; padding:15px } .slide:not(.flow-slide) .card { min-height:150px } .origin-layout { display:block } .origin-art { height:420px } .origin-copy { margin-bottom:24px } .flow-map,.flow-lane { display:block } .flow-card { margin-bottom:9px; padding:14px } .flow-card::after { display:none } .flow-transition { margin:14px 0 } .brand { width:170px } .foot { margin-top:24px } .foot span:nth-child(2) { display:none } .controls { top:auto; bottom:5px } }
+    @media print { @page { size:16in 9in; margin:0 } body { background:white; print-color-adjust:exact; -webkit-print-color-adjust:exact } .deck { display:block; height:auto; padding:0 } .slide,.slide.active { display:flex; width:1280px; height:720px; zoom:1 !important; break-after:page; border:0; box-shadow:none } .controls { display:none } }
+  </style>
+</head>
+<body>
+<main class="deck" aria-label="Apresentação HECATE">
+  <section class="slide hero active"><img class="brand" src="../branding/logo-horizontal.png" alt="HECATE"><div class="eyebrow">Manual de apresentação · usuários e técnicos</div><h1>Governança e controle de impressão</h1><p class="lead">Uma solução para transformar impressão dispersa em serviço governado, seguro e auditável.</p><div class="foot"><a class="footer-home" href="/" aria-label="Voltar ao login do HECATE">CTIM · HECATE</a><span>✦ Identidade · Controle · Dados</span><span>01 / 12</span></div></section>
+  <section class="slide origin-slide" aria-labelledby="origin-title">
+    <div class="origin-layout">
+      <div class="origin-copy">
+        <div class="origin-block"><div class="eyebrow">A guardiã dos limiares</div><h2 id="origin-title">Quem é HECATE?</h2><p>Hécate representa limiar, decisão, vigilância e passagem controlada. O nome foi escolhido por traduzir a ideia de governar quem acessa, quem autoriza e o que precisa permanecer rastreável.</p></div>
+        <div class="origin-block"><div class="eyebrow">Identidade · Controle · Dados</div><h3>Qual a função da plataforma?</h3><p>Centralizar e governar o fluxo de impressão das OM, com autenticação, controle, cotas, auditoria e rastreabilidade, integrando identidade, controle e dados.</p></div>
+      </div>
+      <figure class="origin-art"><img src="../branding/hecate-conceito-provisorio3.png" alt="Representação conceitual de Hécate com tocha, lua e um cão, diante de uma paisagem noturna"></figure>
+    </div>
+    <div class="foot"><span>Origem do nome</span><span>✦ Da passagem à decisão</span><span>02 / 12</span></div>
+  </section>
+  <section class="slide"><div class="eyebrow">O problema</div><h2>Imprimir é simples. Governar a impressão, não.</h2><div class="grid cols3"><div class="card"><h3>Visibilidade limitada</h3><p>Sem uma visão comum, fica difícil saber quem imprimiu, onde, quanto e sob qual contrato.</p></div><div class="card"><h3>Regras dispersas</h3><p>Acesso a impressoras, cotas e exceções dependem de processos separados e pouco rastreáveis.</p></div><div class="card"><h3>Operação desigual</h3><p>Cada OM precisa implantar, acompanhar e recuperar o serviço de forma consistente.</p></div></div><div class="foot"><span>Problema institucional</span><span>✦ Governança acima do fluxo técnico</span><span>03 / 12</span></div></section>
+  <section class="slide"><div class="eyebrow">A proposta</div><h2>HECATE coordena decisões; cada componente executa seu papel.</h2><div class="grid cols3"><div class="card"><h3>Identidade</h3><p>Reconhecer usuário e vínculo institucional antes de conceder acesso.</p><small>Samba AD · Keycloak · Catálogo MB</small></div><div class="card"><h3>Controle</h3><p>Aplicar política, cota, aprovação e liberação deliberada.</p><small>HECATE · SavaPage · CUPS</small></div><div class="card"><h3>Dados</h3><p>Registrar decisões, contabilizar consumo e apoiar auditoria e indicadores.</p><small>PostgreSQL · hecate-agent</small></div></div><div class="foot"><span>Arquitetura da solução</span><span>✦ Políticas · Papéis · Cotas · Auditoria</span><span>04 / 12</span></div></section>
+  <section class="slide"><div class="eyebrow">Identidade e organização</div><h2>Quem é o usuário? A qual OM e divisão pertence?</h2><div class="grid cols3"><div class="card"><h3>Samba AD</h3><p>Fornece usuários, grupos e vínculos necessários, consultados em leitura.</p><small>Valor: evita criar uma identidade paralela para imprimir.</small></div><div class="card"><h3>Keycloak</h3><p>Oferece entrada no portal por SSO/OIDC e administração da autenticação.</p><small>Valor: acesso centralizado e sessões controladas.</small></div><div class="card"><h3>Catálogo MB</h3><p>Fonte oficial da estrutura, lotação e divisão das OM.</p><small>Atualizá-lo permite correlacionar a OM com usuários e grupos lidos do Samba AD.</small></div></div><div class="foot"><span>Fontes institucionais</span><span>✦ Consulta direta pela OM</span><span>05 / 12</span></div></section>
+  <section class="slide flow-slide"><div class="eyebrow">Controle de ponta a ponta · fluxo alvo</div><h2>Da solicitação ao consumo confirmado</h2><div class="flow-map" aria-label="Seis etapas do fluxo de impressão"><div class="flow-lane"><div class="flow-card"><span class="number">01</span><h3>Usuário envia</h3><p>Envia o documento à fila controlada.</p></div><div class="flow-card"><span class="number">02</span><h3>SavaPage retém</h3><p>Guarda o job antes da impressão física.</p></div><div class="flow-card"><span class="number">03</span><h3>HECATE decide</h3><p>Confere divisão, acesso e cota; reserva saldo.</p></div></div><div class="flow-transition">↓ usuário confirma com PIN; HECATE solicita liberação ↓</div><div class="flow-lane"><div class="flow-card"><span class="number">04</span><h3>SavaPage libera</h3><p>Libera o job retido pela interface suportada.</p></div><div class="flow-card"><span class="number">05</span><h3>CUPS entrega</h3><p>Encaminha à fila física e à impressora.</p></div><div class="flow-card"><span class="number">06</span><h3>HECATE reconcilia</h3><p>Confere páginas P&B/coloridas e fecha a cota.</p></div></div></div><div class="foot"><span>Fluxo ainda sujeito às POCs da EAP</span><span>✦ Retenção · Decisão · Entrega · Consumo</span><span>06 / 12</span></div></section>
+  <section class="slide"><div class="eyebrow">Execução da impressão</div><h2>O valor de SavaPage e CUPS</h2><div class="grid cols2"><div class="card"><h3>SavaPage</h3><p>Recebe e retém o job, fornece metadados, controla sua liberação e contabiliza a impressão.</p><small>Para o HECATE: cria o ponto de controle entre o envio do usuário e a execução.</small></div><div class="card"><h3>CUPS</h3><p>Gerencia as filas físicas e transporta o job liberado até a impressora.</p><small>Para o HECATE: conecta a decisão de liberar ao equipamento real.</small></div></div><div class="foot"><span>Camada de execução</span><span>✦ Governança no HECATE</span><span>07 / 12</span></div></section>
+  <section class="slide"><div class="eyebrow">Operação e continuidade</div><h2>Os componentes que sustentam o serviço</h2><div class="grid cols3"><div class="card"><h3>PostgreSQL</h3><p>Guarda políticas, cotas, reservas, auditoria e dados operacionais.</p><small>Valor: consistência transacional e rastreabilidade.</small></div><div class="card"><h3>hecate-agent</h3><p>Executa descoberta, diagnóstico, monitoramento e operações locais controladas.</p><small>Valor: visibilidade e ações técnicas auditáveis na OM.</small></div><div class="card"><h3>Podman + Nexus</h3><p>Podman hospeda serviços previstos em contêineres; Nexus distribui artefatos homologados.</p><small>Valor: implantação e atualização reproduzíveis.</small></div></div><div class="foot"><span>Infraestrutura operacional</span><span>✦ Monitorar · Atualizar · Recuperar</span><span>08 / 12</span></div></section>
+  <section class="slide"><div class="eyebrow">Operação da OM</div><h2>Dados institucionais atualizados, operação local</h2><div class="grid cols2"><div class="card"><h3>HECATE da OM</h3><p>Opera impressão, políticas, cotas, contratos, auditoria e indicadores da própria OM.</p><small>Impressão e administração locais continuam durante falha temporária do Catálogo MB.</small></div><div class="card"><h3>Catálogo MB + Samba AD</h3><p>O HECATE consulta diretamente os dados institucionais no Catálogo MB e usuários e grupos no AD.</p><small>O snapshot local é somente leitura e mantém a última atualização bem-sucedida.</small></div></div><div class="foot"><span>Arquitetura alvo</span><span>✦ Uma instalação por OM</span><span>09 / 12</span></div></section>
+  <section class="slide"><div class="eyebrow">Para quem usa</div><h2>Como será a experiência de impressão?</h2><div class="grid cols3"><div class="card"><h3>1 · Enviar</h3><p>O usuário envia o documento pelo caminho de impressão configurado para sua OM.</p><small>As impressoras dependem de sua divisão e das políticas. O login atual é demonstrativo.</small></div><div class="card"><h3>2 · Confirmar</h3><p>O job fica retido até a confirmação de liberação pelo usuário, com PIN no fluxo previsto.</p><small>A cota considera valores alocados, consumidos e reservados. A liberação integrada ainda depende de POCs.</small></div><div class="card"><h3>3 · Acompanhar</h3><p>O resultado e o consumo devem ser confirmados pela contabilização da impressão.</p><small>Em caso de falha incerta, a reserva fica pendente de reconciliação.</small></div></div><div class="foot"><span>Dúvida comum: por que o job não sai imediatamente?</span><span>✦ Para aplicar acesso e cota antes da impressão</span><span>10 / 12</span></div></section>
+  <section class="slide"><div class="eyebrow">Para equipes técnicas</div><h2>Quem consultar quando algo falhar?</h2><div class="grid cols3"><div class="card"><h3>Acesso e contexto</h3><p>AD: usuários e grupos. Keycloak: autenticação. Catálogo MB: identificação e dados institucionais.</p><small>Verificar última sincronização, divergências e estado do snapshot; corrigir dados institucionais na fonte oficial.</small></div><div class="card"><h3>Job e equipamento</h3><p>SavaPage: retenção, liberação e accounting. CUPS: fila e entrega à impressora. Agent: descoberta e diagnóstico locais.</p><small>Liberação aceita não equivale a impressão concluída.</small></div><div class="card"><h3>Dados e continuidade</h3><p>PostgreSQL: dados operacionais, cache e auditoria. Nexus: artefatos homologados.</p><small>Monitorar backup, restore, atualização e reconciliação na instalação da OM.</small></div></div><div class="foot"><span>Mapa de diagnóstico</span><span>✦ Verificar a fronteira correspondente</span><span>11 / 12</span></div></section>
+  <section class="slide"><div class="eyebrow">Entrega responsável</div><h2>O que existe e o que precisa ser provado</h2><div class="grid cols2"><div class="card"><h3>Base já presente</h3><p>Yii3, PostgreSQL configurado, dashboard inicial, cadastro e listagem de impressoras, CSRF e componentes preliminares de reserva e liberação.</p></div><div class="card"><h3>Próximas evidências</h3><p>Identidade institucional, escopo e autorização, integração SavaPage/CUPS, accounting, concorrência, descoberta pelo Agent e Catálogo MB.</p></div></div><div class="foot"><span>Fonte de acompanhamento: docs/EAP.md</span><span>✦ HECATE</span><span>12 / 12</span></div></section>
+</main>
+<nav class="controls" aria-label="Navegação dos slides"><button type="button" id="prev" aria-label="Slide anterior">←</button><button type="button" id="next" aria-label="Próximo slide">→</button></nav>
+<script>
+  const icons = {
+    chart:'<path d="M4 20V11m6 9V5m6 15v-7m4 7H2"/><path d="m3 8 6-4 6 4 5-5"/>',
+    shield:'<path d="M12 2 21 6v6c0 5-3.5 8-9 10-5.5-2-9-5-9-10V6Z"/><path d="m8 12 3 3 5-6"/>',
+    tools:'<path d="M4 19 19 4m-3-1 5 5M3 16l5 5"/><circle cx="7" cy="7" r="3"/>',
+    users:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2Zm13-15a3 3 0 0 1 0 6m1 4a5 5 0 0 1 4 5"/>',
+    key:'<circle cx="8" cy="15" r="5"/><path d="m11.5 11.5 8-8L22 6l-2 2 1.5 1.5-3 3-1.5-1.5-2 2"/>',
+    network:'<circle cx="12" cy="4" r="2"/><circle cx="4" cy="19" r="2"/><circle cx="20" cy="19" r="2"/><path d="M11 6 5 17m8-11 6 11M6 19h12"/>',
+    database:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 4 18 4 18 0V5M3 12c0 4 18 4 18 0"/>',
+    document:'<path d="M6 2h9l4 4v16H6Z"/><path d="M14 2v5h5M9 12h7M9 16h7"/>',
+    printer:'<path d="M6 9V3h12v6M6 19H4V9h16v10h-2"/><path d="M6 15h12v7H6Zm11-3h1"/>',
+    pulse:'<path d="M2 12h4l3-6 4 12 3-6h6"/><circle cx="12" cy="12" r="10"/>',
+    package:'<path d="m3 7 9-4 9 4v10l-9 4-9-4Z"/><path d="m3 7 9 4 9-4m-9 4v10M8 5l9 4"/>',
+    building:'<path d="M4 22V5l8-3 8 3v17M2 22h20M8 8h2m4 0h2m-8 4h2m4 0h2m-5 10v-6h2v6"/>',
+    check:'<circle cx="12" cy="12" r="10"/><path d="m7 12 3 3 7-7"/>'
+  };
+  const cardIcons = {
+    'Visibilidade limitada':'chart','Regras dispersas':'shield','Operação desigual':'tools',
+    'Identidade':'users','Controle':'shield','Dados':'database','Samba AD':'users','Keycloak':'key','Catálogo MB':'network',
+    'SavaPage':'document','CUPS':'printer','PostgreSQL':'database','hecate-agent':'pulse','Podman + Nexus':'package',
+    'HECATE da OM':'building','Catálogo MB + Samba AD':'network','1 · Enviar':'document','2 · Confirmar':'key','3 · Acompanhar':'chart',
+    'Acesso e contexto':'users','Job e equipamento':'printer','Dados e continuidade':'database','Base já presente':'check','Próximas evidências':'chart'
+  };
+  const officialLogos = {
+    'Samba AD':['samba.ico'],'Keycloak':['keycloak.svg'],'SavaPage':['savapage.png'],
+    'CUPS':['cups.png'],'PostgreSQL':['postgresql.png'],'Podman + Nexus':['podman.ico','sonatype.svg'],
+    'HECATE da OM':['../branding/symbol.png']
+  };
+  document.querySelectorAll('.slide:not(.flow-slide) .card').forEach(card => {
+    const heading = card.querySelector('h3');
+    const title = heading.textContent.trim();
+    const badge = document.createElement('span');
+    badge.className = 'card-title-icon';
+    badge.setAttribute('aria-hidden', 'true');
+    if (officialLogos[title]) {
+      if (officialLogos[title].length > 1) badge.classList.add('card-title-icon--dual');
+      if (title === 'SavaPage') badge.classList.add('card-title-icon--sava');
+      officialLogos[title].forEach(file => {
+        const image = document.createElement('img');
+        image.src = file.startsWith('..') ? file : `logos/${file}`;
+        image.alt = '';
+        badge.append(image);
+      });
+    } else {
+      badge.innerHTML = `<svg viewBox="0 0 24 24" focusable="false">${icons[cardIcons[title] || 'check']}</svg>`;
+    }
+    heading.prepend(badge);
+  });
+  document.querySelectorAll('.flow-slide .flow-card h3').forEach(heading => {
+    const title = heading.textContent.trim();
+    const badge = document.createElement('span');
+    badge.className = 'card-title-icon';
+    badge.setAttribute('aria-hidden', 'true');
+    const logo = title.startsWith('SavaPage') ? 'logos/savapage.png'
+      : title.startsWith('CUPS') ? 'logos/cups.png'
+      : title.startsWith('HECATE') ? '../branding/symbol.png' : null;
+    if (logo) {
+      if (title.startsWith('SavaPage')) badge.classList.add('card-title-icon--sava');
+      const image = document.createElement('img');
+      image.src = logo;
+      image.alt = '';
+      badge.append(image);
+    } else {
+      badge.innerHTML = `<svg viewBox="0 0 24 24" focusable="false">${icons.users}</svg>`;
+    }
+    heading.prepend(badge);
+  });
+  document.querySelectorAll('.slide .foot').forEach(footer => {
+    if (footer.querySelector('.footer-home')) return;
+    const first = footer.querySelector('span');
+    const home = document.createElement('a');
+    home.className = 'footer-home';
+    home.href = '/';
+    home.textContent = 'CTIM · HECATE';
+    home.setAttribute('aria-label', 'Voltar ao login do HECATE');
+    first.replaceWith(home);
+  });
+  const slides = [...document.querySelectorAll('.slide')]; let current = 0;
+  function fitSlides() {
+    const portrait = matchMedia('(max-width:800px) and (orientation:portrait)').matches;
+    const scale = portrait ? 1 : Math.min(1, innerWidth / 1280, innerHeight / 720);
+    slides.forEach(slide => { slide.style.zoom = portrait ? '' : String(scale); });
+  }
+  fitSlides();
+  addEventListener('resize', fitSlides);
+  function show(index) { current = Math.max(0, Math.min(slides.length - 1, index)); slides.forEach((slide, i) => slide.classList.toggle('active', i === current)); location.hash = String(current + 1); }
+  document.getElementById('prev').addEventListener('click', () => show(current - 1));
+  document.getElementById('next').addEventListener('click', () => show(current + 1));
+  addEventListener('keydown', e => { if (['ArrowRight','PageDown',' '].includes(e.key)) { e.preventDefault(); show(current + 1); } if (['ArrowLeft','PageUp'].includes(e.key)) { e.preventDefault(); show(current - 1); } });
+  const initial = Number(location.hash.slice(1)); if (Number.isInteger(initial) && initial > 0) show(initial - 1);
+</script>
+</body>
+</html>

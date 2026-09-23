@@ -169,12 +169,10 @@ Segredos incluem:
 - credenciais PostgreSQL;
 - communities SNMP;
 - credenciais SNMPv3;
-- credencial/token do Catálogo MB mantido no HECATE Master;
-- eventual credencial do phpIPAM mantida no HECATE Master;
-- credenciais M2M de cada instalação;
+- credencial/token do Catálogo MB mantido na instalação da OM;
 - chaves internas do agente.
 
-Credenciais de integrações corporativas do Master não devem ser distribuídas às instalações locais.
+Cada OM deve usar credencial própria e privilégio mínimo para a integração institucional. Segredos não devem ser incluídos no pacote genérico.
 
 Nunca armazenar esses valores em código-fonte ou documentação versionada.
 
@@ -184,9 +182,8 @@ Necessidades atuais:
 
 - **Administrador geral do HECATE:** dashboards, CRUDs, configurações e gestão global da instância local, com concessão explícita; não implica privilégio de sistema operacional ou de outras OMs.
 - **Gestor de contrato de impressão:** leitura predominante de contratos, consumo, franquias, custos, impressoras vinculadas e indicadores, limitada aos contratos autorizados. Escritas eventuais exigem permissão própria; leitura não concede administração.
-- **HECATE Master:** consumidor federado de agregados e intermediador das integrações institucionais previstas, não usuário administrativo local; ver seção 17.
 
-Os perfis funcionais abaixo continuam como referência de responsabilidades e segregação. Não são substituídos pelos três cenários acima nem devem virar roles obrigatórias sem necessidade:
+Os perfis funcionais abaixo continuam como referência de responsabilidades e segregação. Não substituem os cenários acima nem devem virar roles obrigatórias sem necessidade:
 
 ### Administrador Técnico
 
@@ -229,57 +226,39 @@ Como HA não é requisito inicial, segurança operacional inclui capacidade de r
 - imagens/pacotes homologados no Nexus;
 - restauração testada periodicamente.
 
-## 17. Segurança da federação e bootstrap
+## 17. Segurança da integração institucional
 
 ### 17.1. Princípios
 
-O pacote genérico não deve conter `OM_ID`, credencial permanente do Master, client secret global, token do Catálogo MB ou credencial compartilhada entre OM. A identidade federada é estabelecida após a instalação.
+O pacote genérico não deve conter `OM_ID`, token do Catálogo MB nem credencial compartilhada entre OM. Identidade institucional e credenciais próprias são configuradas após a instalação.
 
-A conexão parte da OM para o Master. O Master vincula cada `installation_uuid` à OM confirmada no bootstrap e deve manter identidade/credencial própria por instalação para a operação federada posterior. O mecanismo M2M definitivo permanece sujeito a homologação, preferencialmente OAuth2 Client Credentials ou equivalente compatível com Keycloak. mTLS permanece opção futura condicionada à necessidade operacional.
-
-Usar TLS com validação de certificado. Restringir a configuração de destino a administradores autorizados e validar URL/destinos permitidos, inclusive redirecionamentos, para evitar SSRF e envio a destinatário indevido. Segredos ficam em armazenamento operacional protegido, fora de pacote, Git e logs; registro, rotação, revogação e sincronizações devem ser auditáveis sem expor credenciais.
+Usar TLS com validação de certificado nas consultas ao Catálogo MB. Restringir a configuração de destino a administradores autorizados e validar URL/destinos permitidos, inclusive redirecionamentos, para evitar SSRF e envio a destinatário indevido. Segredos ficam em armazenamento operacional protegido, fora de pacote, Git e logs; rotação e sincronizações devem ser auditáveis sem expor credenciais.
 
 ### 17.2. Identificação da OM no bootstrap
 
-Durante a instalação inicial, o HECATE Local informa e valida o domínio Samba AD da OM. O domínio serve como referência inicial de descoberta e não deve ser tratado como identidade oficial por si só.
+Durante a instalação inicial, o HECATE valida o domínio Samba AD da OM. O domínio serve como referência inicial e não deve ser tratado como identidade oficial por si só.
 
-O HECATE Master consulta o Catálogo MB, que permanece como fonte autoritativa dos dados institucionais, para obter e confirmar código, indicativo, nome e demais informações necessárias. O operador confirma a OM identificada antes da associação definitiva da instalação.
+O HECATE da OM consulta diretamente o Catálogo MB, fonte autoritativa dos dados institucionais, para obter e confirmar código, indicativo, nome e demais informações necessárias. O operador confirma a OM identificada antes do vínculo local.
 
-CatalogoMB é consumido exclusivamente pelo Master. O HECATE Local não recebe endpoint, token ou credencial da API corporativa.
+Endpoint e credencial da API são protegidos na instalação da OM, com acesso restrito e sem exposição em tela ou log.
 
 Divergências entre o domínio informado, os dados retornados pelo Catálogo MB ou outras fontes auxiliares não devem ser corrigidas automaticamente pelo HECATE. Devem impedir vínculo automático ou exigir verificação administrativa.
 
 ### 17.3. Premissa de segurança do bootstrap
 
-O bootstrap ocorre em ambiente institucional controlado e considera como premissa a cooperação entre as OM. Na primeira versão, não é requisito proteger o registro contra tentativa deliberada de personificação de outra OM por agente interno.
+A identificação inicial ocorre em ambiente institucional controlado.
 
-A combinação entre domínio AD validado, identificação oficial pelo Catálogo MB e confirmação pelo operador é considerada suficiente para o bootstrap inicial. Essa premissa é específica do processo inicial de registro e não elimina a necessidade de autenticação M2M própria para as sincronizações posteriores entre HECATE Local e Master.
+A combinação entre domínio AD validado, identificação oficial pelo Catálogo MB e confirmação pelo operador fundamenta o vínculo inicial. Consultas posteriores à API usam a credencial própria da OM.
 
-### 17.4. phpIPAM opcional
+### 17.4. Cache institucional
 
-Quando houver integração disponível e autorizada com o phpIPAM, o Master poderá verificar de forma complementar a compatibilidade do endereço de origem da solicitação com as redes associadas à OM.
-
-Essa verificação:
-
-- é opcional;
-- não é requisito para o bootstrap;
-- não constitui autenticação isoladamente;
-- deve utilizar o endereço observado pelo Master ou por infraestrutura intermediária previamente confiável;
-- nunca deve confiar em um IP declarado pelo cliente como prova.
-
-O phpIPAM, caso integrado, também é consumido exclusivamente pelo Master.
-
-### 17.5. Cache institucional
-
-O cache do Catálogo MB no Master é técnico, somente leitura e descartável. Não é fonte autoritativa e não deve possuir mecanismos de edição dos dados recebidos.
+O cache do Catálogo MB na instalação da OM é técnico, somente leitura e descartável. Não é fonte autoritativa e não deve possuir mecanismos de edição dos dados recebidos.
 
 Falha de atualização não deve apagar o último snapshot válido. O estado de sincronização deve permitir distinguir dados atuais, desatualizados e falha de refresh. Correções de dados institucionais devem ocorrer no Catálogo MB.
 
-### 17.6. Dados federados de governança
+### 17.5. Usuários e grupos do AD
 
-Enviar apenas métricas e dimensões aprovadas no contrato. Conteúdo de documentos, nomes de jobs, identidades individuais, credenciais e cópia das trilhas operacionais não integram o envio de governança. Os metadados da seção 12 são locais, com retenção e acesso controlados; não autorizam exportação ao Master. Definir granularidade que evite identificação indireta em grupos pequenos.
-
-O receptor limita tamanho e frequência dos envios, valida versão e vínculo instância/OM e trata reenvios sem duplicação. Permissões federadas não concedem leitura irrestrita nem comandos sobre a OM. Retenção dos agregados e acesso dos usuários centrais devem ser definidos antes da homologação.
+Consultar usuários e grupos por LDAPS com conta de leitura e escopo mínimo. Dados do Catálogo MB ajudam a correlacionar lotação e estrutura institucional; inconsistências exigem revisão humana. O HECATE não modifica usuários, grupos ou vínculos no Samba AD automaticamente.
 
 ## 18. Segurança no desenvolvimento
 

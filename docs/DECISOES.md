@@ -67,12 +67,11 @@ Este documento consolida as decisões já fechadas para o HECATE e substitui a n
 - **Samba AD:** identidade institucional, somente leitura.
 - **Catálogo MB:** fonte autoritativa dos dados institucionais e organizacionais utilizados pelo HECATE.
 - **Keycloak:** SSO/OIDC e base para autenticação reforçada futura.
-- **HECATE Local:** governança, políticas, cotas, contratos, aprovações, auditoria e operação da OM.
-- **HECATE Master:** federação, registro das instalações e consumidor exclusivo das integrações corporativas usadas no bootstrap e sincronização institucional.
+- **HECATE da OM:** governança, políticas, cotas, contratos, aprovações, auditoria e operação; consome os dados necessários do Catálogo MB.
 - **SavaPage:** retenção, contabilização e aplicação das regras de impressão.
 - **CUPS:** filas físicas e transporte até o equipamento.
 - **PostgreSQL:** persistência com isolamento lógico por componente.
-- **hecate-agent:** operações locais privilegiadas, descoberta, diagnóstico e comunicação periódica com o Master.
+- **hecate-agent:** operações locais privilegiadas, descoberta e diagnóstico.
 - **Nexus:** distribuição institucional de pacotes, imagens e artefatos homologados; não é CI/CD.
 
 ## 9. Identidade e organização
@@ -132,7 +131,7 @@ A ausência de telemetria não deve bloquear impressão. Dados detectados devem 
 
 ## 15. hecate-agent
 
-O agente é um componente separado da aplicação web e concentra operações locais que exigem privilégio adicional. A interface deve oferecer apenas operações fechadas, controladas e auditáveis. O agente também pode executar a comunicação periódica Local -> Master, inclusive heartbeat e verificação de atualização dos dados institucionais.
+O agente é um componente separado da aplicação web e concentra operações locais que exigem privilégio adicional. A interface deve oferecer apenas operações fechadas, controladas e auditáveis.
 
 ## 16. Implantação
 
@@ -145,7 +144,7 @@ O agente é um componente separado da aplicação web e concentra operações lo
 
 ## 17. Homologações pendentes
 
-POCs, evidências e critérios pendentes são mantidos exclusivamente na [EAP](EAP.md#42-pocs-críticas), incluindo o [incremento federado](EAP.md#5-incremento-de-leitura-e-federação). Decisão arquitetural aceita não significa integração homologada.
+POCs, evidências e critérios pendentes são mantidos exclusivamente na [EAP](EAP.md#42-pocs-críticas). Decisão arquitetural aceita não significa integração homologada.
 
 ## 18. Qualidade e hooks de desenvolvimento
 
@@ -190,34 +189,32 @@ Decisões aceitas em chat devem ser incorporadas à fonte canônica corresponden
 
 **Consequência:** não exigir entidades/ActiveRecord/repository para apresentação nem introduzir CQRS formal ou infraestrutura adicional. A direção API-first preserva as views atuais e a escolha aberta de frontend. Fluxos em [ARQUITETURA.md](ARQUITETURA.md#61-caminhos-de-escrita-e-leitura); perfis e escopos em [SEGURANCA.md](SEGURANCA.md#6-autorização).
 
-## 21. Federação por agregados e identidade por instância
+## 21. Instalação independente por OM
 
-**Decisão:** HECATE Local envia agregados por push ao Master, consumidor de governança sem administração da operação local. Nexus distribui/versiona artefatos genéricos; o Master registra instâncias e sua associação à OM após a instalação.
+**Decisão:** cada OM opera uma instalação HECATE independente. Nexus distribui e versiona os artefatos genéricos.
 
-**Motivo:** permitir governança central sem copiar o banco operacional, exigir acesso de entrada nas OMs ou distribuir credenciais compartilhadas no software.
+**Motivo:** manter a arquitetura compatível com a operação efetiva por OM, sem criar serviço central inexistente.
 
-**Consequência:** a conexão federada parte da OM para o Master; sincronização deve ser automática, idempotente, versionável e recuperável. A identidade própria da instância e o mecanismo M2M permanente serão definidos/homologados sem depender de credencial corporativa embutida no pacote. O bootstrap institucional descrito na seção 22 substitui a premissa anterior de exigir token manual como passo obrigatório de identificação da OM. Contrato e questões abertas em [ARQUITETURA.md](ARQUITETURA.md#13-federação-e-apis); controles em [SEGURANCA.md](SEGURANCA.md#17-segurança-da-federação); ciclo operacional em [IMPLANTACAO.md](IMPLANTACAO.md#18-enrollment-e-operação-federada).
+**Consequência:** dados operacionais e indicadores permanecem na OM. Instalação, backup, atualização e recuperação são conduzidos por OM. Controles de leitura continuam dependentes de autorização e escopo.
 
-## 22. Bootstrap institucional e Catálogo MB
+## 22. Identificação institucional e Catálogo MB
 
-**Decisão:** somente o HECATE Master consome o Catálogo MB. Durante a instalação, o HECATE Local informa e valida o domínio Samba AD da OM; o domínio é usado como referência inicial para descoberta, enquanto a identidade oficial da OM é confirmada pelo Catálogo MB por intermédio do Master.
+**Decisão:** a instalação HECATE da OM consome diretamente o Catálogo MB. O domínio Samba AD é referência inicial; o Catálogo MB confirma a identidade oficial e a estrutura institucional da OM, com verificação pelo operador.
 
-**Motivo:** eliminar cadastro institucional duplicado nas OM, concentrar credenciais e dependências corporativas no Master e preservar o Catálogo MB como única fonte autoritativa desses dados.
+**Motivo:** evitar cadastro institucional paralelo e preservar o Catálogo MB como fonte autoritativa, sem depender de outra instância HECATE.
 
 **Consequências:**
 
-- o `hecate-setup` não solicita endpoint nem credencial do Catálogo MB na OM;
+- endpoint e credencial do Catálogo MB são configurados e protegidos na instalação da OM, fora do pacote versionado;
 - o técnico não deve precisar digitar código institucional da OM no fluxo normal; o domínio AD fornece a referência inicial e o operador confirma a OM encontrada;
-- o Master mantém cache técnico, somente leitura e descartável dos snapshots das OM que efetivamente possuem HECATE instalado;
+- a instalação mantém cache técnico, somente leitura e descartável dos dados necessários à sua OM;
 - o cache não é uma segunda fonte de verdade e não oferece edição dos dados recebidos;
-- em cache miss ou atualização necessária, o Master consulta o Catálogo MB, grava o snapshot e o entrega ao HECATE Local;
-- somente OM federadas entram no refresh periódico; instalações locais consultam exclusivamente o Master;
+- em cache miss ou atualização necessária, o HECATE consulta o Catálogo MB e grava o snapshot local;
 - a sincronização deve admitir execução periódica e ação manual, reutilizando o mesmo caso de uso;
 - indisponibilidade temporária do Catálogo MB não apaga o último snapshot válido; o estado deve indicar desatualização/falha de refresh;
-- quando houver acesso autorizado ao phpIPAM, o Master poderá verificar de forma complementar a compatibilidade do IP de origem com as redes da OM. Essa integração é opcional e não é requisito de bootstrap;
-- CatalogoMB e eventual phpIPAM são integrações exclusivas do Master.
+- dados atualizados do Catálogo MB permitem correlacionar a estrutura institucional com usuários e grupos consultados no Samba AD, sem escrever no domínio.
 
-**Premissa de segurança:** o bootstrap ocorre em ambiente institucional controlado e considera cooperação entre as OM. Na primeira versão, não é requisito resistir a tentativa deliberada de personificação de outra OM por agente interno. A combinação entre domínio AD validado, identificação oficial pelo Catálogo MB e confirmação pelo operador é considerada suficiente para o bootstrap inicial. Eventual validação via phpIPAM é apenas evidência complementar. Divergências entre as fontes não devem ser corrigidas automaticamente e devem impedir o vínculo automático ou exigir verificação administrativa.
+**Premissa de segurança:** domínio AD validado, identificação oficial pelo Catálogo MB e confirmação pelo operador fundamentam o vínculo inicial. Divergências entre as fontes não devem ser corrigidas automaticamente; exigem verificação administrativa.
 
 ## 23. HECATE Demo
 
