@@ -79,5 +79,4 @@ $this->setTitle('Entrar — HECATE');
         Entrar
     </button>
     <a class="login-manual" href="/manual/index.html" target="_blank" rel="noopener noreferrer" aria-label="Abrir manual do HECATE em nova aba">MANUAL</a>
-    <p class="login-demo-notice">Acesso demonstrativo: não use sua senha institucional real.</p>
 </form>
