@@ -24,7 +24,6 @@ final class MainAsset extends AssetBundle
         'data-grid.css',
         'grid-enhancements.css',
         'login.css',
-        'hecate-discovery.css',
     ];
 
     /** @var list<string> */
