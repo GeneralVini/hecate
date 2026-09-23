@@ -29,6 +29,20 @@ Os três portais representam os domínios:
 
 A composição institucional usa uma representação original de Hécate como elemento simbólico de passagem controlada, decisão e limiar. A personagem visual do HECATE deve ser tratada como criação própria do projeto, sem reprodução intencional da aparência de pessoa real. O cenário do Rio de Janeiro, com Cristo Redentor e Pão de Açúcar, reforça a identidade visual da solução sem substituir seu caráter técnico e institucional.
 
+## Resolução de URLs
+
+Os arquivos permanecem fisicamente em `public/branding/`, mas a aplicação não deve referenciá-los com caminhos absolutos como `/branding/...`.
+
+O consumo em runtime é centralizado em `BrandingAsset`, com URLs obtidas pelo `AssetManager` do Yii. Essa regra evita dependência de domínio, subdiretório de implantação, `DocumentRoot`, reverse proxy, multisite ou sistema operacional.
+
+Regras:
+
+- PHP deve obter a URL com `AssetManager::getUrl(BrandingAsset::class, $arquivo)`;
+- CSS deve receber backgrounds por custom properties injetadas pela view/layout após resolução pelo Yii;
+- JavaScript não deve construir base URL de branding manualmente;
+- `MainAsset` depende de `BrandingAsset`, mantendo identidade visual separada dos CSS/JS da aplicação;
+- novos assets institucionais devem seguir o mesmo mecanismo, sem criar concatenação paralela de caminhos.
+
 ## Uso recomendado
 
 ### `logo-horizontal.png`
@@ -88,6 +102,7 @@ Evitar:
 - excesso de texto nas imagens operacionais;
 - formulários de login incorporados ao background;
 - efeitos visuais que reduzam a legibilidade da interface;
-- usar como referência visual a aparência de pessoa real sem autorização explícita.
+- usar como referência visual a aparência de pessoa real sem autorização explícita;
+- URLs de branding hardcoded em PHP, CSS ou JavaScript.
 
 Consulte `docs/IDENTIDADE-VISUAL.md` para as regras completas de interface e branding.
