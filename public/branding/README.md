@@ -14,7 +14,6 @@ Esta pasta contém os assets oficiais de interface e identidade do HECATE.
 - `favicon-192x192.png`
 - `favicon-512x512.png`
 - `login-background.jpg`
-- `login-background.png`
 - `dashboard-background.jpg`
 - `hecate-hero.jpg`
 
@@ -28,7 +27,7 @@ Os três portais representam os domínios:
 - **Controle** — SavaPage e CUPS;
 - **Dados** — PostgreSQL e Podman.
 
-A composição institucional usa Hécate como elemento simbólico de passagem controlada, decisão e limiar. O cenário do Rio de Janeiro, com Cristo Redentor e Pão de Açúcar, reforça a identidade visual da solução sem substituir seu caráter técnico e institucional.
+A composição institucional usa uma representação original de Hécate como elemento simbólico de passagem controlada, decisão e limiar. A personagem visual do HECATE deve ser tratada como criação própria do projeto, sem reprodução intencional da aparência de pessoa real. O cenário do Rio de Janeiro, com Cristo Redentor e Pão de Açúcar, reforça a identidade visual da solução sem substituir seu caráter técnico e institucional.
 
 ## Uso recomendado
 
@@ -48,9 +47,9 @@ Sidebar recolhida, avatar do produto, loader e componentes compactos.
 
 Usar o tamanho adequado no `<head>`, atalhos e futuro manifest/PWA.
 
-### `login-background.jpg` e `login-background.png`
+### `login-background.jpg`
 
-São backgrounds da tela de autenticação. O formulário permanece HTML/Yii3, nunca desenhado na própria imagem. A composição deve preservar área de escape suficiente para usuário, senha e ação de entrada.
+Background da tela de autenticação. O formulário permanece HTML/Yii3, nunca desenhado na própria imagem. A composição deve preservar área de escape suficiente para usuário, senha e ação de entrada.
 
 O rodapé institucional é renderizado em HTML/CSS para manter legibilidade e adaptação responsiva:
 
@@ -88,6 +87,7 @@ Evitar:
 - excesso de fantasia sem relação com a solução;
 - excesso de texto nas imagens operacionais;
 - formulários de login incorporados ao background;
-- efeitos visuais que reduzam a legibilidade da interface.
+- efeitos visuais que reduzam a legibilidade da interface;
+- usar como referência visual a aparência de pessoa real sem autorização explícita.
 
 Consulte `docs/IDENTIDADE-VISUAL.md` para as regras completas de interface e branding.
