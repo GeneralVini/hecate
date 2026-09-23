@@ -1,4 +1,9 @@
-/* Login composition overrides. */
+/**
+ * Login composition overrides.
+ *
+ * Branding URLs are injected by Yii through BrandingAsset as CSS custom
+ * properties. This stylesheet must not assume host, base path or document root.
+ */
 .login-page {
     width: 100vw;
     min-height: 100dvh;
@@ -27,7 +32,7 @@
     background:
         radial-gradient(circle at 50% 67%, rgba(210, 173, 82, .035), transparent 24%),
         linear-gradient(180deg, rgba(2, 11, 23, .01) 0%, rgba(2, 11, 23, .02) 74%, rgba(2, 11, 23, .05) 100%),
-        url('/branding/login-background.jpg') center center / 100% 100% no-repeat;
+        var(--hecate-login-background) center center / 100% 100% no-repeat;
 }
 
 .login-form-area {
@@ -237,7 +242,6 @@
     color: #ffd2cb;
     font-size: .8rem;
 }
-
 .login-error-summary {
     grid-column: 1 / -1;
     margin: 0;
