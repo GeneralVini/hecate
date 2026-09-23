@@ -36,21 +36,24 @@ show_noexec_hint() {
 require_command() {
     local command_name="$1"
     local message="$2"
+    local repair_command="$3"
 
     if ! command -v "$command_name" >/dev/null 2>&1; then
         error "$message"
+        repair "$repair_command"
         exit 1
     fi
 }
 
 mkdir -p "$TOOLS"
 
-require_command python3 'Python 3.10+ é necessário para Semgrep.'
+require_command python3 'Python 3.10+ é necessário para Semgrep.' 'sudo apt install python3 python3-venv'
 PYTHON_OK="$(python3 -c 'import sys; print(1 if sys.version_info >= (3, 10) else 0)')"
 if [[ "$PYTHON_OK" != "1" ]]; then
     error 'Python 3.10+ é necessário para Semgrep.'
     printf 'Versão atual:\n\n  ' >&2
     python3 --version >&2 || true
+    repair 'instale/ative Python 3.10 ou superior e execute: make setup'
     exit 1
 fi
 
@@ -107,18 +110,19 @@ if [[ "$SEMGREP_VERSION_OUTPUT" != *"$SEMGREP_VERSION"* ]]; then
 fi
 printf '[OK] Semgrep %s instalado, executável e funcional\n' "$SEMGREP_VERSION"
 
-require_command java 'Java 17+ é necessário para OWASP ZAP.'
+require_command java 'Java 17+ é necessário para OWASP ZAP.' 'sudo apt install openjdk-17-jre'
 JAVA_VERSION="$(java -version 2>&1 | head -n 1 | sed -E 's/.*version "([0-9]+).*/\1/')"
 if ! [[ "$JAVA_VERSION" =~ ^[0-9]+$ ]] || (( JAVA_VERSION < 17 )); then
     error 'Java 17+ é necessário para OWASP ZAP.'
     printf 'Versão atual:\n\n' >&2
     java -version >&2 || true
+    repair 'sudo apt install openjdk-17-jre'
     exit 1
 fi
 
 if [[ ! -e "$ZAP_BIN" ]]; then
-    require_command curl 'curl é necessário para instalar OWASP ZAP.'
-    require_command sha256sum 'sha256sum é necessário para validar OWASP ZAP.'
+    require_command curl 'curl é necessário para instalar OWASP ZAP.' 'sudo apt install curl'
+    require_command sha256sum 'sha256sum é necessário para validar OWASP ZAP.' 'sudo apt install coreutils'
     tmp="$(mktemp -d)"
     trap 'rm -rf "$tmp"' EXIT
     curl -fL "$ZAP_URL" -o "$tmp/$ZAP_ARCHIVE"
