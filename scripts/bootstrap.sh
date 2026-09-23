@@ -39,22 +39,38 @@ show_noexec_hint() {
 require_command() {
     local command_name="$1"
     local label="$2"
-    shift 2
+    local repair_command="$3"
 
     if ! command -v "$command_name" >/dev/null 2>&1; then
         error "$label não encontrado."
-        repair "$*"
+        repair "$repair_command"
         exit 1
     fi
 
     if ! "$command_name" --version >/dev/null 2>&1; then
         error "$label foi encontrado, mas não pôde ser executado."
         show_noexec_hint
-        repair "$*"
+        repair "$repair_command"
         exit 1
     fi
 
     ok "$label encontrado e funcional"
+}
+
+require_php_version() {
+    local php_version
+    php_version="$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')"
+
+    case "$php_version" in
+        8.2|8.3|8.4|8.5)
+            ok "PHP $php_version dentro da faixa suportada"
+            ;;
+        *)
+            error "PHP $php_version fora da faixa suportada pelo projeto (8.2 a 8.5)."
+            repair 'instale/ative uma versão PHP entre 8.2 e 8.5 e execute: make setup'
+            exit 1
+            ;;
+    esac
 }
 
 require_lefthook() {
@@ -79,6 +95,7 @@ require_file() {
 
     if [[ ! -f "$path" ]]; then
         error "$label não encontrado: $path"
+        repair "git restore -- '$path'"
         exit 1
     fi
 
@@ -140,7 +157,8 @@ line
 printf '\n'
 
 require_command php PHP 'sudo apt install php-cli'
-require_command composer Composer 'instale o Composer conforme o procedimento oficial da distribuição'
+require_php_version
+require_command composer Composer 'sudo apt install composer'
 require_command git Git 'sudo apt install git'
 require_lefthook
 
