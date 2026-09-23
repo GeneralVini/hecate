@@ -43,13 +43,13 @@ $this->beginPage();
 <main class="login-shell">
     <section class="login-stage" aria-label="Identidade visual HECATE">
         <div class="login-art" aria-hidden="true"></div>
-    </section>
-
-    <div class="login-access-bar">
-        <?php require dirname(__DIR__, 2) . '/Partial/institutional-footer.php'; ?>
         <div class="login-form-area">
             <?= $content ?>
         </div>
+    </section>
+
+    <div class="login-footer-strip">
+        <?php require dirname(__DIR__, 2) . '/Partial/institutional-footer.php'; ?>
     </div>
 </main>
 <?php $this->endBody() ?>
