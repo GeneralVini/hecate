@@ -154,7 +154,7 @@ A distribuição institucional de pacotes e imagens homologadas será feita via 
 
 ## Identidade visual
 
-Os assets oficiais ficam em `public/branding/`. A referência de identidade e uso está em [IDENTIDADE-VISUAL.md](docs/IDENTIDADE-VISUAL.md).
+Os assets oficiais ficam em `public/branding/` e são consumidos pela aplicação por meio de `BrandingAsset`, usando o `AssetManager` do Yii para resolver URLs conforme o `baseUrl` efetivo da instalação. PHP, CSS e JavaScript não devem hardcodear `/branding/...`, domínio, subdiretório, `DocumentRoot` ou caminho dependente do SO. Backgrounds usados em CSS recebem URLs resolvidas pelo Yii por custom properties. A referência de identidade e uso está em [IDENTIDADE-VISUAL.md](docs/IDENTIDADE-VISUAL.md).
 
 ## Documentação
 
