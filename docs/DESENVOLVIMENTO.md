@@ -269,11 +269,28 @@ Queries de grid devem executar filtros, ordenação, contagem e paginação no b
 
 Novas telas de CRUD devem partir desse padrão antes de criar variações próprias.
 
-## 10. PHPDoc, JSDoc e comentários
+### 9.2. Assets institucionais e BrandingAsset
+
+Os assets oficiais de identidade ficam em `public/branding/`, mas seus caminhos públicos são resolvidos pelo Yii por meio de `BrandingAsset`.
+
+Regras de implementação:
+
+- obter URLs em PHP por `AssetManager::getUrl(BrandingAsset::class, $arquivo)`;
+- não hardcodear `/branding/...`, domínio, porta, subdiretório, `DocumentRoot` ou caminho dependente do SO;
+- não duplicar concatenação de `baseUrl` em helpers ou variáveis específicas por arquivo;
+- fornecer backgrounds ao CSS por custom properties injetadas pelo layout/view após resolução pelo Yii;
+- JavaScript deve receber uma URL já resolvida quando precisar de um asset e não deve reconstruir a base pública;
+- manter `MainAsset` para CSS/JavaScript da aplicação e `BrandingAsset` para identidade visual.
+
+Ao revisar uma alteração, pesquisar referências diretas a `branding/`, nomes de backgrounds, logos e favicons para evitar regressão para paths absolutos.
+
+## 10. PHPDoc, JSDoc, CSSDoc e comentários
 
 Tipos e nomes devem explicar o óbvio. PHPDoc e JSDoc devem acrescentar informação que a assinatura não expressa, como array shapes, generics, efeitos colaterais, exceções relevantes, contratos de integrações, transações, concorrência e formatos de dados externos.
 
-Não adicionar PHPDoc redundante a toda classe ou método. Comentários inline devem explicar o motivo de uma implementação, não apenas traduzir o código. Código comentado não deve permanecer no repositório.
+CSSDoc deve documentar contratos de custom properties, dependências entre layout e stylesheet, requisitos de acessibilidade/responsividade ou decisões cuja razão não seja evidente apenas pelo seletor. No branding, documentar que as custom properties de background são fornecidas pelo Yii/`BrandingAsset` e não devem receber caminhos de deployment no CSS.
+
+Não adicionar PHPDoc, JSDoc ou CSSDoc redundante apenas para repetir nomes de classes, métodos, funções ou seletores. Comentários inline devem explicar o motivo de uma implementação, não apenas traduzir o código. Código comentado não deve permanecer no repositório.
 
 ## 11. Testes
 
@@ -341,4 +358,5 @@ Antes de considerar uma alteração tecnicamente apta:
 - não devem existir suppressions adicionadas apenas para contornar erros reais;
 - migrations e integrações alteradas devem ser testadas quando aplicável;
 - controles de segurança pertinentes devem ter sido considerados;
+- assets institucionais não devem conter URLs de deployment hardcoded;
 - o CI deve permanecer verde.
