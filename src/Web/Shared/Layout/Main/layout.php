@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Web\Shared\Layout\Branding\BrandingAsset;
 use App\Web\Shared\Layout\Main\MainAsset;
 use Yiisoft\Html\Html;
 
@@ -43,7 +44,9 @@ $routeUrl = static function (string $route) use ($urlGenerator, $basePath): stri
     return $url;
 };
 
-$brandingUrl = static fn (string $file): string => $basePath . '/branding/' . ltrim($file, '/');
+/** @var Closure(string): string $brandingUrl */
+$brandingUrl = static fn (string $file): string => $assetManager->getUrl(BrandingAsset::class, $file);
+$dashboardBrandingStyle = '--hecate-dashboard-background: url("' . $brandingUrl('dashboard-background.jpg') . '");';
 $logoutUrl = $basePath === '' ? '/' : $basePath . '/';
 $demoScenarioUrl = static fn (string $scenario): string => $basePath . '/demo/select?scenario=' . $scenario;
 $organizationLabel = $demoMode ? strtoupper($demoScenario) : 'não selecionada';
@@ -106,7 +109,7 @@ $this->beginPage();
         }
     </style>
 </head>
-<body class="app-page">
+<body class="app-page" style="<?= Html::encode($dashboardBrandingStyle) ?>">
 <?php $this->beginBody() ?>
 <div class="app-shell" data-sidebar-state="expanded">
     <header class="app-topbar">
