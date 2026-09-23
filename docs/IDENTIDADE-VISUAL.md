@@ -90,9 +90,23 @@ Assets atuais:
 - `favicon-192x192.png`
 - `favicon-512x512.png`
 - `login-background.jpg`
-- `login-background.png`
 - `dashboard-background.jpg`
 - `hecate-hero.jpg`
+
+### 5.1. Resolução de URLs de branding
+
+A localização física em `public/branding/` não autoriza o uso de URLs absolutas como `/branding/...` no código da aplicação.
+
+A resolução em runtime é centralizada em `BrandingAsset`, usando o `AssetManager` do Yii. O bundle usa `@public/branding` como `basePath` e `@baseUrl/branding` como `baseUrl`, permitindo implantação na raiz do host, em subdiretório, em multisite, atrás de reverse proxy ou em outro sistema operacional sem alterar PHP, CSS ou JavaScript.
+
+Regras:
+
+- PHP obtém assets por `AssetManager::getUrl(BrandingAsset::class, $arquivo)`;
+- `MainAsset` declara dependência de `BrandingAsset`;
+- CSS não contém URL física de branding: backgrounds são fornecidos pela view/layout por custom properties após resolução pelo Yii;
+- JavaScript não concatena `/branding`, host, porta ou `baseUrl`;
+- não criar helper paralelo nem variável PHP específica para cada asset quando o `AssetManager` já resolve a URL;
+- qualquer novo asset institucional deve ser incorporado ao mesmo contrato.
 
 ## 6. Uso dos assets
 
@@ -110,7 +124,7 @@ Uso preferencial em sidebar recolhida, avatar do produto, loader, cards instituc
 
 ### Favicons
 
-Usar os tamanhos apropriados no `<head>` e em futuro manifest/PWA quando aplicável.
+Usar os tamanhos apropriados no `<head>` e em futuro manifest/PWA quando aplicável. As URLs também devem ser obtidas por `BrandingAsset`.
 
 ### Background de login
 
@@ -122,7 +136,8 @@ Requisitos:
 - não desenhar campos ou botão na própria imagem;
 - manter leitura limpa em resoluções diferentes;
 - usar overlay apenas quando necessário para casar arte e formulário;
-- manter o rodapé institucional em HTML/CSS.
+- manter o rodapé institucional em HTML/CSS;
+- fornecer o background ao CSS por custom property com URL resolvida pelo Yii.
 
 Rodapé aprovado:
 
@@ -134,7 +149,7 @@ CTIM - YYYY                                      CC(EN) HONORATO
 
 ### Background do dashboard
 
-Deve sustentar a ambientação sem competir com o conteúdo operacional. Usar overlay escuro, painéis translúcidos e contraste alto nas informações.
+Deve sustentar a ambientação sem competir com o conteúdo operacional. Usar overlay escuro, painéis translúcidos e contraste alto nas informações. A URL do background deve ser resolvida por `BrandingAsset` e injetada no CSS por custom property.
 
 ### Hero HECATE
 
@@ -247,7 +262,7 @@ A hierarquia visual deve deixar evidente primeiro o que exige decisão ou ação
 
 ## 9. Tela de login
 
-A tela de login usa `login-background.jpg` como cenário e `logo-horizontal.png` no painel de autenticação.
+A tela de login usa `login-background.jpg` como cenário e `logo-horizontal.png` no painel de autenticação. Ambos são resolvidos em runtime por `BrandingAsset`.
 
 O formulário é HTML/Yii3. A interface não deve induzir o usuário a acreditar que o HECATE armazena sua senha de domínio quando o fluxo SSO/OIDC estiver implementado.
 
