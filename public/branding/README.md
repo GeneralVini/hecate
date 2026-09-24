@@ -1,12 +1,15 @@
 # Assets de identidade visual HECATE
 
-Esta pasta contém os assets oficiais de interface e identidade do HECATE.
+Esta pasta contém somente os assets de produção usados pela interface e pela documentação publicada do HECATE.
+
+Os masters de maior qualidade devem ser preservados em `resources/branding/originals/` e nunca servidos diretamente pelo navegador.
 
 ## Arquivos atuais
 
 - `logo-horizontal.png`
 - `logo-vertical.png`
 - `symbol.png`
+- `avatar.png`
 - `favicon-16x16.png`
 - `favicon-32x32.png`
 - `favicon-48x48.png`
@@ -28,6 +31,47 @@ Os três portais representam os domínios:
 - **Dados** — PostgreSQL e Podman.
 
 A composição institucional usa uma representação original de Hécate como elemento simbólico de passagem controlada, decisão e limiar. A personagem visual do HECATE deve ser tratada como criação própria do projeto, sem reprodução intencional da aparência de pessoa real. O cenário do Rio de Janeiro, com Cristo Redentor e Pão de Açúcar, reforça a identidade visual da solução sem substituir seu caráter técnico e institucional.
+
+## Originais e derivados de produção
+
+A regra é separar fonte editorial de arquivo publicado:
+
+```text
+resources/branding/originals/  -> masters preservados
+public/branding/               -> derivados otimizados para produção
+```
+
+Não aplicar `pngquant`, JPEG recompression ou outro processamento destrutivo diretamente sobre os masters.
+
+Para inicializar os masters com os arquivos atualmente publicados, sem sobrescrever originais já existentes:
+
+```bash
+make branding-bootstrap
+```
+
+Depois, para gerar os derivados de produção:
+
+```bash
+make branding-optimize
+```
+
+O pipeline usa:
+
+- ImageMagick para resize, remoção de metadados e JPEG;
+- `pngquant` para PNG quando disponível;
+- JPEG com qualidade padrão 82 para as artes pictóricas;
+- PNG quantizado entre 80 e 95 para avatar, logos, símbolo e favicons.
+
+As qualidades podem ser ajustadas explicitamente, sem alterar o script:
+
+```bash
+HECATE_BRANDING_JPEG_QUALITY=84 \
+HECATE_BRANDING_PNG_MIN_QUALITY=82 \
+HECATE_BRANDING_PNG_MAX_QUALITY=96 \
+make branding-optimize
+```
+
+O objetivo não é atingir um número rígido, mas evitar servir masters de 2–4 MB quando um derivado visualmente equivalente pode ser entregue com peso muito menor.
 
 ## Resolução de URLs
 
@@ -56,6 +100,10 @@ Capas, splash, materiais verticais e páginas institucionais.
 ### `symbol.png`
 
 Sidebar recolhida, avatar do produto, loader e componentes compactos.
+
+### `avatar.png`
+
+Retrato institucional da personagem, usado principalmente no slide 2 do manual e como referência visual canônica para novas composições.
 
 ### Favicons
 
