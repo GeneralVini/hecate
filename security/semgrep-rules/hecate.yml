@@ -96,7 +96,7 @@ rules:
     mode: taint
     languages: [php]
     severity: ERROR
-    message: Entrada HTTP alcança recurso externo/URL. Valide esquema, host e destino por allowlist e bloqueie destinos internos.
+    message: Entrada HTTP alcança cliente HTTP/cURL. Valide esquema, host e destino por allowlist e bloqueie destinos internos.
     pattern-sources:
       - pattern-either:
           - pattern: $_GET[...]
@@ -108,8 +108,6 @@ rules:
       - pattern-either:
           - pattern: curl_init($SINK)
           - pattern: curl_setopt($CURL, CURLOPT_URL, $SINK)
-          - pattern: file_get_contents($SINK)
-          - pattern: fopen($SINK, ...)
 
   - id: hecate.php.open-redirect-from-http
     mode: taint
@@ -136,7 +134,7 @@ rules:
     mode: taint
     languages: [php]
     severity: ERROR
-    message: Entrada HTTP alcança header de resposta. Rejeite CR/LF e valide nome e valor conforme o contrato do header.
+    message: Entrada HTTP alcança header de resposta não-Location. Rejeite CR/LF e valide nome e valor conforme o contrato do header.
     pattern-sources:
       - pattern-either:
           - pattern: $_GET[...]
@@ -147,17 +145,17 @@ rules:
           - pattern: $REQUEST->getHeaderLine(...)
     pattern-sinks:
       - patterns:
-          - pattern: header($SINK)
-          - pattern-not: 'header("Location: " . $SINK)'
-          - pattern-not: "header('Location: ' . $SINK)"
-      - patterns:
           - pattern: $RESPONSE->withHeader($NAME, $SINK)
-          - pattern-not: $RESPONSE->withHeader('Location', $SINK)
-          - pattern-not: $RESPONSE->withHeader("Location", $SINK)
+          - metavariable-regex:
+              metavariable: $NAME
+              regex: '(?i)^(?!.*Location).+$'
+          - focus-metavariable: $SINK
       - patterns:
           - pattern: $RESPONSE->withAddedHeader($NAME, $SINK)
-          - pattern-not: $RESPONSE->withAddedHeader('Location', $SINK)
-          - pattern-not: $RESPONSE->withAddedHeader("Location", $SINK)
+          - metavariable-regex:
+              metavariable: $NAME
+              regex: '(?i)^(?!.*Location).+$'
+          - focus-metavariable: $SINK
 
   - id: hecate.php.xss-from-http
     mode: taint
