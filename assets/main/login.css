@@ -75,9 +75,9 @@
     max-width: none !important;
     display: grid;
     grid-template-columns: minmax(230px, 1.15fr) minmax(190px, .95fr) 126px;
-    grid-template-rows: auto auto;
-    align-items: center;
-    gap: 12px 14px;
+    grid-template-rows: auto auto auto;
+    align-items: start;
+    gap: 8px 14px;
     padding: 10px 14px 9px !important;
     color: #fff;
     border: 1px solid rgba(210, 173, 82, .22) !important;
@@ -97,13 +97,17 @@
     gap: 0 !important;
 }
 
-.login-field,
-.login-input-wrap {
+.login-field {
     min-width: 0;
+    display: grid;
+    grid-template-rows: 44px 16px;
+    gap: 3px;
+    align-self: start;
 }
 
 .login-input-wrap {
     position: relative;
+    min-width: 0;
 }
 
 .login-input-icon {
@@ -176,6 +180,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    align-self: start;
     white-space: nowrap;
     border: 1px solid rgba(255, 236, 173, .30);
     border-radius: 8px;
@@ -205,7 +210,7 @@
     align-items: center;
     gap: 8px;
     min-height: 34px;
-    margin-top: 4px;
+    margin-top: 0;
     padding: 0 14px;
     color: #081a2e;
     font-size: .78rem;
@@ -259,23 +264,31 @@
 
 .login-error {
     display: block;
-    margin-top: 4px;
+    min-height: 16px;
+    margin: 0;
+    overflow: hidden;
+    color: transparent;
+    font-size: .72rem;
+    line-height: 16px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.login-error.is-visible {
     color: #ffd2cb;
-    font-size: .74rem;
-    line-height: 1.2;
 }
 
 .login-error-summary {
     grid-column: 1 / -1;
-    margin: 0 0 2px;
-    padding: 7px 10px;
+    margin: 0;
+    padding: 5px 9px;
     color: #fff1ed;
-    background: rgba(125, 39, 34, .50);
-    border: 1px solid rgba(255, 174, 158, .64);
+    background: rgba(125, 39, 34, .46);
+    border: 1px solid rgba(255, 174, 158, .58);
     border-radius: 5px;
-    font-size: .8rem;
+    font-size: .76rem;
     font-weight: 700;
-    line-height: 1.25;
+    line-height: 1.2;
 }
 
 .login-logo {
@@ -378,7 +391,7 @@
 
     .login-panel {
         grid-template-columns: minmax(210px, 1.1fr) minmax(175px, .9fr) 116px;
-        gap: 10px 12px;
+        gap: 8px 12px;
     }
 
     .login-submit {
@@ -411,6 +424,10 @@
         display: grid !important;
         grid-template-columns: 1fr;
         gap: 8px !important;
+    }
+
+    .login-field {
+        grid-template-rows: 44px 16px;
     }
 
     .login-submit {
