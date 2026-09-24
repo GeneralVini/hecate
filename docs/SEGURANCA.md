@@ -311,7 +311,7 @@ composer check
 
 OWASP ZAP não integra o `composer check`, pois depende da aplicação em execução. O comando `composer security:dast` é destinado exclusivamente a ambiente local/de teste autorizado; o wrapper versionado restringe o alvo automatizado a `localhost`/`127.0.0.1`.
 
-Semgrep CE e OWASP ZAP são instalados em `.tools/` pelo `make setup`, sem Docker e sem instalação global obrigatória. Semgrep é mantido em virtualenv Python próprio. O pacote Linux do ZAP é baixado em versão fixada e validado por SHA-256 antes da extração. O diretório `.tools/` não é versionado.
+Semgrep CE e OWASP ZAP são instalados em `.tools/` pelo `make setup`, sem Docker e sem instalação global obrigatória. Semgrep é mantido em virtualenv Python próprio no ambiente local. Os wrappers também aceitam executável Semgrep disponibilizado pelo `PATH` no CI; isso não altera a versão homologada pelo workflow. O pacote Linux do ZAP é baixado em versão fixada e validado por SHA-256 antes da extração. O diretório `.tools/` não é versionado.
 
 ### 18.1. Classificação de findings Semgrep
 
@@ -324,7 +324,30 @@ WARNING  hotspot para revisão; não equivale por si só a vulnerabilidade e nã
 
 O wrapper `scripts/semgrep-scan.sh` executa o Semgrep em JSON, separa findings bloqueantes de hotspots e apresenta resumo com regra, arquivo, linha, motivo e trecho afetado. Erro interno, erro de parsing ou falha do mecanismo é tratado separadamente de finding de segurança e também invalida o gate, pois o scan não pode ser considerado confiável.
 
+A cobertura também é parte do resultado. O scan usa alvos explícitos `src`, `config` e `public`, inclui arquivos ainda não rastreados pelo Git com `--no-git-ignore` e exclui deliberadamente `public/assets/**` por ser conteúdo gerado em runtime. Skips reportados pelo Semgrep são divididos em exclusões por política e skips inesperados. Exclusão deliberada não degrada o resultado; skip inesperado torna a cobertura parcial e invalida o gate até que a causa seja entendida ou a política explícita seja ajustada.
+
 Um finding não deve ser declarado vulnerabilidade confirmada sem contexto. Em especial, regras de taint procuram fluxo de fonte não confiável para sink perigoso; regras `WARNING` marcam construções que merecem revisão humana. Achado de scanner não deve ser silenciado apenas para liberar o pipeline. Falso positivo deve ser reduzido refinando a regra e adicionando fixture negativa correspondente, em vez de criar suppressions globais.
+
+### 18.2. Sources Yii3/PSR-7
+
+O HECATE recebe entrada web prioritariamente pela infraestrutura Yii3/PSR-7, e as regras locais precisam representar esse fluxo real. Conforme o contrato analisado, são consideradas sources relevantes:
+
+```text
+$request->getQueryParams()
+$request->getParsedBody()
+$request->getHeaderLine(...)
+$request->getUploadedFiles()
+```
+
+As superglobais PHP continuam cobertas quando aparecerem, mas não são a única representação de entrada HTTP. As regras de taint devem acompanhar dados PSR-7 até sinks de SQL, HTML, filesystem, URL externa e headers.
+
+Para SQL, a presença de dado vindo do request no valor SQL passado a `createCommand()`, `query()` ou equivalente é finding bloqueante. SQL fixo com parâmetros/bindings permanece padrão seguro; identificadores dinâmicos, quando inevitáveis, exigem allowlist.
+
+Open redirect e header injection são tratados separadamente. `Location` controlado externamente é risco de redirect; valores de outros headers derivados da requisição exigem validação específica e proteção contra CR/LF. Redirect produzido por `UrlGeneratorInterface` para rota interna conhecida deve permanecer coberto como caso negativo, não como vulnerabilidade.
+
+URLs controladas pela requisição que alcançam `curl_init()`, `CURLOPT_URL`, `file_get_contents()` ou `fopen()` entram no contrato SSRF. Caminhos controlados externamente que alcançam includes ou filesystem entram no contrato de path traversal/LFI.
+
+Uso de MD5/SHA-1 sobre variáveis semanticamente ligadas a senha, PIN ou credencial é hotspot (`WARNING`), porque o HECATE exige hash forte para PIN e não deve usar hashes criptograficamente fracos para autenticadores.
 
 ## 19. Modelo de proteção por sink
 
@@ -337,6 +360,7 @@ SQL           -> parâmetros/bindings; allowlist para tabela/coluna/ordenação
 Shell         -> proibido na aplicação web; operações fechadas via hecate-agent
 URL externa   -> validar esquema/host/destino; bloquear SSRF e redirecionamentos indevidos
 Filesystem    -> base path controlado, normalização e allowlist quando aplicável
+Headers       -> validar semântica e rejeitar CR/LF; Location externo exige allowlist/rota segura
 Logs          -> excluir senha, token, cookie, Authorization, PIN e conteúdo sensível
 ```
 
@@ -344,9 +368,9 @@ Views PHP não devem assumir escaping automático. Valores não confiáveis envi
 
 CSRF deve ser tratado principalmente pela infraestrutura/middleware Yii3 e não por verificações ad hoc espalhadas nas Actions. Operações mutáveis não devem ser expostas por GET. Bypass de proteção CSRF em código de produção exige revisão de segurança.
 
-O baseline local do Semgrep prioriza padrões de alto sinal e usa taint mode onde o risco depende de fluxo de dados HTTP para sinks de XSS, SSRF, path traversal/LFI e redirecionamento. Regras diretas continuam cobrindo execução de shell/código dinâmico, desserialização insegura, construção dinâmica de SQL, logging de segredos e hotspots de saída/debug. Toda alteração material de regra deve preservar uma fixture positiva (`ruleid`) e uma negativa (`ok`) pertinente.
+O baseline local do Semgrep prioriza padrões de alto sinal e usa taint mode onde o risco depende de fluxo de dados HTTP — inclusive PSR-7 — para sinks de SQL injection, XSS, SSRF, path traversal/LFI, redirecionamento e header injection. Regras diretas continuam cobrindo execução de shell/código dinâmico, desserialização insegura, construção dinâmica de SQL, logging de segredos, hash fraco de credenciais e hotspots de saída/debug. Toda alteração material de regra deve preservar uma fixture positiva (`ruleid`) e uma negativa (`ok`) pertinente.
 
-O caso seguro `dirname(__DIR__)` usado para formar caminho local de bootstrap é explicitamente coberto como regressão negativa e não deve ser confundido com entrada controlada pelo usuário.
+O caso seguro `dirname(__DIR__)` usado para formar caminho local de bootstrap é explicitamente coberto como regressão negativa e não deve ser confundido com entrada controlada pelo usuário. Da mesma forma, redirect gerado por `UrlGeneratorInterface` para rota interna conhecida deve permanecer como fixture negativa de open redirect.
 
 Semgrep não substitui Psalm Taint, testes, middleware do Yii3 ou DAST. A defesa esperada é em camadas:
 
