@@ -12,4 +12,5 @@ declare(strict_types=1);
         Plataforma Institucional de Governança e Controle de Impressão
     </strong>
     <span class="institutional-footer__meta">CTIM · 2026</span>
+    <span class="login-footerbar-credit">CC(EN) HONORATO</span>
 </footer>
