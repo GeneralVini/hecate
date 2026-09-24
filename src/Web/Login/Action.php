@@ -38,12 +38,6 @@ final readonly class Action
             $username = $form->usernameForDisplay();
 
             if ($result->isValid()) {
-                // Keep credential values separated from transport and output contexts.
-                // The password is intentionally preserved exactly as submitted and must
-                // never be logged, HTML-encoded for authentication, or interpolated into
-                // SQL, LDAP filters, shell commands, or URLs.
-                $form->passwordValue();
-
                 return $this->responseFactory
                     ->createResponse(303)
                     ->withHeader('Location', $this->urlGenerator->generate('home'));
