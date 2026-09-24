@@ -18,12 +18,14 @@
         "psalm:taint": "psalm --config=psalm.xml --taint-analysis --no-progress",
         "test": "phpunit --configuration=phpunit.xml",
         "security:dependencies": "@composer audit --locked --no-interaction",
+        "security:semgrep:validate": "bash scripts/semgrep-validate.sh",
         "security:semgrep:test": "bash scripts/semgrep-test.sh",
         "security:semgrep": "bash scripts/semgrep-scan.sh",
         "security:dast": "bash scripts/zap-scan.sh",
         "security": [
             "@security:dependencies",
             "@psalm:taint",
+            "@security:semgrep:validate",
             "@security:semgrep:test",
             "@security:semgrep"
         ],
