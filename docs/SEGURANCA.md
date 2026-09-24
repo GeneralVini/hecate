@@ -267,7 +267,7 @@ O baseline de segurança de código é composto por ferramentas livres/gratuitas
 - **PHPStan:** análise estática principal de tipos e inconsistências;
 - **Composer Audit:** SCA de dependências e advisories conhecidos a partir do lockfile;
 - **Psalm Taint Analysis:** rastreamento de dados não confiáveis entre sources e sinks;
-- **Semgrep Community Edition:** SAST complementar e regras locais versionadas em `security/semgrep.yml`;
+- **Semgrep Community Edition:** SAST complementar e regras locais versionadas em `security/semgrep-rules/hecate.yml`;
 - **OWASP ZAP:** DAST separado para aplicação em execução.
 
 O comando padrão de segurança estática é:
@@ -276,25 +276,55 @@ O comando padrão de segurança estática é:
 composer security
 ```
 
-Ele executa, nessa ordem, `composer audit`, Psalm com `--taint-analysis`, os testes das regras locais Semgrep e o scan Semgrep CE. A validação das regras pode ser executada isoladamente com:
+Ele executa, nessa ordem:
 
-```bash
-composer security:semgrep:test
+```text
+Composer Audit
+-> Psalm Taint
+-> validação das regras Semgrep
+-> testes positivos/negativos das regras
+-> scan Semgrep do código HECATE
 ```
 
-O gate completo de desenvolvimento é:
+Os comandos de diagnóstico isolado são:
+
+```bash
+composer security:semgrep:validate
+composer security:semgrep:test
+composer security:semgrep
+```
+
+A validação deve ocorrer antes dos testes para impedir que uma regra PHP inválida chegue ao `semgrep --test`. Regras e fixtures ficam em árvores paralelas e com o mesmo basename:
+
+```text
+security/semgrep-rules/hecate.yml
+security/semgrep-tests/hecate.php
+```
+
+No uso cotidiano, não executar toda a cadeia manualmente em sequência. O gate completo é:
 
 ```bash
 composer check
 ```
 
-`composer check` executa `composer qa` seguido de `composer security`. A mesma composição deve ser repetida no CI.
+`composer check` executa `composer qa` seguido de `composer security`; portanto já inclui a validação, os testes e o scan Semgrep. A mesma composição deve ser repetida no CI.
 
 OWASP ZAP não integra o `composer check`, pois depende da aplicação em execução. O comando `composer security:dast` é destinado exclusivamente a ambiente local/de teste autorizado; o wrapper versionado restringe o alvo automatizado a `localhost`/`127.0.0.1`.
 
 Semgrep CE e OWASP ZAP são instalados em `.tools/` pelo `make setup`, sem Docker e sem instalação global obrigatória. Semgrep é mantido em virtualenv Python próprio. O pacote Linux do ZAP é baixado em versão fixada e validado por SHA-256 antes da extração. O diretório `.tools/` não é versionado.
 
-Achado de scanner não deve ser silenciado apenas para liberar o pipeline. Falso positivo deve ser analisado e, se necessário, tratado de forma localizada e documentável. Regras globais ou baselines amplos não devem esconder vulnerabilidades reais.
+### 18.1. Classificação de findings Semgrep
+
+As severidades locais têm significado operacional explícito:
+
+```text
+ERROR    finding de alto sinal; bloqueia o gate e exige correção ou análise técnica
+WARNING  hotspot para revisão; não equivale por si só a vulnerabilidade e não bloqueia o gate
+```
+
+O wrapper `scripts/semgrep-scan.sh` executa o Semgrep em JSON, separa findings bloqueantes de hotspots e apresenta resumo com regra, arquivo, linha, motivo e trecho afetado. Erro interno, erro de parsing ou falha do mecanismo é tratado separadamente de finding de segurança e também invalida o gate, pois o scan não pode ser considerado confiável.
+
+Um finding não deve ser declarado vulnerabilidade confirmada sem contexto. Em especial, regras de taint procuram fluxo de fonte não confiável para sink perigoso; regras `WARNING` marcam construções que merecem revisão humana. Achado de scanner não deve ser silenciado apenas para liberar o pipeline. Falso positivo deve ser reduzido refinando a regra e adicionando fixture negativa correspondente, em vez de criar suppressions globais.
 
 ## 19. Modelo de proteção por sink
 
@@ -314,7 +344,9 @@ Views PHP não devem assumir escaping automático. Valores não confiáveis envi
 
 CSRF deve ser tratado principalmente pela infraestrutura/middleware Yii3 e não por verificações ad hoc espalhadas nas Actions. Operações mutáveis não devem ser expostas por GET. Bypass de proteção CSRF em código de produção exige revisão de segurança.
 
-O baseline local do Semgrep cobre padrões de alto sinal para execução de shell, desserialização insegura, construção dinâmica de SQL, inclusão dinâmica, path traversal, SSRF, headers/redirecionamentos, hotspots de XSS, exposição direta de superglobais, logging de segredos e saída de debug. As fixtures ficam em `security/semgrep-tests/` e devem acompanhar qualquer nova regra ou alteração material de uma regra existente.
+O baseline local do Semgrep prioriza padrões de alto sinal e usa taint mode onde o risco depende de fluxo de dados HTTP para sinks de XSS, SSRF, path traversal/LFI e redirecionamento. Regras diretas continuam cobrindo execução de shell/código dinâmico, desserialização insegura, construção dinâmica de SQL, logging de segredos e hotspots de saída/debug. Toda alteração material de regra deve preservar uma fixture positiva (`ruleid`) e uma negativa (`ok`) pertinente.
+
+O caso seguro `dirname(__DIR__)` usado para formar caminho local de bootstrap é explicitamente coberto como regressão negativa e não deve ser confundido com entrada controlada pelo usuário.
 
 Semgrep não substitui Psalm Taint, testes, middleware do Yii3 ou DAST. A defesa esperada é em camadas:
 
