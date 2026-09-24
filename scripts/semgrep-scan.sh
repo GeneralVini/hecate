@@ -43,12 +43,16 @@ line
 printf ' HECATE — Semgrep / análise do código\n'
 line
 printf '[INFO] Regras configuradas: %s\n' "$RULE_COUNT"
+printf '[INFO] Escopo: src, config e public; arquivos novos ainda não rastreados pelo Git também são analisados.\n'
+printf '[INFO] public/assets permanece excluído por ser conteúdo gerado em runtime.\n'
 printf '[INFO] ERROR = finding bloqueante; WARNING = hotspot para revisão.\n\n'
 
 if ! "$SEMGREP_BIN" \
     --json \
     --config "$SEMGREP_CONFIG" \
     --metrics=off \
+    --no-git-ignore \
+    --exclude 'public/assets/**' \
     src config public >"$RESULT_FILE"; then
     printf '\n[ERRO] O mecanismo Semgrep falhou antes da triagem dos resultados.\n' >&2
     printf 'Execute composer security:semgrep:validate e revise a saída técnica acima.\n' >&2
@@ -58,6 +62,7 @@ fi
 set +e
 "$SEMGREP_PYTHON" - "$RESULT_FILE" "$PROJECT_ROOT" "$RULE_COUNT" <<'PY'
 import json
+import os
 import pathlib
 import sys
 
@@ -81,6 +86,20 @@ paths = data.get("paths") or {}
 scanned = paths.get("scanned") or []
 skipped = paths.get("skipped") or []
 
+use_color = sys.stdout.isatty() and "NO_COLOR" not in os.environ
+RESET = "\033[0m" if use_color else ""
+BOLD = "\033[1m" if use_color else ""
+GREEN = "\033[32m" if use_color else ""
+YELLOW = "\033[33m" if use_color else ""
+RED = "\033[31m" if use_color else ""
+CYAN = "\033[36m" if use_color else ""
+DIM = "\033[2m" if use_color else ""
+
+
+def paint(text: str, color: str = "", bold: bool = False) -> str:
+    prefix = (BOLD if bold else "") + color
+    return f"{prefix}{text}{RESET}" if prefix else text
+
 
 def source_line(path_value: str, line_number: int | None) -> str:
     if not path_value or not line_number:
@@ -97,11 +116,12 @@ def source_line(path_value: str, line_number: int | None) -> str:
     return ""
 
 
-def show_findings(title: str, label: str, items: list[dict]) -> None:
+def show_findings(title: str, icon: str, label: str, items: list[dict], color: str) -> None:
     if not items:
         return
-    print(f"\n{title}")
-    print("-" * 60)
+    print()
+    print(paint(f"{icon} {title}", color, bold=True))
+    print(DIM + "-" * 60 + RESET)
     for item in items:
         extra = item.get("extra") or {}
         path_value = str(item.get("path") or "?")
@@ -111,48 +131,54 @@ def show_findings(title: str, label: str, items: list[dict]) -> None:
         message = str(extra.get("message") or "Sem descrição")
         code = source_line(path_value, line_number)
         location = f"{path_value}:{line_number}" if line_number else path_value
-        print(f"[{label}] {location}")
-        print(f"  Regra: {check_id}")
-        print(f"  Motivo: {message}")
+        print(paint(f"{icon} [{label}] {location}", color, bold=True))
+        print(f"   Regra : {check_id}")
+        print(f"   Motivo: {message}")
         if code:
-            print(f"  Código: {code}")
+            print(f"   Código: {code}")
         print()
 
 
-show_findings("FINDINGS BLOQUEANTES", "BLOQUEANTE", blocking)
-show_findings("HOTSPOTS PARA REVISÃO", "HOTSPOT", hotspots)
-show_findings("OUTROS FINDINGS", "INFO", other)
+show_findings("FINDINGS BLOQUEANTES", "❌", "BLOQUEANTE", blocking, RED)
+show_findings("HOTSPOTS PARA REVISÃO", "⚠️", "HOTSPOT", hotspots, YELLOW)
+show_findings("OUTROS FINDINGS", "ℹ️", "INFO", other, CYAN)
 
 if engine_errors:
-    print("\nERROS DO MECANISMO")
-    print("-" * 60)
+    print()
+    print(paint("💥 ERROS DO MECANISMO", RED, bold=True))
+    print(DIM + "-" * 60 + RESET)
     for error in engine_errors:
-        print(f"[ERRO] {error}")
+        print(paint(f"❌ {error}", RED))
 
-print("\n" + "=" * 60)
-print(" RESULTADO SEMGREP")
-print("=" * 60)
-print(f"Regras configuradas : {rule_count}")
+print()
+print(paint("=" * 60, CYAN))
+print(paint(" 🛡️  RESULTADO SEMGREP", CYAN, bold=True))
+print(paint("=" * 60, CYAN))
+print(f"🔐 Regras configuradas : {rule_count}")
 if scanned:
-    print(f"Arquivos analisados  : {len(scanned)}")
+    print(f"📄 Arquivos analisados  : {len(scanned)}")
 if skipped:
-    print(f"Arquivos ignorados   : {len(skipped)}")
-print(f"Bloqueantes (ERROR)  : {len(blocking)}")
-print(f"Hotspots (WARNING)   : {len(hotspots)}")
+    print(f"⏭️  Arquivos ignorados   : {len(skipped)}")
+print(f"❌ Bloqueantes (ERROR)  : {paint(str(len(blocking)), RED if blocking else GREEN, bold=bool(blocking))}")
+print(f"⚠️  Hotspots (WARNING)   : {paint(str(len(hotspots)), YELLOW if hotspots else GREEN, bold=bool(hotspots))}")
 if other:
-    print(f"Outros findings      : {len(other)}")
-print(f"Erros do mecanismo   : {len(engine_errors)}")
+    print(f"ℹ️  Outros findings      : {paint(str(len(other)), CYAN, bold=True)}")
+print(f"🧩 Erros do mecanismo   : {paint(str(len(engine_errors)), RED if engine_errors else GREEN, bold=bool(engine_errors))}")
+print("📦 Escopo Git           : inclui arquivos rastreados e não rastreados em src/config/public")
+print("🚫 Exclusão operacional : public/assets/**")
 
 if engine_errors:
-    print("STATUS               : ERRO DO SCANNER")
+    print(paint("💥 STATUS               : ERRO DO SCANNER", RED, bold=True))
     raise SystemExit(2)
 if blocking:
-    print("STATUS               : REPROVADO")
+    print(paint("❌ STATUS               : REPROVADO", RED, bold=True))
     raise SystemExit(1)
-
-print("STATUS               : APROVADO")
 if hotspots:
-    print("Observação            : hotspots exigem revisão, mas não bloqueiam o gate.")
+    print(paint("⚠️  STATUS               : APROVADO COM HOTSPOTS", YELLOW, bold=True))
+    print(paint("   Revisar os hotspots antes de considerar a alteração concluída.", YELLOW))
+    raise SystemExit(0)
+
+print(paint("✅ STATUS               : APROVADO", GREEN, bold=True))
 raise SystemExit(0)
 PY
 STATUS=$?
