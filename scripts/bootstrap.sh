@@ -321,9 +321,11 @@ require_file rector.php 'Configuração do Rector'
 require_file phpstan.neon 'Configuração do PHPStan'
 require_file psalm.xml 'Configuração do Psalm'
 require_file phpunit.xml 'Configuração do PHPUnit'
-require_file security/semgrep.yml 'Configuração do Semgrep'
-require_file security/semgrep-tests/security.php 'Fixtures das regras Semgrep'
+require_file security/semgrep-rules/hecate.yml 'Configuração das regras Semgrep'
+require_file security/semgrep-tests/hecate.php 'Fixtures das regras Semgrep'
+require_file scripts/semgrep-validate.sh 'Runner de validação do Semgrep'
 require_file scripts/semgrep-test.sh 'Runner de testes do Semgrep'
+require_file scripts/semgrep-scan.sh 'Runner de scan do Semgrep'
 require_file lefthook.yml 'Configuração do Lefthook'
 
 printf '\n'
@@ -344,7 +346,7 @@ run_qa_step 'Rector dry-run' rector
 run_qa_step 'PHPStan' stan
 run_qa_step 'Psalm' psalm
 run_qa_step 'PHPUnit' test
-run_qa_step 'SCA + Psalm Taint + testes Semgrep + Semgrep CE' security
+run_qa_step 'SCA + Psalm Taint + validação/testes/scan Semgrep CE' security
 
 printf '\n'
 line
@@ -357,6 +359,7 @@ printf '  composer security\n'
 printf '  composer check\n'
 printf '  composer psalm:taint\n'
 printf '  composer security:dependencies\n'
+printf '  composer security:semgrep:validate\n'
 printf '  composer security:semgrep:test\n'
 printf '  composer security:semgrep\n'
 printf '  HECATE_ZAP_TARGET=http://127.0.0.1:8080 bash scripts/zap-scan.sh\n'
