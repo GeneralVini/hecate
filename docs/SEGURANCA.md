@@ -276,7 +276,11 @@ O comando padrão de segurança estática é:
 composer security
 ```
 
-Ele executa, nessa ordem, `composer audit`, Psalm com `--taint-analysis` e Semgrep CE. A combinação `composer audit` + Psalm Taint é o núcleo inicial por oferecer cobertura adicional com pouca complexidade operacional; Semgrep amplia a detecção de padrões inseguros e permite regras específicas do HECATE.
+Ele executa, nessa ordem, `composer audit`, Psalm com `--taint-analysis`, os testes das regras locais Semgrep e o scan Semgrep CE. A validação das regras pode ser executada isoladamente com:
+
+```bash
+composer security:semgrep:test
+```
 
 O gate completo de desenvolvimento é:
 
@@ -291,3 +295,37 @@ OWASP ZAP não integra o `composer check`, pois depende da aplicação em execu�
 Semgrep CE e OWASP ZAP são instalados em `.tools/` pelo `make setup`, sem Docker e sem instalação global obrigatória. Semgrep é mantido em virtualenv Python próprio. O pacote Linux do ZAP é baixado em versão fixada e validado por SHA-256 antes da extração. O diretório `.tools/` não é versionado.
 
 Achado de scanner não deve ser silenciado apenas para liberar o pipeline. Falso positivo deve ser analisado e, se necessário, tratado de forma localizada e documentável. Regras globais ou baselines amplos não devem esconder vulnerabilidades reais.
+
+## 19. Modelo de proteção por sink
+
+Validação de entrada e proteção de saída são responsabilidades diferentes. O HECATE não deve tentar tornar toda entrada genericamente "sanitizada". O controle deve ser aplicado conforme o destino do dado:
+
+```text
+Entrada HTTP  -> validar tipo, formato, tamanho e regra de domínio
+HTML          -> escaping contextual; preferir helpers Yii/yiisoft-html
+SQL           -> parâmetros/bindings; allowlist para tabela/coluna/ordenação
+Shell         -> proibido na aplicação web; operações fechadas via hecate-agent
+URL externa   -> validar esquema/host/destino; bloquear SSRF e redirecionamentos indevidos
+Filesystem    -> base path controlado, normalização e allowlist quando aplicável
+Logs          -> excluir senha, token, cookie, Authorization, PIN e conteúdo sensível
+```
+
+Views PHP não devem assumir escaping automático. Valores não confiáveis enviados para HTML devem ser codificados conforme o contexto. APIs que desativem encoding, como `encode(false)` ou `NoEncode`, são hotspots e exigem origem confiável e justificativa localizada.
+
+CSRF deve ser tratado principalmente pela infraestrutura/middleware Yii3 e não por verificações ad hoc espalhadas nas Actions. Operações mutáveis não devem ser expostas por GET. Bypass de proteção CSRF em código de produção exige revisão de segurança.
+
+O baseline local do Semgrep cobre padrões de alto sinal para execução de shell, desserialização insegura, construção dinâmica de SQL, inclusão dinâmica, path traversal, SSRF, headers/redirecionamentos, hotspots de XSS, exposição direta de superglobais, logging de segredos e saída de debug. As fixtures ficam em `security/semgrep-tests/` e devem acompanhar qualquer nova regra ou alteração material de uma regra existente.
+
+Semgrep não substitui Psalm Taint, testes, middleware do Yii3 ou DAST. A defesa esperada é em camadas:
+
+```text
+Yii3 / código seguro
+        +
+Psalm Taint
+        +
+Semgrep HECATE
+        +
+PHPUnit / testes de integração
+        +
+OWASP ZAP em ambiente autorizado
+```
