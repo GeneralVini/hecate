@@ -8,11 +8,23 @@ Este documento consolida o ambiente de desenvolvimento, o baseline de qualidade 
 
 A aplicação web segue o template oficial `yiisoft/app`, com Composer, PostgreSQL e ferramentas de QA versionadas no repositório. `composer.json` declara PHP 8.2–8.5; o CI configura PHP 8.5 e Rector usa regras PHP 8.2. Isso não comprova homologação de toda a faixa: a matriz de versões permanece pendente na EAP.
 
-O Lefthook é um executável externo ao Composer e deve estar disponível no `PATH` antes do primeiro `make setup`. Em Ubuntu/Kubuntu/Debian:
+O ambiente de desenvolvimento Linux suporta duas famílias principais: Debian/Ubuntu e Oracle Linux/RHEL-like. Os scripts de bootstrap detectam a plataforma por `/etc/os-release`, com fallback para a presença de `apt-get` ou `dnf`, e exibem instruções adequadas para a distribuição quando um pré-requisito estiver ausente.
+
+O Lefthook é um executável externo ao Composer e deve estar disponível no `PATH` antes do primeiro `make setup`.
+
+Ubuntu/Kubuntu/Debian:
 
 ```bash
 curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | sudo -E bash
-sudo apt install lefthook
+sudo apt-get install -y lefthook
+lefthook version
+```
+
+Oracle Linux/RHEL/Rocky/AlmaLinux/Fedora:
+
+```bash
+curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.rpm.sh' | sudo -E bash
+sudo dnf install -y lefthook
 lefthook version
 ```
 
@@ -25,6 +37,13 @@ curl
 sha256sum
 ```
 
+Pacotes usuais por família:
+
+```text
+Debian/Ubuntu:          python3 python3-venv openjdk-17-jre curl coreutils
+Oracle/RHEL-like:       python3 python3-pip java-17-openjdk-headless curl coreutils
+```
+
 Esses runtimes são pré-requisitos. Semgrep CE e OWASP ZAP não são instalados globalmente: o `make setup` os prepara em `.tools/` dentro do projeto.
 
 Primeira execução do projeto:
@@ -32,13 +51,16 @@ Primeira execução do projeto:
 ```bash
 git clone https://github.com/GeneralVini/hecate.git
 cd hecate
-git switch yii3
 make setup
 ```
 
+O ramo `main` é a linha canônica de desenvolvimento e entrega. Não é necessário trocar para um ramo histórico após o clone.
+
 O `composer.lock` é obrigatório. O bootstrap usa `composer install` e não deve executar `composer update`, `composer require` ou instalar pacotes do sistema de forma implícita.
 
-O `make setup` valida PHP, Composer, Git e Lefthook; instala as dependências a partir do lockfile; valida o Composer; confirma ECS, Rector, PHPStan, Psalm e PHPUnit; instala Semgrep CE e OWASP ZAP em `.tools/`; executa `lefthook install` e `lefthook validate`; e roda o baseline de QA e segurança. Se um pré-requisito do sistema estiver ausente, o bootstrap informa o requisito e encerra sem instalar pacotes do sistema por `sudo`.
+O `make setup` detecta a família da distribuição; valida PHP, Composer, Git e Lefthook; instala as dependências a partir do lockfile; valida o Composer; confirma ECS, Rector, PHPStan, Psalm e PHPUnit; instala Semgrep CE e OWASP ZAP em `.tools/`; executa `lefthook install` e `lefthook validate`; e roda o baseline de QA e segurança.
+
+Os scripts `scripts/bootstrap.sh` e `scripts/install-security-tools.sh` suportam Debian-like e Oracle Linux/RHEL-like. Eles não executam `apt-get`, `dnf` ou scripts de repositório automaticamente. Quando faltar uma dependência do sistema, informam o comando adequado e encerram para que a instalação seja uma decisão explícita do administrador.
 
 O Semgrep é instalado em virtualenv Python próprio e versionado pelo script de bootstrap. O OWASP ZAP usa o pacote Linux oficial em versão fixada; o arquivo baixado é validado por SHA-256 antes da extração. Docker não faz parte desse fluxo.
 
@@ -319,7 +341,7 @@ O segundo `git add .` é intencional: `composer fix` pode modificar arquivos com
 Antes do commit/push, quando se deseja executar o gate integral manualmente:
 
 ```bash
-git pull --rebase origin yii3 && composer check
+git pull --rebase origin main && composer check
 ```
 
 Fluxo correspondente:
