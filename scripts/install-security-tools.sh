@@ -12,6 +12,8 @@ SEMGREP_DIR="$TOOLS/semgrep"
 SEMGREP_PYTHON="$SEMGREP_DIR/bin/python"
 SEMGREP_BIN="$SEMGREP_DIR/bin/semgrep"
 ZAP_BIN="$TOOLS/zap/zap.sh"
+PLATFORM="unknown"
+OS_LABEL="Linux"
 
 error() {
     printf '[ERRO] %s\n' "$1" >&2
@@ -19,6 +21,63 @@ error() {
 
 repair() {
     printf '\nPara corrigir:\n\n  %s\n' "$1" >&2
+}
+
+detect_platform() {
+    local os_id=""
+    local os_like=""
+
+    if [[ -r /etc/os-release ]]; then
+        # shellcheck disable=SC1091
+        . /etc/os-release
+        os_id="${ID:-}"
+        os_like="${ID_LIKE:-}"
+        OS_LABEL="${PRETTY_NAME:-Linux}"
+    fi
+
+    case "$os_id" in
+        ubuntu|debian)
+            PLATFORM="deb"
+            ;;
+        ol|oraclelinux|rhel|rocky|almalinux|centos|fedora)
+            PLATFORM="rpm"
+            ;;
+        *)
+            case "$os_like" in
+                *debian*|*ubuntu*)
+                    PLATFORM="deb"
+                    ;;
+                *rhel*|*fedora*|*centos*)
+                    PLATFORM="rpm"
+                    ;;
+            esac
+            ;;
+    esac
+
+    if [[ "$PLATFORM" == "unknown" ]]; then
+        if command -v apt-get >/dev/null 2>&1; then
+            PLATFORM="deb"
+        elif command -v dnf >/dev/null 2>&1; then
+            PLATFORM="rpm"
+        fi
+    fi
+}
+
+package_install_hint() {
+    local deb_packages="$1"
+    local rpm_packages="$2"
+
+    case "$PLATFORM" in
+        deb)
+            printf 'sudo apt-get install -y %s' "$deb_packages"
+            ;;
+        rpm)
+            printf 'sudo dnf install -y %s' "$rpm_packages"
+            ;;
+        *)
+            printf 'instale os pacotes necessários para %s e execute novamente: make setup' "$OS_LABEL"
+            ;;
+    esac
 }
 
 show_noexec_hint() {
@@ -45,9 +104,10 @@ require_command() {
     fi
 }
 
+detect_platform
 mkdir -p "$TOOLS"
 
-require_command python3 'Python 3.10+ é necessário para Semgrep.' 'sudo apt install python3 python3-venv'
+require_command python3 'Python 3.10+ é necessário para Semgrep.' "$(package_install_hint 'python3 python3-venv' 'python3 python3-pip')"
 PYTHON_OK="$(python3 -c 'import sys; print(1 if sys.version_info >= (3, 10) else 0)')"
 if [[ "$PYTHON_OK" != "1" ]]; then
     error 'Python 3.10+ é necessário para Semgrep.'
@@ -59,7 +119,7 @@ fi
 
 if ! python3 -m venv --help >/dev/null 2>&1; then
     error 'O módulo venv do Python não está disponível.'
-    repair 'sudo apt install python3-venv'
+    repair "$(package_install_hint 'python3-venv' 'python3 python3-pip')"
     exit 1
 fi
 
@@ -110,19 +170,19 @@ if [[ "$SEMGREP_VERSION_OUTPUT" != *"$SEMGREP_VERSION"* ]]; then
 fi
 printf '[OK] Semgrep %s instalado, executável e funcional\n' "$SEMGREP_VERSION"
 
-require_command java 'Java 17+ é necessário para OWASP ZAP.' 'sudo apt install openjdk-17-jre'
+require_command java 'Java 17+ é necessário para OWASP ZAP.' "$(package_install_hint 'openjdk-17-jre' 'java-17-openjdk-headless')"
 JAVA_VERSION="$(java -version 2>&1 | head -n 1 | sed -E 's/.*version "([0-9]+).*/\1/')"
 if ! [[ "$JAVA_VERSION" =~ ^[0-9]+$ ]] || (( JAVA_VERSION < 17 )); then
     error 'Java 17+ é necessário para OWASP ZAP.'
     printf 'Versão atual:\n\n' >&2
     java -version >&2 || true
-    repair 'sudo apt install openjdk-17-jre'
+    repair "$(package_install_hint 'openjdk-17-jre' 'java-17-openjdk-headless')"
     exit 1
 fi
 
 if [[ ! -e "$ZAP_BIN" ]]; then
-    require_command curl 'curl é necessário para instalar OWASP ZAP.' 'sudo apt install curl'
-    require_command sha256sum 'sha256sum é necessário para validar OWASP ZAP.' 'sudo apt install coreutils'
+    require_command curl 'curl é necessário para instalar OWASP ZAP.' "$(package_install_hint 'curl' 'curl')"
+    require_command sha256sum 'sha256sum é necessário para validar OWASP ZAP.' "$(package_install_hint 'coreutils' 'coreutils')"
     tmp="$(mktemp -d)"
     trap 'rm -rf "$tmp"' EXIT
     curl -fL "$ZAP_URL" -o "$tmp/$ZAP_ARCHIVE"
