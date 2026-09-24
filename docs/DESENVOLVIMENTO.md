@@ -37,11 +37,33 @@ curl
 sha256sum
 ```
 
-Pacotes usuais por família:
+No Oracle Linux 9, o `python3` do sistema pode permanecer em Python 3.9. O HECATE não substitui, remapeia nem remove esse runtime. Para as ferramentas de segurança, os scripts procuram explicitamente, nesta ordem, `python3.12`, `python3.11`, `python3.10` e `python3`, usando o primeiro interpretador disponível com versão >= 3.10.
+
+Python 3.12 é a opção preferencial em Oracle Linux/RHEL-like quando disponível; Python 3.11 é o fallback operacional. A instalação é paralela ao Python do sistema. Exemplos:
+
+```bash
+sudo dnf install -y python3.12 python3.12-pip
+# fallback, quando 3.12 não estiver disponível:
+sudo dnf install -y python3.11 python3.11-pip
+```
+
+Em Debian/Ubuntu, o runtime padrão suportado continua sendo suficiente quando atende ao requisito >= 3.10:
+
+```bash
+sudo apt-get install -y python3 python3-venv
+```
+
+Os scripts validam também o suporte a `venv` antes de criar o ambiente privado do Semgrep. Durante o setup, o interpretador efetivamente selecionado é exibido, por exemplo:
 
 ```text
-Debian/Ubuntu:          python3 python3-venv openjdk-17-jre curl coreutils
-Oracle/RHEL-like:       python3 python3-pip java-17-openjdk-headless curl coreutils
+[INFO] Python selecionado para ferramentas de segurança: python3.12 (3.12.x)
+```
+
+Pacotes usuais adicionais por família:
+
+```text
+Debian/Ubuntu:          openjdk-17-jre curl coreutils
+Oracle/RHEL-like:       java-17-openjdk-headless curl coreutils
 ```
 
 Esses runtimes são pré-requisitos. Semgrep CE e OWASP ZAP não são instalados globalmente: o `make setup` os prepara em `.tools/` dentro do projeto.
@@ -58,11 +80,11 @@ O ramo `main` é a linha canônica de desenvolvimento e entrega. Não é necess�
 
 O `composer.lock` é obrigatório. O bootstrap usa `composer install` e não deve executar `composer update`, `composer require` ou instalar pacotes do sistema de forma implícita.
 
-O `make setup` detecta a família da distribuição; valida PHP, Composer, Git e Lefthook; instala as dependências a partir do lockfile; valida o Composer; confirma ECS, Rector, PHPStan, Psalm e PHPUnit; instala Semgrep CE e OWASP ZAP em `.tools/`; executa `lefthook install` e `lefthook validate`; e roda o baseline de QA e segurança.
+O `make setup` detecta a família da distribuição; valida PHP, Composer, Git, Lefthook e a disponibilidade de um Python >= 3.10 para as ferramentas de segurança; instala as dependências a partir do lockfile; valida o Composer; confirma ECS, Rector, PHPStan, Psalm e PHPUnit; instala Semgrep CE e OWASP ZAP em `.tools/`; executa `lefthook install` e `lefthook validate`; e roda o baseline de QA e segurança.
 
 Os scripts `scripts/bootstrap.sh` e `scripts/install-security-tools.sh` suportam Debian-like e Oracle Linux/RHEL-like. Eles não executam `apt-get`, `dnf` ou scripts de repositório automaticamente. Quando faltar uma dependência do sistema, informam o comando adequado e encerram para que a instalação seja uma decisão explícita do administrador.
 
-O Semgrep é instalado em virtualenv Python próprio e versionado pelo script de bootstrap. O OWASP ZAP usa o pacote Linux oficial em versão fixada; o arquivo baixado é validado por SHA-256 antes da extração. Docker não faz parte desse fluxo.
+O Semgrep é instalado em virtualenv Python próprio e versionado pelo script de bootstrap. O virtualenv é criado com o interpretador compatível selecionado, sem alterar o Python padrão do sistema. O OWASP ZAP usa o pacote Linux oficial em versão fixada; o arquivo baixado é validado por SHA-256 antes da extração. Docker não faz parte desse fluxo.
 
 ### 2.1. Alteração de dependências de desenvolvimento
 
