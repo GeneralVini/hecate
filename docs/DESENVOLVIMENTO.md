@@ -148,7 +148,7 @@ Psalm            análise estática complementar
 PHPUnit          testes
 Composer Audit   vulnerabilidades conhecidas em dependências
 Psalm Taint      fluxo de dados não confiável até sinks
-Semgrep CE       SAST complementar e regras locais
+Semgrep CE       SAST complementar e regras locais testadas
 OWASP ZAP        DAST separado para aplicação em execução
 ```
 
@@ -186,8 +186,28 @@ composer psalm
 composer psalm:taint
 composer test
 composer security:dependencies
+composer security:semgrep:validate
+composer security:semgrep:test
 composer security:semgrep
 ```
+
+O fluxo Semgrep é deliberadamente sequencial:
+
+```text
+security/semgrep-rules/hecate.yml
+        ↓
+security:semgrep:validate
+        ↓
+security/semgrep-tests/hecate.php
+        ↓
+security:semgrep:test
+        ↓
+security:semgrep
+```
+
+A validação impede que regras com erro de parsing cheguem ao runner de testes. Regras e fixtures usam o mesmo basename e árvores paralelas, conforme o mecanismo de testes do Semgrep. Cada alteração material de regra deve manter exemplo positivo (`ruleid`) e negativo (`ok`) pertinente.
+
+Na triagem local, `ERROR` representa finding de alto sinal e bloqueia o gate. `WARNING` representa hotspot para revisão e não é tratado automaticamente como vulnerabilidade confirmada nem bloqueia o gate. O wrapper de scan apresenta um resumo com regra, arquivo, linha, motivo, trecho afetado e separação entre erro do scanner, bloqueante e hotspot.
 
 O DAST fica separado porque exige aplicação em execução:
 
@@ -207,7 +227,7 @@ composer validate --no-interaction
 
 O nível do PHPStan não deve ser reduzido para aprovar uma alteração. Suppressions e baselines amplos não devem ser usados para esconder erros reais.
 
-A primeira combinação de segurança priorizada é **Composer Audit + Psalm Taint Analysis**, porque acrescenta análise de dependências e fluxo de dados com pouca complexidade operacional. Semgrep CE complementa essa camada com padrões e regras específicas do HECATE. ZAP fica fora do gate cotidiano porque sua análise depende de uma instância executável.
+A primeira combinação de segurança priorizada é **Composer Audit + Psalm Taint Analysis**, porque acrescenta análise de dependências e fluxo de dados com pouca complexidade operacional. Semgrep CE complementa essa camada com padrões e regras específicas do HECATE. Regras Semgrep de fluxo usam taint mode quando fonte e sink são relevantes para diferenciar código dinâmico legítimo de entrada controlada externamente. ZAP fica fora do gate cotidiano porque sua análise depende de uma instância executável.
 
 SonarQube é opcional e futuro; não é requisito para desenvolvimento local ou pipeline básico. Nexus permanece repositório/distribuição de artefatos e não substitui o scanner de código ou o CI.
 
@@ -279,7 +299,9 @@ Regras mínimas:
 - não registrar senha, token, cookie, PIN ou conteúdo de documentos;
 - manter secrets fora do código e da documentação versionada.
 
-As ferramentas não substituem revisão de arquitetura ou testes. Composer Audit cobre advisories de dependências; Psalm Taint acompanha fluxo de dados; Semgrep aplica regras locais versionadas; ZAP observa a aplicação em execução. Achados devem ser investigados e corrigidos ou justificados de forma localizada, sem suppressions globais destinadas apenas a liberar pipeline.
+As ferramentas não substituem revisão de arquitetura ou testes. Composer Audit cobre advisories de dependências; Psalm Taint acompanha fluxo de dados; Semgrep aplica regras locais versionadas em `security/semgrep-rules/hecate.yml`; ZAP observa a aplicação em execução. Achados devem ser investigados e corrigidos ou justificados de forma localizada, sem suppressions globais destinadas apenas a liberar pipeline.
+
+O caso seguro de bootstrap baseado em `dirname(__DIR__)` deve permanecer coberto por fixture negativa para impedir regressão do falso positivo de LFI/path traversal já identificado.
 
 ## 9. Frontend e reutilização
 
@@ -366,6 +388,8 @@ Antes do commit/push, quando se deseja executar o gate integral manualmente:
 git pull --rebase origin main && composer check
 ```
 
+Não é necessário executar `security:semgrep:validate`, `security:semgrep:test`, `security:semgrep`, `security` e `check` em sequência: `composer check` já percorre toda a cadeia uma vez. Os comandos individuais existem para diagnóstico focado.
+
 Fluxo correspondente:
 
 ```text
@@ -397,6 +421,9 @@ Antes de considerar uma alteração tecnicamente apta:
 - `composer.json` e `composer.lock` devem estar sincronizados;
 - `composer qa` deve estar aprovado;
 - `composer security` deve estar aprovado;
+- regras Semgrep devem passar por `security:semgrep:validate` e `security:semgrep:test`;
+- findings `ERROR` não resolvidos não podem permanecer no gate;
+- hotspots `WARNING` devem ser revisados conforme contexto, sem serem chamados automaticamente de vulnerabilidade;
 - `composer check` deve ser reproduzível localmente e no CI;
 - hooks Lefthook devem estar instaláveis e validáveis a partir da configuração versionada;
 - não devem existir suppressions adicionadas apenas para contornar erros reais;
