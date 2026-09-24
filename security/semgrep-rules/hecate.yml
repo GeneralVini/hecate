@@ -45,6 +45,26 @@ rules:
           - pattern: $PDO->query(sprintf(...))
           - pattern: $PDO->exec(sprintf(...))
 
+  - id: hecate.php.sql-injection-from-http
+    mode: taint
+    languages: [php]
+    severity: ERROR
+    message: Entrada HTTP alcança SQL executado diretamente. Use SQL fixo com parâmetros/bindings e allowlist para identificadores dinâmicos.
+    pattern-sources:
+      - pattern-either:
+          - pattern: $_GET[...]
+          - pattern: $_POST[...]
+          - pattern: $_REQUEST[...]
+          - pattern: $REQUEST->getQueryParams()
+          - pattern: $REQUEST->getParsedBody()
+    pattern-sinks:
+      - pattern-either:
+          - pattern: $DB->query($SQL)
+          - pattern: $DB->createCommand($SQL)
+          - pattern: $CONNECTION->createCommand($SQL)
+          - pattern: $PDO->exec($SQL)
+          - pattern: $PDO->query($SQL)
+
   - id: hecate.php.path-traversal-from-http
     mode: taint
     languages: [php]
@@ -56,13 +76,18 @@ rules:
           - pattern: $_POST[...]
           - pattern: $_REQUEST[...]
           - pattern: $_FILES[...]
+          - pattern: $REQUEST->getQueryParams()
+          - pattern: $REQUEST->getParsedBody()
+          - pattern: $REQUEST->getUploadedFiles()
     pattern-sinks:
       - pattern-either:
           - pattern: include $SINK;
           - pattern: include_once $SINK;
           - pattern: require $SINK;
           - pattern: require_once $SINK;
+          - pattern: file_get_contents($SINK)
           - pattern: file_put_contents($SINK, ...)
+          - pattern: fopen($SINK, ...)
           - pattern: unlink($SINK)
           - pattern: rename($SINK, ...)
           - pattern: copy($SINK, ...)
@@ -77,8 +102,11 @@ rules:
           - pattern: $_GET[...]
           - pattern: $_POST[...]
           - pattern: $_REQUEST[...]
+          - pattern: $REQUEST->getQueryParams()
+          - pattern: $REQUEST->getParsedBody()
     pattern-sinks:
       - pattern-either:
+          - pattern: curl_init($SINK)
           - pattern: curl_setopt($CURL, CURLOPT_URL, $SINK)
           - pattern: file_get_contents($SINK)
           - pattern: fopen($SINK, ...)
@@ -87,17 +115,49 @@ rules:
     mode: taint
     languages: [php]
     severity: ERROR
-    message: Entrada HTTP alcança um redirect/header. Use rota interna gerada pela aplicação ou allowlist explícita.
+    message: Entrada HTTP controla destino de redirecionamento. Use rota/URL local gerada pela aplicação ou allowlist explícita.
     pattern-sources:
       - pattern-either:
           - pattern: $_GET[...]
           - pattern: $_POST[...]
           - pattern: $_REQUEST[...]
+          - pattern: $REQUEST->getQueryParams()
+          - pattern: $REQUEST->getParsedBody()
     pattern-sinks:
       - pattern-either:
-          - pattern: header($SINK)
+          - pattern: 'header("Location: " . $SINK)'
+          - pattern: "header('Location: ' . $SINK)"
           - pattern: $RESPONSE->withHeader('Location', $SINK)
+          - pattern: $RESPONSE->withHeader("Location", $SINK)
           - pattern: $RESPONSE->withAddedHeader('Location', $SINK)
+          - pattern: $RESPONSE->withAddedHeader("Location", $SINK)
+
+  - id: hecate.php.header-injection-from-http
+    mode: taint
+    languages: [php]
+    severity: ERROR
+    message: Entrada HTTP alcança header de resposta. Rejeite CR/LF e valide nome e valor conforme o contrato do header.
+    pattern-sources:
+      - pattern-either:
+          - pattern: $_GET[...]
+          - pattern: $_POST[...]
+          - pattern: $_REQUEST[...]
+          - pattern: $REQUEST->getQueryParams()
+          - pattern: $REQUEST->getParsedBody()
+          - pattern: $REQUEST->getHeaderLine(...)
+    pattern-sinks:
+      - patterns:
+          - pattern: header($SINK)
+          - pattern-not: 'header("Location: " . $SINK)'
+          - pattern-not: "header('Location: ' . $SINK)"
+      - patterns:
+          - pattern: $RESPONSE->withHeader($NAME, $SINK)
+          - pattern-not: $RESPONSE->withHeader('Location', $SINK)
+          - pattern-not: $RESPONSE->withHeader("Location", $SINK)
+      - patterns:
+          - pattern: $RESPONSE->withAddedHeader($NAME, $SINK)
+          - pattern-not: $RESPONSE->withAddedHeader('Location', $SINK)
+          - pattern-not: $RESPONSE->withAddedHeader("Location", $SINK)
 
   - id: hecate.php.xss-from-http
     mode: taint
@@ -109,6 +169,8 @@ rules:
           - pattern: $_GET[...]
           - pattern: $_POST[...]
           - pattern: $_REQUEST[...]
+          - pattern: $REQUEST->getQueryParams()
+          - pattern: $REQUEST->getParsedBody()
     pattern-sanitizers:
       - pattern-either:
           - pattern: Html::encode(...)
@@ -141,6 +203,18 @@ rules:
           - pattern: unlink($A . $B)
           - pattern: rename($A . $B, ...)
           - pattern: copy($A . $B, ...)
+
+  - id: hecate.php.weak-credential-hash
+    languages: [php]
+    severity: WARNING
+    message: MD5/SHA-1 não devem proteger senha, PIN ou credencial. Use password_hash/password_verify ou mecanismo criptográfico apropriado.
+    patterns:
+      - pattern-either:
+          - pattern: md5($SECRET)
+          - pattern: sha1($SECRET)
+      - metavariable-regex:
+          metavariable: $SECRET
+          regex: '(?i)^\$(password|passwd|senha|pin|credential|credentials|secret)$'
 
   - id: hecate.php.log-password
     languages: [php]
