@@ -82,9 +82,14 @@ O dourado é uma cor de destaque. Deve ser usado em títulos, estados selecionad
 
 ## 5. Assets oficiais
 
-Local correto: `public/branding/`.
+Os assets são separados entre **masters editoriais** e **derivados de produção**.
 
-Assets atuais:
+```text
+resources/branding/originals/  -> fontes preservadas, fora da árvore pública
+public/branding/               -> arquivos otimizados servidos pelo navegador
+```
+
+Assets publicados:
 
 - `logo-horizontal.png`
 - `logo-vertical.png`
@@ -100,7 +105,45 @@ Assets atuais:
 - `dashboard-background.jpg`
 - `hecate-hero.jpg`
 
-### 5.1. Resolução de URLs de branding
+Os masters não devem ser referenciados pela aplicação e não devem sofrer compressão destrutiva. Para uma nova arte, substituir o master correspondente em `resources/branding/originals/` e gerar novamente o derivado de produção.
+
+### 5.1. Otimização para produção
+
+A otimização é explícita e não integra `composer install`, `composer fix` ou o pipeline normal de QA.
+
+Inicialização dos masters a partir dos arquivos atualmente publicados, sem sobrescrever um master existente:
+
+```bash
+make branding-bootstrap
+```
+
+Geração dos derivados:
+
+```bash
+make branding-optimize
+```
+
+O script `scripts/optimize-branding.sh` adota:
+
+- ImageMagick para resize, remoção de metadados e compressão JPEG;
+- `pngquant` para PNG quando disponível;
+- JPEG qualidade 82 por padrão para `hecate-hero.jpg`, `login-background.jpg` e `dashboard-background.jpg`;
+- limite máximo de 1920x1080 para as artes horizontais, sem ampliar imagens menores;
+- faixa de qualidade 80–95 por padrão para PNGs;
+- resize nominal dos favicons para o tamanho indicado no próprio nome.
+
+Parâmetros podem ser alterados na execução:
+
+```bash
+HECATE_BRANDING_JPEG_QUALITY=84 \
+HECATE_BRANDING_PNG_MIN_QUALITY=82 \
+HECATE_BRANDING_PNG_MAX_QUALITY=96 \
+make branding-optimize
+```
+
+A finalidade é impedir que masters de 2–4 MB sejam servidos diretamente ao navegador. A validação final continua visual: rosto e cabelo da personagem, céu e degradês, fogo/dourado e legibilidade dos elementos dos portais devem ser conferidos após cada geração.
+
+### 5.2. Resolução de URLs de branding
 
 A localização física em `public/branding/` não autoriza o uso de URLs absolutas como `/branding/...` no código da aplicação.
 
