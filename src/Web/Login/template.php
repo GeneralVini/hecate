@@ -40,9 +40,11 @@ $this->setTitle('Entrar — HECATE');
                 <?= isset($errors['username']) ? 'aria-describedby="login-username-error"' : '' ?>
             >
         </div>
-        <?php if (isset($errors['username'])) : ?>
-            <span id="login-username-error" class="login-error" role="alert"><?= Html::encode($errors['username']) ?></span>
-        <?php endif; ?>
+        <span
+            id="login-username-error"
+            class="login-error<?= isset($errors['username']) ? ' is-visible' : '' ?>"
+            <?= isset($errors['username']) ? 'role="alert"' : 'aria-hidden="true"' ?>
+        ><?= isset($errors['username']) ? Html::encode($errors['username']) : '&nbsp;' ?></span>
     </div>
 
     <div class="login-field">
@@ -65,9 +67,11 @@ $this->setTitle('Entrar — HECATE');
                 <?= isset($errors['password']) ? 'aria-describedby="login-password-error"' : '' ?>
             >
         </div>
-        <?php if (isset($errors['password'])) : ?>
-            <span id="login-password-error" class="login-error" role="alert"><?= Html::encode($errors['password']) ?></span>
-        <?php endif; ?>
+        <span
+            id="login-password-error"
+            class="login-error<?= isset($errors['password']) ? ' is-visible' : '' ?>"
+            <?= isset($errors['password']) ? 'role="alert"' : 'aria-hidden="true"' ?>
+        ><?= isset($errors['password']) ? Html::encode($errors['password']) : '&nbsp;' ?></span>
     </div>
 
     <button class="button button-primary login-submit" type="submit">Entrar</button>
