@@ -50,6 +50,10 @@ Elementos permitidos:
 - monitoramento e telemetria;
 - estrela dourada como elemento de assinatura institucional.
 
+A personagem adotada em `avatar.png` é a referência canônica para novas composições: rosto, cabelo, linguagem do traje azul-marinho/preto com dourado, tocha, chaves e presença dos dois lobos negros devem manter continuidade visual. Os lobos atuam como guardiões, em posição de alerta e voltados ao observador, mas permanecem subordinados visualmente à personagem e aos portais.
+
+A lua deve aparecer somente como **lua tríplice associada à Hécate**. Evitar uma segunda lua física no céu, pois ela cria redundância visual e divide a hierarquia da composição.
+
 Os logos dos componentes técnicos devem permanecer reconhecíveis e, quando utilizados, preferencialmente em suas versões oficiais. Não há necessidade de reduzir sua presença visual; a distinção entre governança e implementação deve ocorrer pela composição e pela hierarquia da informação.
 
 Evitar:
@@ -57,9 +61,11 @@ Evitar:
 - excesso de fantasia sem relação com o produto;
 - tratar ferramentas como se fossem a própria governança;
 - navios como elemento principal da marca;
-- cães como elemento central da identidade;
+- cães/lobos como elemento central da identidade;
 - símbolos que remetam a Atena, como lança/escudo;
 - textos técnicos excessivos dentro das artes operacionais;
+- glow intenso em áreas destinadas a controles da interface;
+- segunda lua no céu quando a lua tríplice de Hécate já estiver presente;
 - `APP-PRINT`.
 
 ## 4. Paleta
@@ -83,6 +89,7 @@ Assets atuais:
 - `logo-horizontal.png`
 - `logo-vertical.png`
 - `symbol.png`
+- `avatar.png`
 - `favicon-16x16.png`
 - `favicon-32x32.png`
 - `favicon-48x48.png`
@@ -122,6 +129,10 @@ Uso preferencial em capas, splash institucional, páginas de apresentação e ma
 
 Uso preferencial em sidebar recolhida, avatar do produto, loader, cards institucionais e favicons derivados.
 
+### Avatar HECATE
+
+`avatar.png` é o retrato institucional da personagem e a referência visual canônica para novas artes. Uso principal no slide 2 do manual (`Quem é HECATE?`) e em materiais que precisem apresentar a personagem sem a narrativa completa dos portais.
+
 ### Favicons
 
 Usar os tamanhos apropriados no `<head>` e em futuro manifest/PWA quando aplicável. As URLs também devem ser obtidas por `BrandingAsset`.
@@ -133,6 +144,9 @@ A imagem é o cenário visual; o formulário continua sendo renderizado pela apl
 Requisitos:
 
 - preservar área de escape para usuário, senha e ação de entrada;
+- manter Hécate e os lobos à esquerda e os portais no eixo direito quando a composição for completa;
+- manter a área inferior sob os portais deliberadamente escura, estável e com baixo ruído visual;
+- evitar glow intenso azul, dourado ou violeta na área do formulário;
 - não desenhar campos ou botão na própria imagem;
 - manter leitura limpa em resoluções diferentes;
 - usar overlay apenas quando necessário para casar arte e formulário;
@@ -149,11 +163,13 @@ CTIM - YYYY                                      CC(EN) HONORATO
 
 ### Background do dashboard
 
-Deve sustentar a ambientação sem competir com o conteúdo operacional. Usar overlay escuro, painéis translúcidos e contraste alto nas informações. A URL do background deve ser resolvida por `BrandingAsset` e injetada no CSS por custom property.
+Deve sustentar a ambientação sem competir com o conteúdo operacional. Preferir derivação escurecida e menos contrastada da composição institucional, em vez de uma narrativa visual independente. Usar overlay escuro, painéis translúcidos e contraste alto nas informações. A URL do background deve ser resolvida por `BrandingAsset` e injetada no CSS por custom property.
 
 ### Hero HECATE
 
-É a referência institucional principal para apresentar o conceito completo: Hécate, camada de governança, três portais, componentes técnicos e cenário do Rio de Janeiro.
+É a referência institucional principal para apresentar o conceito completo: Hécate, dois lobos guardiões subordinados à composição, camada de governança, três portais, componentes técnicos e cenário do Rio de Janeiro.
+
+A composição deve manter Hécate e os portais como focos principais. Os lobos não devem sobrepujar os portais. A lua tríplice de Hécate é o único elemento lunar da cena. Evitar texto rasterizado excessivo; textos funcionais devem permanecer em HTML/documentação sempre que possível.
 
 Uso recomendado em README, apresentações, documentação visual e onboarding. Não usar como fundo permanente de tabelas ou telas densas.
 
