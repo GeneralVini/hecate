@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Yiisoft\RequestProvider\RequestProviderInterface;
 use Yiisoft\Router\UrlGeneratorInterface;
+use Yiisoft\Validator\Validator;
 use Yiisoft\Yii\View\Renderer\WebViewRenderer;
 
 final readonly class Action
@@ -17,6 +18,7 @@ final readonly class Action
         private RequestProviderInterface $requestProvider,
         private ResponseFactoryInterface $responseFactory,
         private UrlGeneratorInterface $urlGenerator,
+        private Validator $validator,
     ) {
     }
 
@@ -29,26 +31,22 @@ final readonly class Action
         if (strtoupper($request->getMethod()) === 'POST') {
             $body = $request->getParsedBody();
             $data = is_array($body) ? $body : [];
-            $usernameValue = $data['username'] ?? null;
-            $passwordValue = $data['password'] ?? null;
-            $username = is_string($usernameValue) ? trim($usernameValue) : '';
-            $password = is_string($passwordValue) ? trim($passwordValue) : '';
+            $form = LoginForm::fromArray($data);
+            $result = $this->validator->validate($form);
 
-            if ($username === '') {
-                $errors['username'] = 'Informe o usuário.';
-            }
-            if ($password === '') {
-                $errors['password'] = 'Informe a senha.';
-            }
+            $errors = $result->getFirstErrorMessagesIndexedByProperty();
+            $username = $form->usernameForDisplay();
 
-            if ($errors === []) {
-                $location = $this->urlGenerator->generate('home');
-                $baseUrl = $_ENV['HECATE_BASE_URL'] ?? '';
-                if ($baseUrl !== '' && str_starts_with($location, '/')) {
-                    $location = rtrim($baseUrl, '/') . $location;
-                }
+            if ($result->isValid()) {
+                // Keep credential values separated from transport and output contexts.
+                // The password is intentionally preserved exactly as submitted and must
+                // never be logged, HTML-encoded for authentication, or interpolated into
+                // SQL, LDAP filters, shell commands, or URLs.
+                $form->passwordValue();
 
-                return $this->responseFactory->createResponse(303)->withHeader('Location', $location);
+                return $this->responseFactory
+                    ->createResponse(303)
+                    ->withHeader('Location', $this->urlGenerator->generate('home'));
             }
         }
 
