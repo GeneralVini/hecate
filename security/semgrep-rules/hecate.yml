@@ -1,0 +1,184 @@
+rules:
+  - id: hecate.php.dangerous-shell-execution
+    languages: [php]
+    severity: ERROR
+    message: Execução direta de shell não é permitida no HECATE Web; use operações fechadas no hecate-agent.
+    patterns:
+      - pattern-either:
+          - pattern: exec(...)
+          - pattern: shell_exec(...)
+          - pattern: system(...)
+          - pattern: passthru(...)
+          - pattern: proc_open(...)
+          - pattern: popen(...)
+
+  - id: hecate.php.dynamic-code-execution
+    languages: [php]
+    severity: ERROR
+    message: eval() permite execução dinâmica de código e não deve ser usado no HECATE.
+    pattern: eval(...)
+
+  - id: hecate.php.unsafe-unserialize
+    languages: [php]
+    severity: ERROR
+    message: unserialize() exige revisão de segurança; prefira formatos seguros e dados com origem controlada.
+    pattern: unserialize(...)
+
+  - id: hecate.php.sql-string-concatenation
+    languages: [php]
+    severity: ERROR
+    message: SQL construído por concatenação exige revisão. Use parâmetros/bindings e allowlist para identificadores dinâmicos.
+    patterns:
+      - pattern-either:
+          - pattern: $DB->query($A . $B)
+          - pattern: $DB->createCommand($A . $B)
+          - pattern: $PDO->exec($A . $B)
+          - pattern: $PDO->query($A . $B)
+
+  - id: hecate.php.sql-sprintf
+    languages: [php]
+    severity: ERROR
+    message: SQL montado com sprintf() exige revisão. Valores devem usar binding; identificadores dinâmicos exigem allowlist.
+    patterns:
+      - pattern-either:
+          - pattern: $DB->createCommand(sprintf(...))
+          - pattern: $PDO->query(sprintf(...))
+          - pattern: $PDO->exec(sprintf(...))
+
+  - id: hecate.php.path-traversal-from-http
+    mode: taint
+    languages: [php]
+    severity: ERROR
+    message: Entrada HTTP alcança operação de filesystem/include. Restrinja a base, normalize o caminho e use allowlist quando aplicável.
+    pattern-sources:
+      - pattern-either:
+          - pattern: $_GET[...]
+          - pattern: $_POST[...]
+          - pattern: $_REQUEST[...]
+          - pattern: $_FILES[...]
+    pattern-sinks:
+      - pattern-either:
+          - pattern: include $SINK;
+          - pattern: include_once $SINK;
+          - pattern: require $SINK;
+          - pattern: require_once $SINK;
+          - pattern: file_get_contents($SINK)
+          - pattern: file_put_contents($SINK, ...)
+          - pattern: fopen($SINK, ...)
+          - pattern: unlink($SINK)
+          - pattern: rename($SINK, ...)
+          - pattern: copy($SINK, ...)
+
+  - id: hecate.php.ssrf-from-http
+    mode: taint
+    languages: [php]
+    severity: ERROR
+    message: Entrada HTTP alcança uma URL de saída. Valide esquema, host e destino por allowlist e bloqueie destinos internos.
+    pattern-sources:
+      - pattern-either:
+          - pattern: $_GET[...]
+          - pattern: $_POST[...]
+          - pattern: $_REQUEST[...]
+    pattern-sinks:
+      - pattern-either:
+          - pattern: curl_setopt($CURL, CURLOPT_URL, $SINK)
+          - pattern: file_get_contents($SINK)
+          - pattern: fopen($SINK, ...)
+
+  - id: hecate.php.open-redirect-from-http
+    mode: taint
+    languages: [php]
+    severity: ERROR
+    message: Entrada HTTP alcança um redirect/header. Use rota interna gerada pela aplicação ou allowlist explícita.
+    pattern-sources:
+      - pattern-either:
+          - pattern: $_GET[...]
+          - pattern: $_POST[...]
+          - pattern: $_REQUEST[...]
+    pattern-sinks:
+      - pattern-either:
+          - pattern: header($SINK)
+          - pattern: $RESPONSE->withHeader('Location', $SINK)
+          - pattern: $RESPONSE->withAddedHeader('Location', $SINK)
+
+  - id: hecate.php.xss-from-http
+    mode: taint
+    languages: [php]
+    severity: ERROR
+    message: Entrada HTTP alcança saída HTML sem escaping contextual.
+    pattern-sources:
+      - pattern-either:
+          - pattern: $_GET[...]
+          - pattern: $_POST[...]
+          - pattern: $_REQUEST[...]
+    pattern-sanitizers:
+      - pattern-either:
+          - pattern: Html::encode(...)
+          - pattern: \Yiisoft\Html\Html::encode(...)
+          - pattern: htmlspecialchars(...)
+          - pattern: htmlentities(...)
+    pattern-sinks:
+      - pattern-either:
+          - pattern: echo $SINK;
+          - pattern: print $SINK;
+
+  - id: hecate.php.html-no-encode
+    languages: [php]
+    severity: WARNING
+    message: Desabilitar encoding HTML cria hotspot de XSS. Documente a origem confiável ou mantenha encoding ativo.
+    patterns:
+      - pattern-either:
+          - pattern: $X->encode(false)
+          - pattern: NoEncode::string($X)
+
+  - id: hecate.php.filesystem-path-concatenation
+    languages: [php]
+    severity: WARNING
+    message: Caminho de filesystem construído por concatenação é hotspot. Confirme base controlada e proteção contra path traversal.
+    patterns:
+      - pattern-either:
+          - pattern: file_get_contents($A . $B)
+          - pattern: file_put_contents($A . $B, ...)
+          - pattern: fopen($A . $B, ...)
+          - pattern: unlink($A . $B)
+          - pattern: rename($A . $B, ...)
+          - pattern: copy($A . $B, ...)
+
+  - id: hecate.php.log-password
+    languages: [php]
+    severity: ERROR
+    message: Senha ou credencial não pode ser registrada em logs.
+    patterns:
+      - pattern-either:
+          - pattern: error_log($PASSWORD)
+          - pattern: $LOGGER->debug($PASSWORD)
+          - pattern: $LOGGER->info($PASSWORD)
+          - pattern: $LOGGER->warning($PASSWORD)
+          - pattern: $LOGGER->error($PASSWORD)
+      - metavariable-regex:
+          metavariable: $PASSWORD
+          regex: '(?i)^\$(password|passwd|senha|credential|credentials)$'
+
+  - id: hecate.php.log-token-secret
+    languages: [php]
+    severity: ERROR
+    message: Token, cookie, Authorization ou secret não devem ser registrados em logs.
+    patterns:
+      - pattern-either:
+          - pattern: error_log($SECRET)
+          - pattern: $LOGGER->debug($SECRET)
+          - pattern: $LOGGER->info($SECRET)
+          - pattern: $LOGGER->warning($SECRET)
+          - pattern: $LOGGER->error($SECRET)
+      - metavariable-regex:
+          metavariable: $SECRET
+          regex: '(?i)^\$(token|secret|client_secret|authorization|cookie|pin)$'
+
+  - id: hecate.php.debug-output-sensitive
+    languages: [php]
+    severity: WARNING
+    message: Saída de depuração pode expor dados sensíveis; não deixe var_dump/print_r em código de aplicação.
+    patterns:
+      - pattern-either:
+          - pattern: var_dump(...)
+          - pattern: print_r(...)
