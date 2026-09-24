@@ -24,8 +24,13 @@ final readonly class Action
             return $this->redirectToHome();
         }
 
-        $scenario = strtolower($request->getQueryParams()['scenario'] ?? '');
-        if (!in_array($scenario, ['dctim', 'ctim'], true)) {
+        $requestedScenario = strtolower($request->getQueryParams()['scenario'] ?? '');
+        $scenario = match ($requestedScenario) {
+            'dctim' => 'dctim',
+            'ctim' => 'ctim',
+            default => null,
+        };
+        if ($scenario === null) {
             return $this->redirectToHome();
         }
 
