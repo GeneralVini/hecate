@@ -50,11 +50,9 @@ rules:
           - pattern: include_once $X
           - pattern: require $X
           - pattern: require_once $X
-      - metavariable-pattern:
+      - metavariable-regex:
           metavariable: $X
-          patterns:
-            - pattern-not: "'...'"
-            - pattern-not: '"..."'
+          regex: '^\$.*'
 
   - id: hecate.php.filesystem-path-concatenation
     languages: [php]
@@ -75,11 +73,9 @@ rules:
     message: URL dinâmica em cURL exige allowlist de esquema/host e bloqueio de destinos internos para reduzir SSRF.
     patterns:
       - pattern: curl_setopt($CURL, CURLOPT_URL, $URL)
-      - metavariable-pattern:
+      - metavariable-regex:
           metavariable: $URL
-          patterns:
-            - pattern-not: "'...'"
-            - pattern-not: '"..."'
+          regex: '^\$.*'
 
   - id: hecate.php.remote-file-dynamic-url
     languages: [php]
