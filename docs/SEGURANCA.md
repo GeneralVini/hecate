@@ -345,7 +345,7 @@ Para SQL, a presença de dado vindo do request no valor SQL passado a `createCom
 
 Open redirect e header injection são tratados separadamente. `Location` controlado externamente é risco de redirect; valores de outros headers derivados da requisição exigem validação específica e proteção contra CR/LF. Redirect produzido por `UrlGeneratorInterface` para rota interna conhecida deve permanecer coberto como caso negativo, não como vulnerabilidade.
 
-URLs controladas pela requisição que alcançam `curl_init()`, `CURLOPT_URL`, `file_get_contents()` ou `fopen()` entram no contrato SSRF. Caminhos controlados externamente que alcançam includes ou filesystem entram no contrato de path traversal/LFI.
+URLs controladas pela requisição que alcançam `curl_init()` ou `CURLOPT_URL` entram no contrato SSRF. Caminhos controlados externamente que alcançam `file_get_contents()`, `fopen()`, includes ou outras operações de filesystem entram no contrato de path traversal/LFI.
 
 Uso de MD5/SHA-1 sobre variáveis semanticamente ligadas a senha, PIN ou credencial é hotspot (`WARNING`), porque o HECATE exige hash forte para PIN e não deve usar hashes criptograficamente fracos para autenticadores.
 
