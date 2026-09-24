@@ -67,15 +67,17 @@ final class LoginFormTest extends TestCase
         self::assertSame('  senha com espaços  ', $form->passwordValue());
     }
 
-    public function testWhitespacePasswordIsPreserved(): void
+    public function testWhitespaceOnlyPasswordIsRejectedWithoutBeingModified(): void
     {
         $form = LoginForm::fromArray([
             'username' => '123456',
             'password' => '   ',
         ]);
         $result = $this->validator->validate($form);
+        $errors = $result->getFirstErrorMessagesIndexedByProperty();
 
-        self::assertTrue($result->isValid());
+        self::assertFalse($result->isValid());
+        self::assertSame('Informe a senha.', $errors['password'] ?? null);
         self::assertSame('   ', $form->passwordValue());
     }
 
