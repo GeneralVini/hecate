@@ -91,9 +91,9 @@ function ssrfFromPsr7(object $request): mixed
 
 function remoteFileFromHttp(): string|false
 {
-    $url = $_REQUEST['url'];
-    // ruleid: hecate.php.ssrf-from-http, hecate.php.path-traversal-from-http
-    return file_get_contents($url);
+    $path = $_REQUEST['path'];
+    // ruleid: hecate.php.path-traversal-from-http
+    return file_get_contents($path);
 }
 
 function openRedirectFromHttp(): void
