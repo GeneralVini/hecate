@@ -10,9 +10,10 @@ use Yiisoft\Validator\Rule\Required;
 /**
  * HTTP input model for login credentials.
  *
- * Validation and normalization are intentionally separated. Username is
- * normalized only after validation. Password is never trimmed or otherwise
- * modified because whitespace may be part of a valid credential.
+ * Username is normalized at the HTTP boundary before Yii validation so values
+ * containing only whitespace are rejected by Required. Password is never
+ * trimmed or otherwise modified because whitespace may be part of a valid
+ * credential.
  */
 final readonly class LoginForm
 {
@@ -39,15 +40,17 @@ final readonly class LoginForm
      */
     public static function fromArray(array $data): self
     {
+        $username = $data['username'] ?? null;
+
         return new self(
-            username: $data['username'] ?? null,
+            username: is_string($username) ? trim($username) : $username,
             password: $data['password'] ?? null,
         );
     }
 
     public function normalizedUsername(): string
     {
-        return is_string($this->username) ? trim($this->username) : '';
+        return is_string($this->username) ? $this->username : '';
     }
 
     public function passwordValue(): string
