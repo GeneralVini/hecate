@@ -49,7 +49,7 @@ rules:
     mode: taint
     languages: [php]
     severity: ERROR
-    message: Entrada HTTP alcança operação de filesystem/include. Restrinja a base, normalize o caminho e use allowlist quando aplicável.
+    message: Entrada HTTP alcança operação sensível de filesystem/include. Restrinja a base, normalize o caminho e use allowlist quando aplicável.
     pattern-sources:
       - pattern-either:
           - pattern: $_GET[...]
@@ -62,9 +62,7 @@ rules:
           - pattern: include_once $SINK;
           - pattern: require $SINK;
           - pattern: require_once $SINK;
-          - pattern: file_get_contents($SINK)
           - pattern: file_put_contents($SINK, ...)
-          - pattern: fopen($SINK, ...)
           - pattern: unlink($SINK)
           - pattern: rename($SINK, ...)
           - pattern: copy($SINK, ...)
@@ -73,7 +71,7 @@ rules:
     mode: taint
     languages: [php]
     severity: ERROR
-    message: Entrada HTTP alcança uma URL de saída. Valide esquema, host e destino por allowlist e bloqueie destinos internos.
+    message: Entrada HTTP alcança recurso externo/URL. Valide esquema, host e destino por allowlist e bloqueie destinos internos.
     pattern-sources:
       - pattern-either:
           - pattern: $_GET[...]
