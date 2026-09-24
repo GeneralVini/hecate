@@ -84,6 +84,57 @@ package_install_hint() {
     esac
 }
 
+python_install_hint() {
+    case "$PLATFORM" in
+        deb)
+            printf 'sudo apt-get install -y python3 python3-venv'
+            ;;
+        rpm)
+            printf 'sudo dnf install -y python3.12 python3.12-pip || sudo dnf install -y python3.11 python3.11-pip'
+            ;;
+        *)
+            printf 'instale Python 3.10 ou superior com suporte a venv e execute novamente: make setup'
+            ;;
+    esac
+}
+
+find_supported_python() {
+    local candidate
+
+    for candidate in python3.12 python3.11 python3.10 python3; do
+        if ! command -v "$candidate" >/dev/null 2>&1; then
+            continue
+        fi
+
+        if "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
+            printf '%s\n' "$candidate"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+require_security_python() {
+    local python_bin
+    local python_version
+
+    python_bin="$(find_supported_python || true)"
+    if [[ -z "$python_bin" ]]; then
+        error 'Python 3.10+ é necessário para as ferramentas de segurança.'
+        if command -v python3 >/dev/null 2>&1; then
+            printf 'Python padrão encontrado, mas incompatível:\n\n  ' >&2
+            python3 --version >&2 || true
+        fi
+        printf '\nO HECATE não substitui nem remapeia o python3 do sistema.\n' >&2
+        repair "$(python_install_hint)"
+        exit 1
+    fi
+
+    python_version="$($python_bin -c 'import platform; print(platform.python_version())')"
+    ok "Python para ferramentas de segurança: $python_bin ($python_version)"
+}
+
 show_noexec_hint() {
     if command -v findmnt >/dev/null 2>&1; then
         local mount_options
@@ -240,6 +291,7 @@ require_php_version
 require_command composer Composer "$(package_install_hint 'composer' 'composer')"
 require_command git Git "$(package_install_hint 'git' 'git')"
 require_lefthook
+require_security_python
 
 require_file composer.json 'composer.json'
 require_file composer.lock 'composer.lock'
