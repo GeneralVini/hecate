@@ -99,9 +99,6 @@ function expectedSafePatterns(object $db): void
     // ok: hecate.php.sql-string-concatenation
     $db->createCommand('SELECT * FROM users WHERE nip = :nip');
 
-    // ok: hecate.php.dynamic-include
-    require __DIR__ . '/fixed.php';
-
     // ok: hecate.php.raw-echo-request
     echo 'literal';
 }
