@@ -72,6 +72,14 @@ $this->setTitle('Entrar — HECATE');
 
     <button class="button button-primary login-submit" type="submit">Entrar</button>
     <a class="login-manual" href="/manual/index.html" target="_blank" rel="noopener noreferrer" aria-label="Abrir manual do HECATE em nova aba">
-        Manual <span aria-hidden="true">↗</span>
+        <span class="login-manual__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                <path d="M7 4.5c-1.9 0-3 1.1-3 3v9c0-1.9 1.1-3 3-3h11V4.5H7Z"/>
+                <path d="M18 4.5h1a1 1 0 0 1 1 1v11h-1"/>
+                <path d="M7 13.5c-1.9 0-3 1.1-3 3"/>
+                <path d="M8.5 8h6M8.5 10.5h4.5"/>
+            </svg>
+        </span>
+        <span>Manual</span>
     </a>
 </form>
