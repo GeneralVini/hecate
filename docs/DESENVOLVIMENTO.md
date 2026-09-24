@@ -84,7 +84,7 @@ O `make setup` detecta a família da distribuição; valida PHP, Composer, Git, 
 
 Os scripts `scripts/bootstrap.sh` e `scripts/install-security-tools.sh` suportam Debian-like e Oracle Linux/RHEL-like. Eles não executam `apt-get`, `dnf` ou scripts de repositório automaticamente. Quando faltar uma dependência do sistema, informam o comando adequado e encerram para que a instalação seja uma decisão explícita do administrador.
 
-O Semgrep é instalado em virtualenv Python próprio e versionado pelo script de bootstrap. O virtualenv é criado com o interpretador compatível selecionado, sem alterar o Python padrão do sistema. O OWASP ZAP usa o pacote Linux oficial em versão fixada; o arquivo baixado é validado por SHA-256 antes da extração. Docker não faz parte desse fluxo.
+O Semgrep é instalado em virtualenv Python próprio e versionado pelo script de bootstrap. O virtualenv é criado com o interpretador compatível selecionado, sem alterar o Python padrão do sistema. No CI, os wrappers também aceitam `HECATE_SEMGREP_BIN=semgrep` e resolvem o executável pelo `PATH`; o parser JSON do scan usa o Python do virtualenv quando disponível e pode usar `python3` do runner quando a ferramenta foi instalada pelo próprio workflow. O OWASP ZAP usa o pacote Linux oficial em versão fixada; o arquivo baixado é validado por SHA-256 antes da extração. Docker não faz parte desse fluxo.
 
 ### 2.1. Alteração de dependências de desenvolvimento
 
@@ -209,6 +209,10 @@ A validação impede que regras com erro de parsing cheguem ao runner de testes.
 
 Na triagem local, `ERROR` representa finding de alto sinal e bloqueia o gate. `WARNING` representa hotspot para revisão e não é tratado automaticamente como vulnerabilidade confirmada nem bloqueia o gate. O wrapper de scan apresenta um resumo com regra, arquivo, linha, motivo, trecho afetado e separação entre erro do scanner, bloqueante e hotspot.
 
+As regras de taint devem representar as fontes usadas de fato pelo Yii3/PSR-7 no HECATE. Além das superglobais PHP quando presentes, `getQueryParams()`, `getParsedBody()`, `getHeaderLine()` e `getUploadedFiles()` são sources relevantes conforme o sink. O objetivo é reconhecer fluxo não confiável até SQL, HTML, filesystem, URL externa e headers sem classificar toda variável dinâmica como vulnerabilidade.
+
+O scan usa `--no-git-ignore` nos alvos explícitos `src`, `config` e `public`, portanto código novo ainda sem `git add` também é analisado. `public/assets/**` permanece exclusão operacional por conter artefatos gerados. Skips reportados pelo Semgrep são classificados entre exclusões por política e skips inesperados; skip inesperado ou erro do mecanismo torna a cobertura não confiável e invalida o gate.
+
 O DAST fica separado porque exige aplicação em execução:
 
 ```bash
@@ -298,6 +302,12 @@ Regras mínimas:
 - operações privilegiadas devem passar pelo `hecate-agent` com ações fechadas;
 - não registrar senha, token, cookie, PIN ou conteúdo de documentos;
 - manter secrets fora do código e da documentação versionada.
+
+No código web Yii3, entrada não confiável normalmente chega por `RequestProviderInterface`/PSR-7. Ao alterar regras SAST, modelar explicitamente `getQueryParams()`, `getParsedBody()`, `getHeaderLine()` ou `getUploadedFiles()` quando forem fontes reais. SQL montado a partir dessas fontes deve chegar a Yii DB apenas por SQL fixo com bindings; saída HTML exige encoding contextual; URLs externas, paths e headers exigem validação específica do sink. Redirect gerado por `UrlGeneratorInterface` para rota interna conhecida deve permanecer caso seguro e coberto por fixture negativa.
+
+Open redirect e header injection são contratos distintos: `Location` controlado externamente é redirect inseguro; outros headers derivados de entrada exigem proteção contra CR/LF e validação de nome/valor. Evitar regras genéricas que classifiquem todo `header()` como open redirect.
+
+MD5 e SHA-1 não devem ser usados para proteger senha, PIN ou credencial. O Semgrep trata esse uso contextual como hotspot; `password_hash()`/`password_verify()` ou mecanismo específico equivalente devem ser usados para segredos autenticadores.
 
 As ferramentas não substituem revisão de arquitetura ou testes. Composer Audit cobre advisories de dependências; Psalm Taint acompanha fluxo de dados; Semgrep aplica regras locais versionadas em `security/semgrep-rules/hecate.yml`; ZAP observa a aplicação em execução. Achados devem ser investigados e corrigidos ou justificados de forma localizada, sem suppressions globais destinadas apenas a liberar pipeline.
 
@@ -390,6 +400,8 @@ git pull --rebase origin main && composer check
 
 Não é necessário executar `security:semgrep:validate`, `security:semgrep:test`, `security:semgrep`, `security` e `check` em sequência: `composer check` já percorre toda a cadeia uma vez. Os comandos individuais existem para diagnóstico focado.
 
+Ao criar ou alterar uma regra Semgrep, o ciclo mínimo de manutenção é: atualizar `hecate.yml`, adicionar/ajustar fixtures `ruleid` e `ok`, executar validação, testes e scan, e finalizar com `composer check`. Falso positivo deve preferencialmente ser reduzido na própria regra e preservado como fixture negativa, em vez de ser ocultado por suppression global.
+
 Fluxo correspondente:
 
 ```text
@@ -424,6 +436,7 @@ Antes de considerar uma alteração tecnicamente apta:
 - regras Semgrep devem passar por `security:semgrep:validate` e `security:semgrep:test`;
 - findings `ERROR` não resolvidos não podem permanecer no gate;
 - hotspots `WARNING` devem ser revisados conforme contexto, sem serem chamados automaticamente de vulnerabilidade;
+- o scan Semgrep não pode encerrar como aprovado se houver skip inesperado ou erro do mecanismo;
 - `composer check` deve ser reproduzível localmente e no CI;
 - hooks Lefthook devem estar instaláveis e validáveis a partir da configuração versionada;
 - não devem existir suppressions adicionadas apenas para contornar erros reais;
