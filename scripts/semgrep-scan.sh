@@ -5,23 +5,36 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
 SEMGREP_BIN="${HECATE_SEMGREP_BIN:-$PROJECT_ROOT/.tools/semgrep/bin/semgrep}"
-SEMGREP_PYTHON="$PROJECT_ROOT/.tools/semgrep/bin/python"
+SEMGREP_PYTHON="${HECATE_SEMGREP_PYTHON:-$PROJECT_ROOT/.tools/semgrep/bin/python}"
 SEMGREP_CONFIG="$PROJECT_ROOT/security/semgrep-rules/hecate.yml"
 
 line() {
     printf '%s\n' '============================================================'
 }
 
-if [[ ! -x "$SEMGREP_BIN" ]]; then
-    printf '[ERRO] Semgrep local não encontrado ou não executável: %s\n' "$SEMGREP_BIN" >&2
-    printf '\nPara instalar a versão homologada do projeto:\n\n  make setup\n' >&2
-    exit 1
+if [[ "$SEMGREP_BIN" == */* ]]; then
+    if [[ ! -x "$SEMGREP_BIN" ]]; then
+        printf '[ERRO] Semgrep não encontrado ou não executável: %s\n' "$SEMGREP_BIN" >&2
+        printf '\nPara instalar a versão homologada do projeto:\n\n  make setup\n' >&2
+        exit 1
+    fi
+else
+    RESOLVED_SEMGREP_BIN="$(command -v "$SEMGREP_BIN" || true)"
+    if [[ -z "$RESOLVED_SEMGREP_BIN" ]]; then
+        printf '[ERRO] Semgrep não encontrado no PATH: %s\n' "$SEMGREP_BIN" >&2
+        exit 1
+    fi
+    SEMGREP_BIN="$RESOLVED_SEMGREP_BIN"
 fi
 
 if [[ ! -x "$SEMGREP_PYTHON" ]]; then
-    printf '[ERRO] Python do ambiente Semgrep não encontrado ou não executável: %s\n' "$SEMGREP_PYTHON" >&2
-    printf '\nPara recriar a instalação homologada:\n\n  rm -rf "%s/.tools/semgrep"\n  make setup\n' "$PROJECT_ROOT" >&2
-    exit 1
+    RESOLVED_PYTHON="$(command -v python3 || true)"
+    if [[ -z "$RESOLVED_PYTHON" ]]; then
+        printf '[ERRO] Python 3 não encontrado para interpretar a saída JSON do Semgrep.\n' >&2
+        printf '\nPara recriar a instalação local homologada:\n\n  rm -rf "%s/.tools/semgrep"\n  make setup\n' "$PROJECT_ROOT" >&2
+        exit 1
+    fi
+    SEMGREP_PYTHON="$RESOLVED_PYTHON"
 fi
 
 if [[ ! -r "$SEMGREP_CONFIG" ]]; then
