@@ -86,6 +86,29 @@ paths = data.get("paths") or {}
 scanned = paths.get("scanned") or []
 skipped = paths.get("skipped") or []
 
+
+def skipped_path(item: object) -> str:
+    if isinstance(item, str):
+        return item
+    if isinstance(item, dict):
+        return str(item.get("path") or item.get("file") or "")
+    return ""
+
+
+def skipped_reason(item: object) -> str:
+    if isinstance(item, dict):
+        return str(item.get("reason") or item.get("details") or "sem motivo informado")
+    return "sem motivo informado"
+
+
+def excluded_by_policy(item: object) -> bool:
+    path = skipped_path(item).replace("\\", "/")
+    return path.startswith("public/assets/") or "/public/assets/" in path
+
+
+policy_skips = [item for item in skipped if excluded_by_policy(item)]
+unexpected_skips = [item for item in skipped if not excluded_by_policy(item)]
+
 use_color = sys.stdout.isatty() and "NO_COLOR" not in os.environ
 RESET = "\033[0m" if use_color else ""
 BOLD = "\033[1m" if use_color else ""
@@ -143,6 +166,15 @@ show_findings("FINDINGS BLOQUEANTES", "❌", "BLOQUEANTE", blocking, RED)
 show_findings("HOTSPOTS PARA REVISÃO", "⚠️", "HOTSPOT", hotspots, YELLOW)
 show_findings("OUTROS FINDINGS", "ℹ️", "INFO", other, CYAN)
 
+if unexpected_skips:
+    print()
+    print(paint("⏭️  SKIPS INESPERADOS", RED, bold=True))
+    print(DIM + "-" * 60 + RESET)
+    for item in unexpected_skips:
+        path = skipped_path(item) or "path desconhecido"
+        print(paint(f"❌ {path}", RED))
+        print(f"   Motivo: {skipped_reason(item)}")
+
 if engine_errors:
     print()
     print(paint("💥 ERROS DO MECANISMO", RED, bold=True))
@@ -154,31 +186,34 @@ print()
 print(paint("=" * 60, CYAN))
 print(paint(" 🛡️  RESULTADO SEMGREP", CYAN, bold=True))
 print(paint("=" * 60, CYAN))
-print(f"🔐 Regras configuradas : {rule_count}")
-if scanned:
-    print(f"📄 Arquivos analisados  : {len(scanned)}")
-if skipped:
-    print(f"⏭️  Arquivos ignorados   : {len(skipped)}")
-print(f"❌ Bloqueantes (ERROR)  : {paint(str(len(blocking)), RED if blocking else GREEN, bold=bool(blocking))}")
-print(f"⚠️  Hotspots (WARNING)   : {paint(str(len(hotspots)), YELLOW if hotspots else GREEN, bold=bool(hotspots))}")
+print(f"🔐 Regras configuradas  : {rule_count}")
+print(f"📄 Arquivos analisados   : {len(scanned)}")
+print(f"🚫 Excluídos por política: {len(policy_skips)}")
+print(f"⏭️  Skips inesperados    : {paint(str(len(unexpected_skips)), RED if unexpected_skips else GREEN, bold=bool(unexpected_skips))}")
+print(f"❌ Bloqueantes (ERROR)   : {paint(str(len(blocking)), RED if blocking else GREEN, bold=bool(blocking))}")
+print(f"⚠️  Hotspots (WARNING)    : {paint(str(len(hotspots)), YELLOW if hotspots else GREEN, bold=bool(hotspots))}")
 if other:
-    print(f"ℹ️  Outros findings      : {paint(str(len(other)), CYAN, bold=True)}")
-print(f"🧩 Erros do mecanismo   : {paint(str(len(engine_errors)), RED if engine_errors else GREEN, bold=bool(engine_errors))}")
-print("📦 Escopo Git           : inclui arquivos rastreados e não rastreados em src/config/public")
-print("🚫 Exclusão operacional : public/assets/**")
+    print(f"ℹ️  Outros findings       : {paint(str(len(other)), CYAN, bold=True)}")
+print(f"🧩 Erros do mecanismo    : {paint(str(len(engine_errors)), RED if engine_errors else GREEN, bold=bool(engine_errors))}")
+print("📦 Escopo Git            : inclui arquivos rastreados e não rastreados em src/config/public")
+print("🚫 Exclusão operacional  : public/assets/**")
 
 if engine_errors:
-    print(paint("💥 STATUS               : ERRO DO SCANNER", RED, bold=True))
+    print(paint("💥 STATUS                : ERRO DO SCANNER", RED, bold=True))
+    raise SystemExit(2)
+if unexpected_skips:
+    print(paint("⏭️  STATUS                : COBERTURA PARCIAL", RED, bold=True))
+    print(paint("   Há arquivos ignorados fora da política explícita; o scan não é confiável.", RED))
     raise SystemExit(2)
 if blocking:
-    print(paint("❌ STATUS               : REPROVADO", RED, bold=True))
+    print(paint("❌ STATUS                : REPROVADO", RED, bold=True))
     raise SystemExit(1)
 if hotspots:
-    print(paint("⚠️  STATUS               : APROVADO COM HOTSPOTS", YELLOW, bold=True))
+    print(paint("⚠️  STATUS                : APROVADO COM HOTSPOTS", YELLOW, bold=True))
     print(paint("   Revisar os hotspots antes de considerar a alteração concluída.", YELLOW))
     raise SystemExit(0)
 
-print(paint("✅ STATUS               : APROVADO", GREEN, bold=True))
+print(paint("✅ STATUS                : APROVADO", GREEN, bold=True))
 raise SystemExit(0)
 PY
 STATUS=$?
