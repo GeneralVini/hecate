@@ -11,10 +11,19 @@ line() {
     printf '%s\n' '============================================================'
 }
 
-if [[ ! -x "$SEMGREP_BIN" ]]; then
-    printf '[ERRO] Semgrep local não encontrado ou não executável: %s\n' "$SEMGREP_BIN" >&2
-    printf '\nExecute primeiro:\n\n  make setup\n' >&2
-    exit 1
+if [[ "$SEMGREP_BIN" == */* ]]; then
+    if [[ ! -x "$SEMGREP_BIN" ]]; then
+        printf '[ERRO] Semgrep não encontrado ou não executável: %s\n' "$SEMGREP_BIN" >&2
+        printf '\nExecute primeiro:\n\n  make setup\n' >&2
+        exit 1
+    fi
+else
+    RESOLVED_SEMGREP_BIN="$(command -v "$SEMGREP_BIN" || true)"
+    if [[ -z "$RESOLVED_SEMGREP_BIN" ]]; then
+        printf '[ERRO] Semgrep não encontrado no PATH: %s\n' "$SEMGREP_BIN" >&2
+        exit 1
+    fi
+    SEMGREP_BIN="$RESOLVED_SEMGREP_BIN"
 fi
 
 if [[ ! -r "$SEMGREP_CONFIG" ]]; then
