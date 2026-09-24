@@ -1,4 +1,4 @@
-.PHONY: setup install hooks fix qa check security security-dast lint rector stan psalm psalm-taint test
+.PHONY: setup install hooks fix qa check security security-dast lint rector stan psalm psalm-taint test branding-bootstrap branding-optimize
 
 setup:
 	./scripts/bootstrap.sh
@@ -41,3 +41,9 @@ psalm-taint:
 
 test:
 	composer test
+
+branding-bootstrap:
+	bash scripts/optimize-branding.sh bootstrap
+
+branding-optimize:
+	bash scripts/optimize-branding.sh optimize
