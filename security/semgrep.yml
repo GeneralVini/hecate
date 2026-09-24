@@ -173,11 +173,6 @@ rules:
     languages: [php]
     severity: WARNING
     message: Saída de depuração pode expor dados sensíveis; não deixe var_dump/print_r em código de aplicação.
-    paths:
-      include:
-        - src/**/*.php
-        - config/**/*.php
-        - public/**/*.php
     patterns:
       - pattern-either:
           - pattern: var_dump(...)
