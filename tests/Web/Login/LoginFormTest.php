@@ -27,7 +27,34 @@ final class LoginFormTest extends TestCase
         self::assertSame('Informe a senha.', $errors['password'] ?? null);
     }
 
-    public function testUsernameIsNormalizedButPasswordIsPreserved(): void
+    public function testExplicitEmptyValuesAreRejected(): void
+    {
+        $result = $this->validator->validate(LoginForm::fromArray([
+            'username' => '',
+            'password' => '',
+        ]));
+        $errors = $result->getFirstErrorMessagesIndexedByProperty();
+
+        self::assertFalse($result->isValid());
+        self::assertSame('Informe o usuário.', $errors['username'] ?? null);
+        self::assertSame('Informe a senha.', $errors['password'] ?? null);
+    }
+
+    public function testWhitespaceOnlyUsernameIsRejected(): void
+    {
+        $form = LoginForm::fromArray([
+            'username' => " \t\n ",
+            'password' => 'x',
+        ]);
+        $result = $this->validator->validate($form);
+        $errors = $result->getFirstErrorMessagesIndexedByProperty();
+
+        self::assertSame('', $form->normalizedUsername());
+        self::assertFalse($result->isValid());
+        self::assertSame('Informe o usuário.', $errors['username'] ?? null);
+    }
+
+    public function testUsernameIsNormalizedBeforeValidationButPasswordIsPreserved(): void
     {
         $form = LoginForm::fromArray([
             'username' => '  123456  ',
@@ -38,6 +65,18 @@ final class LoginFormTest extends TestCase
         self::assertTrue($result->isValid());
         self::assertSame('123456', $form->normalizedUsername());
         self::assertSame('  senha com espaços  ', $form->passwordValue());
+    }
+
+    public function testWhitespacePasswordIsPreserved(): void
+    {
+        $form = LoginForm::fromArray([
+            'username' => '123456',
+            'password' => '   ',
+        ]);
+        $result = $this->validator->validate($form);
+
+        self::assertTrue($result->isValid());
+        self::assertSame('   ', $form->passwordValue());
     }
 
     public function testMalformedValuesAreRejected(): void
