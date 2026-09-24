@@ -19,6 +19,10 @@ error() {
     printf '[ERRO] %s\n' "$1" >&2
 }
 
+info() {
+    printf '[INFO] %s\n' "$1"
+}
+
 repair() {
     printf '\nPara corrigir:\n\n  %s\n' "$1" >&2
 }
@@ -80,6 +84,37 @@ package_install_hint() {
     esac
 }
 
+python_install_hint() {
+    case "$PLATFORM" in
+        deb)
+            printf 'sudo apt-get install -y python3 python3-venv'
+            ;;
+        rpm)
+            printf 'sudo dnf install -y python3.12 python3.12-pip || sudo dnf install -y python3.11 python3.11-pip'
+            ;;
+        *)
+            printf 'instale Python 3.10 ou superior com suporte a venv e execute novamente: make setup'
+            ;;
+    esac
+}
+
+find_supported_python() {
+    local candidate
+
+    for candidate in python3.12 python3.11 python3.10 python3; do
+        if ! command -v "$candidate" >/dev/null 2>&1; then
+            continue
+        fi
+
+        if "$candidate" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
+            printf '%s\n' "$candidate"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
 show_noexec_hint() {
     if command -v findmnt >/dev/null 2>&1; then
         local mount_options
@@ -107,19 +142,24 @@ require_command() {
 detect_platform
 mkdir -p "$TOOLS"
 
-require_command python3 'Python 3.10+ é necessário para Semgrep.' "$(package_install_hint 'python3 python3-venv' 'python3 python3-pip')"
-PYTHON_OK="$(python3 -c 'import sys; print(1 if sys.version_info >= (3, 10) else 0)')"
-if [[ "$PYTHON_OK" != "1" ]]; then
+PYTHON_BIN="$(find_supported_python || true)"
+if [[ -z "$PYTHON_BIN" ]]; then
     error 'Python 3.10+ é necessário para Semgrep.'
-    printf 'Versão atual:\n\n  ' >&2
-    python3 --version >&2 || true
-    repair 'instale/ative Python 3.10 ou superior e execute: make setup'
+    if command -v python3 >/dev/null 2>&1; then
+        printf 'Python padrão encontrado, mas incompatível:\n\n  ' >&2
+        python3 --version >&2 || true
+    fi
+    printf '\nO HECATE não altera o python3 do sistema. No Oracle Linux/RHEL-like, instale uma versão paralela suportada.\n' >&2
+    repair "$(python_install_hint)"
     exit 1
 fi
 
-if ! python3 -m venv --help >/dev/null 2>&1; then
-    error 'O módulo venv do Python não está disponível.'
-    repair "$(package_install_hint 'python3-venv' 'python3 python3-pip')"
+PYTHON_VERSION="$($PYTHON_BIN -c 'import platform; print(platform.python_version())')"
+info "Python selecionado para ferramentas de segurança: $PYTHON_BIN ($PYTHON_VERSION)"
+
+if ! "$PYTHON_BIN" -m venv --help >/dev/null 2>&1; then
+    error "O módulo venv não está disponível para $PYTHON_BIN."
+    repair "$(python_install_hint)"
     exit 1
 fi
 
@@ -130,7 +170,7 @@ if [[ ! -e "$SEMGREP_PYTHON" ]]; then
         exit 1
     fi
 
-    python3 -m venv "$SEMGREP_DIR"
+    "$PYTHON_BIN" -m venv "$SEMGREP_DIR"
 fi
 
 if [[ ! -x "$SEMGREP_PYTHON" ]]; then
