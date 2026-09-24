@@ -4,6 +4,9 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
+PLATFORM="unknown"
+OS_LABEL="Linux"
+
 line() {
     printf '%s\n' '=================================================='
 }
@@ -22,6 +25,63 @@ error() {
 
 repair() {
     printf '\nPara corrigir:\n\n  %s\n' "$1" >&2
+}
+
+detect_platform() {
+    local os_id=""
+    local os_like=""
+
+    if [[ -r /etc/os-release ]]; then
+        # shellcheck disable=SC1091
+        . /etc/os-release
+        os_id="${ID:-}"
+        os_like="${ID_LIKE:-}"
+        OS_LABEL="${PRETTY_NAME:-Linux}"
+    fi
+
+    case "$os_id" in
+        ubuntu|debian)
+            PLATFORM="deb"
+            ;;
+        ol|oraclelinux|rhel|rocky|almalinux|centos|fedora)
+            PLATFORM="rpm"
+            ;;
+        *)
+            case "$os_like" in
+                *debian*|*ubuntu*)
+                    PLATFORM="deb"
+                    ;;
+                *rhel*|*fedora*|*centos*)
+                    PLATFORM="rpm"
+                    ;;
+            esac
+            ;;
+    esac
+
+    if [[ "$PLATFORM" == "unknown" ]]; then
+        if command -v apt-get >/dev/null 2>&1; then
+            PLATFORM="deb"
+        elif command -v dnf >/dev/null 2>&1; then
+            PLATFORM="rpm"
+        fi
+    fi
+}
+
+package_install_hint() {
+    local deb_packages="$1"
+    local rpm_packages="$2"
+
+    case "$PLATFORM" in
+        deb)
+            printf 'sudo apt-get install -y %s' "$deb_packages"
+            ;;
+        rpm)
+            printf 'sudo dnf install -y %s' "$rpm_packages"
+            ;;
+        *)
+            printf 'instale os pacotes necessários para %s e execute novamente: make setup' "$OS_LABEL"
+            ;;
+    esac
 }
 
 show_noexec_hint() {
@@ -80,10 +140,26 @@ require_lefthook() {
     fi
 
     error 'Lefthook não encontrado ou não executável.'
-    printf '\nUbuntu/Kubuntu/Debian:\n\n' >&2
-    printf "  curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | sudo -E bash\n" >&2
-    printf '  sudo apt install lefthook\n\n' >&2
-    printf 'Depois confirme e repita o setup:\n\n' >&2
+    printf '\nSistema detectado: %s\n' "$OS_LABEL" >&2
+
+    case "$PLATFORM" in
+        deb)
+            printf '\nUbuntu/Kubuntu/Debian:\n\n' >&2
+            printf "  curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.deb.sh' | sudo -E bash\n" >&2
+            printf '  sudo apt-get install -y lefthook\n' >&2
+            ;;
+        rpm)
+            printf '\nOracle Linux/RHEL/Rocky/AlmaLinux/Fedora:\n\n' >&2
+            printf "  curl -1sLf 'https://dl.cloudsmith.io/public/evilmartians/lefthook/setup.rpm.sh' | sudo -E bash\n" >&2
+            printf '  sudo dnf install -y lefthook\n' >&2
+            ;;
+        *)
+            printf '\nDistribuição não reconhecida automaticamente.\n' >&2
+            printf 'Instale o Lefthook para sua plataforma conforme a documentação oficial.\n' >&2
+            ;;
+    esac
+
+    printf '\nDepois confirme e repita o setup:\n\n' >&2
     printf '  lefthook version\n' >&2
     printf '  make setup\n' >&2
     exit 1
@@ -151,15 +227,18 @@ run_qa_step() {
     fi
 }
 
+detect_platform
+
 line
 printf ' HECATE Yii3 - Preparação do ambiente de desenvolvimento\n'
 line
 printf '\n'
+info "Sistema detectado: $OS_LABEL ($PLATFORM)"
 
-require_command php PHP 'sudo apt install php-cli'
+require_command php PHP "$(package_install_hint 'php-cli' 'php-cli')"
 require_php_version
-require_command composer Composer 'sudo apt install composer'
-require_command git Git 'sudo apt install git'
+require_command composer Composer "$(package_install_hint 'composer' 'composer')"
+require_command git Git "$(package_install_hint 'git' 'git')"
 require_lefthook
 
 require_file composer.json 'composer.json'
