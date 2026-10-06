@@ -2,9 +2,8 @@
  * Login composition.
  *
  * Branding URLs are injected by Yii through BrandingAsset as CSS custom
- * properties. Authentication stays inside the artwork's reserved escape zone,
- * centered under the three portals, while the institutional signature remains
- * centered below the image.
+ * properties. Authentication stays centered under the three portals, while
+ * the institutional signature remains centered below the image.
  */
 .login-page {
     width: 100vw;
@@ -46,18 +45,16 @@
 }
 
 /*
- * Desktop escape zone.
- * The visual center of the three portals sits around 73% of the artwork width.
- * Keep the controls there rather than centering them on the entire viewport.
+ * Align the card with the visual center of the three portals.
  */
 .login-form-area {
     position: absolute !important;
-    left: 73% !important;
+    left: 55vw !important;
     right: auto !important;
-    bottom: clamp(24px, 3.4vh, 34px) !important;
+    bottom: clamp(10px, 1.8vh, 18px) !important;
     top: auto !important;
     z-index: 2;
-    width: min(650px, 48vw) !important;
+    width: min(680px, calc(100vw - 40px)) !important;
     min-width: 0;
     min-height: 0;
     display: block !important;
@@ -74,22 +71,38 @@
     width: 100% !important;
     max-width: none !important;
     display: grid;
-    grid-template-columns: minmax(230px, 1.15fr) minmax(190px, .95fr) 126px;
-    grid-template-rows: auto auto auto;
+    grid-template-columns: minmax(230px, 1.15fr) minmax(190px, .95fr) 96px;
     align-items: start;
-    gap: 8px 14px;
-    padding: 10px 14px 9px !important;
+    gap: 6px 12px;
+    margin: 0 !important;
+    padding: 10px 14px 8px !important;
     color: #fff;
-    border: 1px solid rgba(210, 173, 82, .22) !important;
-    border-radius: 10px !important;
-    background: rgba(2, 11, 23, .44) !important;
-    box-shadow: 0 8px 22px rgba(0, 0, 0, .18) !important;
-    backdrop-filter: blur(1px) !important;
+    border: 1px solid rgba(210, 173, 82, .48) !important;
+    border-radius: 14px !important;
+    background: rgba(2, 11, 23, .70) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .4) !important;
+    backdrop-filter: blur(8px) !important;
 }
 
 .login-panel::before,
 .login-panel::after {
     content: none;
+}
+
+.login-panel__header {
+    grid-column: 1 / -1;
+    padding-bottom: 6px;
+    text-align: center;
+    border-bottom: 1px solid rgba(210, 173, 82, .28);
+}
+
+.login-panel__header h1 {
+    margin: 0;
+    color: var(--hecate-gold-strong);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.2;
 }
 
 .login-fields {
@@ -171,10 +184,10 @@
 
 .login-submit {
     box-sizing: border-box;
-    width: 126px;
-    min-width: 126px;
-    height: 44px;
-    min-height: 44px;
+    width: 96px;
+    min-width: 96px;
+    height: 40px;
+    min-height: 40px;
     margin: 0 !important;
     padding: 0 18px;
     display: inline-flex;
@@ -209,7 +222,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    min-height: 34px;
+    min-height: 30px;
     margin-top: 0;
     padding: 0 14px;
     color: #081a2e;
@@ -384,19 +397,9 @@
 }
 
 @media (max-width: 1100px) and (min-width: 721px) {
-    .login-form-area {
-        left: 72% !important;
-        width: min(620px, 54vw) !important;
-    }
-
     .login-panel {
-        grid-template-columns: minmax(210px, 1.1fr) minmax(175px, .9fr) 116px;
+        grid-template-columns: minmax(210px, 1.1fr) minmax(175px, .9fr) 96px;
         gap: 8px 12px;
-    }
-
-    .login-submit {
-        width: 116px;
-        min-width: 116px;
     }
 }
 
@@ -407,7 +410,7 @@
     }
 
     .login-form-area {
-        left: 50% !important;
+        left: 50vw !important;
         right: auto !important;
         bottom: 16px !important;
         width: min(360px, calc(100% - 24px)) !important;

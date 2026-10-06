@@ -5,14 +5,18 @@ declare(strict_types=1);
 use Yiisoft\Html\Html;
 
 /** @var Yiisoft\View\WebView $this */
+/** @var Yiisoft\Aliases\Aliases $aliases */
 /** @var array<string,string> $errors */
 /** @var string $username */
 /** @var string|null $csrf */
 
 $this->setTitle('Entrar — HECATE');
+$manualUrl = $aliases->get('@baseUrl') . '/manual/index.html';
 ?>
 <form class="login-panel" method="post" novalidate aria-labelledby="login-title">
-    <h1 id="login-title" class="sr-only">Acesso ao HECATE</h1>
+    <header class="login-panel__header">
+        <h1 id="login-title">Acessar o HECATE</h1>
+    </header>
     <input type="hidden" name="_csrf" value="<?= Html::encode($csrf ?? '') ?>">
 
     <?php if ($errors !== []) : ?>
@@ -75,7 +79,7 @@ $this->setTitle('Entrar — HECATE');
     </div>
 
     <button class="button button-primary login-submit" type="submit">Entrar</button>
-    <a class="login-manual" href="/manual/index.html" target="_blank" rel="noopener noreferrer" aria-label="Abrir manual do HECATE em nova aba">
+    <a class="login-manual" href="<?= Html::encode($manualUrl) ?>" target="_blank" rel="noopener noreferrer" aria-label="Abrir manual do HECATE em nova aba">
         <span class="login-manual__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                 <path d="M7 4.5c-1.9 0-3 1.1-3 3v9c0-1.9 1.1-3 3-3h11V4.5H7Z"/>

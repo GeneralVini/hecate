@@ -37,6 +37,12 @@ $this->beginPage();
     <link rel="apple-touch-icon" sizes="180x180" href="<?= Html::encode($brandingUrl('favicon-180x180.png')) ?>">
     <title><?= Html::encode($this->getTitle()) ?></title>
     <?php $this->head() ?>
+    <style>
+        .login-page .login-form-area { left: 55vw !important; }
+        @media (max-width: 720px) {
+            .login-page .login-form-area { left: 50vw !important; }
+        }
+    </style>
 </head>
 <body class="login-page" style="<?= Html::encode($loginBrandingStyle) ?>">
 <?php $this->beginBody() ?>

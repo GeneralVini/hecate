@@ -61,7 +61,7 @@
 </head>
 <body>
 <main class="deck" aria-label="Apresentação HECATE">
-  <section class="slide hero active"><img class="brand" src="../branding/logo-horizontal.png" alt="HECATE"><div class="eyebrow">Manual de apresentação · usuários e técnicos</div><h1>Governança e controle de impressão</h1><p class="lead">Uma solução para transformar impressão dispersa em serviço governado, seguro e auditável.</p><div class="foot"><a class="footer-home" href="/" aria-label="Voltar ao login do HECATE">CTIM · HECATE</a><span>✦ Identidade · Controle · Dados</span><span>01 / 12</span></div></section>
+  <section class="slide hero active"><img class="brand" src="../branding/logo-horizontal.png" alt="HECATE"><div class="eyebrow">Manual de apresentação · usuários e técnicos</div><h1>Governança e controle de impressão</h1><p class="lead">Uma solução para transformar impressão dispersa em serviço governado, seguro e auditável.</p><div class="foot"><a class="footer-home" href="../" aria-label="Voltar ao login do HECATE">CTIM · HECATE</a><span>✦ Identidade · Controle · Dados</span><span>01 / 12</span></div></section>
   <section class="slide origin-slide" aria-labelledby="origin-title">
     <div class="origin-layout">
       <div class="origin-copy">
@@ -156,7 +156,7 @@
     const first = footer.querySelector('span');
     const home = document.createElement('a');
     home.className = 'footer-home';
-    home.href = '/';
+    home.href = '../';
     home.textContent = 'CTIM · HECATE';
     home.setAttribute('aria-label', 'Voltar ao login do HECATE');
     first.replaceWith(home);
