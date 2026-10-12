@@ -162,6 +162,8 @@ O **HÉCATE** integra o portfólio do [OLIMPO — Programa de Transformação Di
 
 O vínculo é **documental e de portfólio**; não cria dependência de código, monorepo, submodule, federação ou controle de execução pelo OLIMPO. **Cada OM opera exclusivamente sua própria instância local do HÉCATE, sem HÉCATE Master ou hospedagem central no CTIM.** Essas premissas não são alteradas pelo vínculo.
 
+A **DEC-050 do OLIMPO** adota Yii3 para outros módulos centrais; **não migra o HÉCATE para essa aplicação**. A ideia de telemetria passiva **somente de versões**, eventualmente correlacionada ao phpIPAM, continua **em avaliação externa ao HÉCATE**: nenhum coletor/cadastro central, dependência de rede para imprimir ou mecanismo de controle remoto foi aprovado no projeto. Sua adoção futura exigiria reconciliação explícita com a decisão local de não criar HÉCATE Master nem cadastro central de instâncias. A identidade visual própria em `public/branding/` e os masters em `resources/branding/originals/` permanecem preservados.
+
 ## Documentação
 
 A documentação do projeto é deliberadamente enxuta. Não criar novo `.md` quando o conteúdo puder ser incorporado a um documento canônico existente.
