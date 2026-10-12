@@ -156,6 +156,12 @@ A distribuição institucional de pacotes e imagens homologadas será feita via 
 
 Os assets oficiais ficam em `public/branding/` e são consumidos pela aplicação por meio de `BrandingAsset`, usando o `AssetManager` do Yii para resolver URLs conforme o `baseUrl` efetivo da instalação. PHP, CSS e JavaScript não devem hardcodear `/branding/...`, domínio, subdiretório, `DocumentRoot` ou caminho dependente do SO. Backgrounds usados em CSS recebem URLs resolvidas pelo Yii por custom properties. A referência de identidade e uso está em [IDENTIDADE-VISUAL.md](docs/IDENTIDADE-VISUAL.md).
 
+## Vínculo com o programa OLIMPO
+
+O **HÉCATE** integra o portfólio do [OLIMPO — Programa de Transformação Digital da MB](https://github.com/GeneralVini/olimpo), que atua como **orquestrador de governança, catálogo, marcos e dependências transversais**. Este [repositório HÉCATE](https://github.com/GeneralVini/hecate) continua sendo a **fonte oficial** de código, decisões técnicas, [EAP](docs/EAP.md), requisitos, implementação, testes e releases.
+
+O vínculo é **documental e de portfólio**; não cria dependência de código, monorepo, submodule, federação ou controle de execução pelo OLIMPO. **Cada OM opera exclusivamente sua própria instância local do HÉCATE, sem HÉCATE Master ou hospedagem central no CTIM.** Essas premissas não são alteradas pelo vínculo.
+
 ## Documentação
 
 A documentação do projeto é deliberadamente enxuta. Não criar novo `.md` quando o conteúdo puder ser incorporado a um documento canônico existente.
