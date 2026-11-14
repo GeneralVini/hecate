@@ -116,7 +116,7 @@ Os IDs abaixo são os mesmos das seções existentes. Datas e commits de execuç
 - [x] Configurar GitHub Actions para `composer install`, `composer validate` e `composer qa`.
 - [x] Sincronizar `composer.lock` com Rector, ECS e a versão de PHPStan requerida pelo novo baseline. Evidência da revisão de 2026-09-12: `composer validate --no-interaction --no-check-publish` aprovado; lock contém Rector 2.6.6, ECS 13.3.2 e PHPStan 2.2.13. Isso não comprova aprovação do QA/CI.
 - [x] Obter pipeline de QA aprovado para o código registrado. **Validação entregue:** [CI 38285236627](https://github.com/GeneralVini/hecate/actions/runs/38285236627), no commit `b6c8d84b9cabc235553be7faa8e0dea8d47c6aa2`, concluiu com sucesso. É evidência do pipeline daquele código, sem homologação de integrações ou piloto.
-- [ ] Configurar `composer audit` conforme política de vulnerabilidades.
+- [x] Configurar `composer audit --locked` no gate de segurança. Em 14/11/2026, a [CI 43554797161](https://github.com/GeneralVini/hecate/actions/runs/43554797161) passou no QA (9 testes, 26 asserções), mas o audit detectou `PKSA-g499-cm4q-v35y` em `symfony/filesystem` 7.4.18. Correção restrita do lock para 7.4.23; `composer validate` e `composer audit --locked` locais passaram. Resultado integral da correção deve ser conferido na CI do commit correspondente.
 - [ ] Configurar checks obrigatórios antes de merge na branch principal.
 - [ ] Manter SonarQube opcional/futuro, sem torná-lo requisito do ambiente local.
 
@@ -366,7 +366,7 @@ O MVP não é mantido em documento separado. Este recorte define o mínimo neces
 
 O código contém componentes por módulo para Printing, Quota, IdentityAccess, Audit e Monitoring, com consultas SQL, DTOs e um esqueleto de reserva/solicitação de release. A migration `M260911210000ReleaseArchitectureSlice` está presente, além da migration inicial. Isso registra implementação parcial, não homologação.
 
-O login ainda é demonstrativo; o gateway configurado é `UnavailableHeldJobGateway`. Os dois smoke tests atuais não demonstram o fluxo novo. A consolidação documental e arquitetural não altera por si só o estado dos critérios de aceite.
+O login ainda é demonstrativo; o gateway configurado é `UnavailableHeldJobGateway`. Os testes atuais não demonstram o fluxo novo. A consolidação documental e arquitetural não altera por si só o estado dos critérios de aceite.
 
 Pendências de validação da fatia arquitetural, associadas às POCs 1, 3, 4 e 6:
 
