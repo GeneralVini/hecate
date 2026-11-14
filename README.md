@@ -19,7 +19,7 @@ Keycloak/Samba AD | SavaPage/CUPS | PostgreSQL/Podman
 
 ## Estado atual
 
-A branch `yii3` está em estágio de **POC**. Há base HTTP/DI, persistência PostgreSQL, cadastro e consultas iniciais de inventário, além de componentes preliminares para reserva e liberação.
+A `main` está em estágio de **POC**. Há base HTTP/DI, persistência PostgreSQL, cadastro e consultas iniciais de inventário, além de componentes preliminares para reserva e liberação.
 
 Ainda precisam ser demonstrados de ponta a ponta os fluxos de autenticação institucional, autorização, integração SavaPage, contabilização, concorrência e recuperação de falhas.
 
@@ -69,7 +69,7 @@ Responsabilidades principais:
 
 ## Plataforma web
 
-A branch `yii3` utiliza o template oficial **Yii3 Web Application** (`yiisoft/app`) como referência estrutural do backend, com HTTP PSR-7/PSR-17, middleware PSR-15, DI e roteamento explícito.
+A `main` utiliza o template oficial **Yii3 Web Application** (`yiisoft/app`) como referência estrutural do backend, com HTTP PSR-7/PSR-17, middleware PSR-15, DI e roteamento explícito.
 
 A tecnologia do frontend permanece uma decisão aberta. O HECATE pode usar views nativas do Yii3 onde forem suficientes ou evoluir para frontend separado consumindo APIs do backend. A arquitetura não deve acoplar regras de domínio à camada de apresentação.
 
@@ -94,7 +94,7 @@ Prepare PHP, Composer, PostgreSQL e Lefthook conforme [DESENVOLVIMENTO.md](docs/
 ```bash
 git clone https://github.com/GeneralVini/hecate.git
 cd hecate
-git switch yii3
+git switch main
 make setup
 ```
 
@@ -175,6 +175,5 @@ A documentação do projeto é deliberadamente enxuta. Não criar novo `.md` qua
 - [SEGURANCA.md](docs/SEGURANCA.md) — controles de segurança e auditoria;
 - [IMPLANTACAO.md](docs/IMPLANTACAO.md) — instalação, operação e replicação;
 - [IDENTIDADE-VISUAL.md](docs/IDENTIDADE-VISUAL.md) — identidade visual e UI institucional;
-- [AGENTS.md](AGENTS.md) — regras para agentes e alterações no repositório.
 
 O estado de implementação deve ser comprovado pela EAP e por evidências de teste; documentação arquitetural não substitui validação funcional.

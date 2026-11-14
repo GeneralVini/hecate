@@ -21,32 +21,36 @@ Um pacote somente deve ser marcado como concluído quando todos os itens aplicá
 
 ### 2.2. Quadro geral
 
-- [ ] **3.1.1** Arquitetura e decisões técnicas
-- [ ] **3.1.2** Identidade visual e experiência do usuário
-- [ ] **3.1.3** Base da aplicação web Yii3
-- [ ] **3.1.4** Qualidade, compliance e padrões de código
-- [ ] **3.1.5** Banco de dados HECATE
-- [ ] **3.1.6** Samba AD / LDAP
-- [ ] **3.1.7** Catálogo MB
-- [ ] **3.1.8** Keycloak e autenticação
-- [ ] **3.1.9** SavaPage
-- [ ] **3.1.10** CUPS
-- [ ] **3.1.11** HECATE Agent
-- [ ] **3.1.12** Cadastro, descoberta e telemetria de impressoras
-- [ ] **3.1.13** Organização e usuários
-- [ ] **3.1.14** Políticas de acesso a impressoras
-- [ ] **3.1.15** Cotas P&B e colorida
-- [ ] **3.1.16** Transferência de cotas
-- [ ] **3.1.17** Contratos
-- [ ] **3.1.18** Jobs e liberação segura
-- [ ] **3.1.19** Monitoramento, diagnóstico e suprimentos
-- [ ] **3.1.20** Segurança e auditoria
-- [ ] **3.1.21** Testes e homologação técnica
-- [ ] **3.1.22** Empacotamento e distribuição
-- [ ] **3.1.23** Implantação piloto
-- [ ] **3.1.24** Documentação operacional
-- [ ] **3.1.25** Replicação institucional
-- [ ] **3.1.26** Release 1.0
+Os IDs abaixo são os mesmos das seções existentes. Datas e commits de execução não estão registrados para os pacotes integrais; não foram inferidos de datas Git. Os checklists detalham implementação parcial, não substituem evidência de aceite. MVP, POCs e incremento da seção 5 são recortes desta EAP, sem renumeração ou controle concorrente.
+
+| ID | Início (America/Sao_Paulo) | Fim (America/Sao_Paulo) | Commit da entrega | Evidência / observação | Estado |
+| --- | --- | --- | --- | --- | --- |
+| 3.1.1 | não registrado | não registrado | não registrado | [Arquitetura e decisões técnicas](#311-arquitetura-e-decisões-técnicas) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.2 | não registrado | não registrado | não registrado | [Identidade visual e experiência do usuário](#312-identidade-visual-e-experiência-do-usuário) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.3 | não registrado | não registrado | não registrado | [Base da aplicação web Yii3](#313-base-da-aplicação-web-yii3) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.4 | não registrado | não registrado | não registrado | [Qualidade, compliance e padrões de código](#314-qualidade-compliance-e-padrões-de-código) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.5 | não registrado | não registrado | não registrado | [Banco de dados HECATE](#315-banco-de-dados-hecate) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.6 | não registrado | não registrado | não registrado | [Samba AD / LDAP](#316-samba-ad--ldap) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.7 | não registrado | não registrado | não registrado | [Catálogo MB](#317-catálogo-mb) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.8 | não registrado | não registrado | não registrado | [Keycloak e autenticação](#318-keycloak-e-autenticação) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.9 | não registrado | não registrado | não registrado | [SavaPage](#319-savapage) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.10 | não registrado | não registrado | não registrado | [CUPS](#3110-cups) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.11 | não registrado | não registrado | não registrado | [HECATE Agent](#3111-hecate-agent) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.12 | não registrado | não registrado | não registrado | [Cadastro, descoberta e telemetria de impressoras](#3112-cadastro-descoberta-e-telemetria-de-impressoras) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.13 | não registrado | não registrado | não registrado | [Organização e usuários](#3113-organização-e-usuários) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.14 | não registrado | não registrado | não registrado | [Políticas de acesso a impressoras](#3114-políticas-de-acesso-a-impressoras) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.15 | não registrado | não registrado | não registrado | [Cotas P&B e colorida](#3115-cotas-pb-e-colorida) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.16 | não registrado | não registrado | não registrado | [Transferência de cotas](#3116-transferência-de-cotas) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.17 | não registrado | não registrado | não registrado | [Contratos](#3117-contratos) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.18 | não registrado | não registrado | não registrado | [Jobs e liberação segura](#3118-jobs-e-liberação-segura) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.19 | não registrado | não registrado | não registrado | [Monitoramento, diagnóstico e suprimentos](#3119-monitoramento-diagnóstico-e-suprimentos) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.20 | não registrado | não registrado | não registrado | [Segurança e auditoria](#3120-segurança-e-auditoria) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.21 | não registrado | não registrado | não registrado | [Testes e homologação técnica](#3121-testes-e-homologação-técnica) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.22 | não registrado | não registrado | não registrado | [Empacotamento e distribuição](#3122-empacotamento-e-distribuição) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.23 | não registrado | não registrado | não registrado | [Implantação piloto](#3123-implantação-piloto) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.24 | não registrado | não registrado | não registrado | [Documentação operacional](#3124-documentação-operacional) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.25 | não registrado | não registrado | não registrado | [Replicação institucional](#3125-replicação-institucional) | Pendente de aceite integral; itens parciais no checklist |
+| 3.1.26 | não registrado | não registrado | não registrado | [Release 1.0](#3126-release-10) | Pendente de aceite integral; itens parciais no checklist |
 
 # 3. Estrutura Analítica do Produto
 
@@ -111,7 +115,7 @@ Um pacote somente deve ser marcado como concluído quando todos os itens aplicá
 - [x] Configurar `make setup`, `make hooks`, `make fix` e `make qa`.
 - [x] Configurar GitHub Actions para `composer install`, `composer validate` e `composer qa`.
 - [x] Sincronizar `composer.lock` com Rector, ECS e a versão de PHPStan requerida pelo novo baseline. Evidência da revisão de 2026-09-12: `composer validate --no-interaction --no-check-publish` aprovado; lock contém Rector 2.6.6, ECS 13.3.2 e PHPStan 2.2.13. Isso não comprova aprovação do QA/CI.
-- [ ] Obter pipeline integral de QA aprovado após a migração do baseline.
+- [x] Obter pipeline de QA aprovado para o código registrado. **Validação entregue:** [CI 38285236627](https://github.com/GeneralVini/hecate/actions/runs/38285236627), no commit `b6c8d84b9cabc235553be7faa8e0dea8d47c6aa2`, concluiu com sucesso. É evidência do pipeline daquele código, sem homologação de integrações ou piloto.
 - [ ] Configurar `composer audit` conforme política de vulnerabilidades.
 - [ ] Configurar checks obrigatórios antes de merge na branch principal.
 - [ ] Manter SonarQube opcional/futuro, sem torná-lo requisito do ambiente local.
@@ -280,7 +284,7 @@ Permanece aberta a representação de excedente em AVISAR_E_PERMITIR e EXIGIR_AP
 ### 3.1.21. Testes e homologação técnica
 
 - [x] Manter smoke test coerente com o autoload Yii3.
-- [x] Executar QA integral no CI.
+- [x] Configurar execução de QA integral no CI; não comprova pipeline aprovado após a migração do baseline (ver 3.1.4 e 4.1).
 - [ ] Expandir testes unitários além do smoke test.
 - [ ] Criar testes de integração de banco e serviços críticos.
 - [ ] Testar autorização, cotas, concorrência e release.
@@ -418,7 +422,7 @@ Em falha, cancelamento ou expiração confirmados sem consumo, a reserva deve se
 - [ ] Auditoria básica disponível.
 - [ ] Cadastro e descoberta de impressora demonstrados.
 - [ ] Monitoramento mínimo da stack disponível.
-- [ ] ECS, Rector, PHPStan, Psalm e PHPUnit aprovados no CI após a migração do baseline.
+- [x] Pipeline de QA aprovado no recorte do commit registrado em 3.1.4; não encerra os demais critérios do MVP.
 
 ## 4.5. Fora do MVP
 
