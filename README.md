@@ -1,5 +1,7 @@
 # HECATE
 
+> **Estado vigente — 14/11/2026: HÉCATE e TÊMIS em standby, por orientação expressa do responsável.** Ajustes autorizados nesta etapa limitam-se ao reconhecimento documental de [PEBA](https://github.com/GeneralVini/peba) e [OLIMPO](https://github.com/GeneralVini/olimpo). Os planos locais ficam suspensos; retomada exige orientação expressa. O vínculo não comprova integração implementada ou homologada.
+
 Plataforma Institucional de Governança e Controle de Impressão
 
 ![HECATE — Governança e Controle de Impressão](public/branding/hecate-hero.jpg)
